@@ -27576,6 +27576,10 @@ function startIntro(){
 			element: '#step5',
 			intro: "To add affected families outside EC click on this button. Then choose <b>[Form2 - (Outside EC Evacuations - F4)]</b>, then click on the button tagged as <b><span style='color: #006400'>[<span class='fa fa-plus-circle'></span> Add Affected Families Outside EC (Ctrl+Q)]</span></b>. After that, a popup window will appear, fill in the details to continue saving. <b>See image</b> <br/> <image style='width: 100%; height: 500px; margin-top: 15px' src='../assets/images/out.png'>",
 		},
+		{
+			element: '#step5',
+			intro: "To add sex disaggregated dataon evacuation centers, click on this button. Then choose <b>[Sex and Age Distribution Data Inside EC]</b>, after the double-click on the specific EC entry, a popup window will appear, fill in the details to continue saving. <b>See image</b> <br/> <image style='width: 100%; height: 500px; margin-top: 15px' src='../assets/images/sex.png'>",
+		},
 	  ]
 	});
 
