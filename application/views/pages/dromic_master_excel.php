@@ -1,9 +1,9 @@
 <div class="row" style="background-color: #fff">
 	<label id="pageid" style="display :none"><?= $_SESSION['regionid']."-".$_SESSION['username']?></label>
 	<label id="usernameid" style="display :none"><?= $_SESSION['regionid']?></label>
-	<ul class="nav nav-tabs" data-step="1" data-intro="This top level button navigates you to every report tabs, for example, clicking the Main Report will navigate you to main report summary. Clicking the Status of Damages and Assistance will navigate you to status of damages and assistance tab and so on.">
+	<ul class="nav nav-tabs" id='step1'>
 	  <li class="active"><a data-toggle="tab" class="btn btn-sm btn-danger tabpill" href="#home" style="border-radius:0px; border-radius: 5px 5px 0px 0px; padding: 5px; font-size: 15px" id="toexcel1">Form 1 (Main Report - F1)</a></li>
-	  <li class="dropdown" data-step="3" data-intro="To add LGU Cost of Assistance, click on this button. Then choose the <b>[Form 1.2 (Damage and Assistance per P/C/MLGU and NGOs  - F2)]</b> button. After that click on the button tagged as <b><span style ='color: #ea8825'> [<span class='fa fa-plus-circle'></span> Add Cost of Assistance (P/MLGU) - Ctrl+D]</span></b>. a popup window will appear, fill in the details to continue saving! <b>See image</b> <br/> <image style='width: 100%; height: 500px; margin-top: 15px' src='<?php echo base_url();?>assets/images/damage_assistance.png'>">
+	  <li class="dropdown" id="step4">
 	  		<a class="dropdown-toggle btn btn-sm btn-danger tabpill" data-toggle="dropdown" href="#" style="border-radius:0px; border-radius: 5px 5px 0px 0px; padding: 5px; font-size: 15px; background-color: #7AB900">  
 	  			Status of Damages and Assistance Provided <b class="caret"></b></a>
 	  		<ul class="dropdown-menu">
@@ -13,7 +13,7 @@
 	        </ul>
 	  </li>
 	  <li class="dropdown">
-	  		<a class="dropdown-toggle btn btn-sm btn-danger tabpill" data-toggle="dropdown" href="#" style="border-radius:0px; border-radius: 5px 5px 0px 0px; padding: 5px; font-size: 15px; background-color: #006400">  
+	  		<a class="dropdown-toggle btn btn-sm btn-danger tabpill" data-toggle="dropdown" href="#" style="border-radius:0px; border-radius: 5px 5px 0px 0px; padding: 5px; font-size: 15px; background-color: #006400" id="step5">  
 	  			Status of Displacement <b class="caret"></b></a>
 	  		<ul class="dropdown-menu">
 	            	 <li style="background-color: #006400"><a class="tabpill2" data-toggle="tab" href="#evacuation_stats" id="toexcel3" style="font-size: 15px; color: #fff">Form 2 - (EC Evacuations - F3)</a></li>
@@ -42,7 +42,7 @@
 				     <li><a id="addCommentsbtn" data-toggle="tab" style="font-size: 15px"> <i class="fa fa-sticky-note"></i> Discussions <span class="badge badge-primary" id="commentcounter"></span></a></li>
 	        </ul>
 	  </li>
-	  <li><a href="javascript:void(0);" onclick="javascript:introJs().start();" id="startButton" class="btn btn-sm btn-primary tabpill" style="border-radius:0px; border-radius: 5px 5px 0px 0px; padding: 5px; font-size: 15px">Launch Tutorial!</a></li>
+	  <li><a href="javascript:void(0);" onclick="javascript:startIntro()" id="startButton" class="btn btn-sm btn-primary tabpill" style="border-radius:0px; border-radius: 5px 5px 0px 0px; padding: 5px; font-size: 15px">Launch Tutorial!</a></li>
 	</ul>
 	<div style="left:50%; top:45%; position:fixed; z-index:99999; background-color:#304456; padding-top:20px; padding-bottom:20px; padding-left:50px; padding-right:45px; border-radius:5px; color:#fff" id="loader">
     <center><div class="loader"></div></center>
@@ -77,12 +77,12 @@
 	  	<iframe src="" style="width: 100%; height: 1500px; border: 0px; background-color: #F7F7F7; margin-top: 20px" id="frame_narrative_report"></iframe>
 	  </div>
 	  <div id="home" class="tab-pane fade in active">
-		  	<div class="form-group col-md-12" style="margin-left: -10px">
+		  	<div class="form-group col-md-12" id="step2" style="margin-left: -10px">
 				<div class="btn-group" style="border-radius: 5px">
 				  	<button style="border-radius: 5px; margin-right: 5px; font-size: 15px; border-radius: 5px" type="button" class="btn btn-success btn-sm" id="saveasnewrecord"><i class="fa fa-plus-circle"></i> 
 				  	Save as new Record and Update Data (Ctrl+S)</button>
 				</div>
-				<div class="btn-group" style="border-radius: 5px" data-step="2" data-intro="To add total affected families, click this button. After that a popup window will appear, kindly fill in the details in order for you continue saving.">
+				<div class="btn-group" style="border-radius: 5px" id="step3">
 				  	<button style="border-radius: 5px; margin-right: 5px; font-size: 15px; border-radius: 5px; background-color: #006400" type="button" class="btn btn-success btn-sm" id="addfamaffected"><i class="fa fa-users"></i> 
 				  	Add Total Affected Families and Persons</button>
 				</div>
