@@ -27541,6 +27541,26 @@ $(function() {
 
 function startIntro(){
 
+	var stepsix = $('#toexcel6');
+
+	var saveasnewrecord = $('#saveasnewrecord');
+
+	if(stepsix.length){
+
+		var step6 = {
+			element : '#toexcel6',
+			intro 	: "To add DSWD Assistance, click on this button, then fill the details to continue saving. <b> See image</b> <br/> <image style='width: 100%; height: 500px; margin-top: 15px' src='../assets/images/dswd.png'>"
+		}
+	}
+
+	if(saveasnewrecord.length){
+
+		var step7 = {
+			element : '#saveasnewrecord',
+			intro 	: "To save the report into new reporting period, click on this button, then fill the details to continue saving. <b> See image</b> <br/> <image style='width: 100%; height: 500px; margin-top: 15px' src='../assets/images/new.png'>"
+		}
+	}
+
 	var intro = introJs();
 
 	intro.setOptions({
@@ -27583,6 +27603,12 @@ function startIntro(){
 		{
 			element: '#step5',
 			intro: "To add evacuation center facilities, click on this button. Then choose <b>[Evacuation Center Facilities]</b>, after the double-click on the specific EC entry, a popup window will appear, fill in the details to continue saving. <b>See image</b> <br/> <image style='width: 100%; height: 500px; margin-top: 15px' src='../assets/images/faci.png'>",
+		},
+		step6,
+		step7,
+		{
+			element: '#exporttoexcel',
+			intro: "To export the report into Excel File, click on this button, and then click save. <b>See image</b> <br/> <image style='width: 100%; height: 500px; margin-top: 15px' src='../assets/images/export.png'>",
 		},
 	  ]
 	});
