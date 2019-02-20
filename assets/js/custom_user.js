@@ -27609,7 +27609,7 @@ function startIntro(){
 		{
 			element: '#exporttoexcel',
 			intro: "To export the report into Excel File, click on this button, and then click save. <b>See image</b> <br/> <image style='width: 100%; height: 500px; margin-top: 15px' src='../assets/images/export.png'>",
-		},
+		}
 	  ]
 	});
 
