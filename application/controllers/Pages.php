@@ -317,6 +317,20 @@
 			echo json_encode($data['result'][] = $this->disaster_model->getECDetailProfile($_GET['id']),JSON_NUMERIC_CHECK);
 		}
 
+		public function deletesexdata(){
+
+			$data = array(
+
+				'disaster_title_id' => $_GET['disaster_title_id'],
+				'dromic_id'  		=> $_GET['dromic_id'],
+				'evac_id' 			=> $_GET['evac_id'],
+				'municipality_id' 	=> $_GET['municipality_id']
+
+			);
+
+			echo json_encode($data['result'][] = $this->disaster_model->deletesexdata($data),JSON_NUMERIC_CHECK);
+		}
+
 		public function getECDetailFacility(){
 			echo json_encode($data['result'][] = $this->disaster_model->getECDetailFacility($_GET['id']),JSON_NUMERIC_CHECK);
 		}
@@ -1255,6 +1269,12 @@
 			  	$this->load->view('pages/check_session',$data);
 			  	sleep(1);
 			}
+
+		}
+
+		public function getsexdata(){
+
+			echo json_encode($data['result'][] = $this->disaster_model->getsexdata($_GET['id']));
 
 		}
 

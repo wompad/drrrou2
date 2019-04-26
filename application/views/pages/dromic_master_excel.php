@@ -36,6 +36,7 @@
 	  		<a class="dropdown-toggle btn btn-sm btn-danger tabpill" data-toggle="dropdown" href="#" style="border-radius:0px; border-radius: 5px 5px 0px 0px; padding: 5px; font-size: 15px"> <span class="fa fa-wrench"></span> Chart and Tools <b class="caret"></b></a>
 	  		<ul class="dropdown-menu">
 	            <?php if($_SESSION['can_create_report'] == 't'){ ?> <li ><a id="addnarrativebtn" style="font-size: 15px"> <span class="fa fa-file-word-o"></span> Attach Narrative Report</a></li> <?php } ?>
+	            	 <li><a id="viewchartsexs" data-toggle="tab" href="#viewchartsex" style="font-size: 15px"> <span class="fa fa-bar-chart"></span> Chart of Sex Disaggregated Data </a></li>
 				     <li><a id="viewcharts" data-toggle="tab" href="#viewchart" style="font-size: 15px"> <span class="fa fa-bar-chart"></span> Chart of Affected LGUs </a></li>
 				     <li><a data-toggle="tab" href="#narrative" style="font-size: 15px"> <span class="fa fa-newspaper-o"></span> View Narrative Report </a></li>
 				     <li><a id="disaster_map" data-toggle="tab" href="#disastermap" style="font-size: 15px"> <span class="fa fa-map"></span> Disaster Map</a></li>
@@ -1051,13 +1052,23 @@
 	 </div>
 
 	 <div id="viewchart" class="tab-pane fade">
-	 		
  		<div class="col-md-12" style="margin-top:20px; width:100%;">
  			<div class="col-md-12 bg-white" id="dromic_chart" style="height: 600px">
 	 		</div>
  		</div>
  		<div class="col-md-12" style="margin-top:20px; width:100%;">
  			<div class="col-md-12 bg-white" id="dromic_chart_2" style="height: 600px">
+	 		</div>
+ 		</div>
+	 </div>
+
+	 <div id="viewchartsex" class="tab-pane fade">
+ 		<div class="col-md-12" style="margin-top:20px;">
+ 			<div class="col-md-12 bg-white" id="dromic_chartsex" style="height: 500px; border: 1px solid gray">
+	 		</div>
+ 		</div>
+ 		<div class="col-md-12" style="margin-top:20px;">
+ 			<div class="col-md-12 bg-white" id="dromic_chart_sex2" style="height: 500px">
 	 		</div>
  		</div>
 	 </div>
@@ -1964,6 +1975,7 @@
           </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-primary btn-sm" onclick="addFamIECProfile()"><i class="fa fa-plus-circle"></i> Save and Close</button>
+              <button type="button" class="btn btn-danger btn-sm" id="deleteECSexData"><i class="fa fa-trash"></i> Delete Sex Disaggregated Data</button>
             </div>
         </div>
     </div>

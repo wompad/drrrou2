@@ -47,7 +47,9 @@
 <script src="<?php echo base_url();?>assets/js/mask.js"></script>
 
 <script src="<?php echo base_url();?>assets/js/Highcharts/highcharts.js"></script>
+<!-- <script src="https://code.highcharts.com/modules/variable-pie.js"></script> -->
 <script src="<?php echo base_url();?>assets/js/Highcharts/highcharts-3d.js"></script>
+
 <script src="<?php echo base_url();?>assets/js/Highcharts/modules/data.js"></script>
 <script src="<?php echo base_url();?>assets/js/Highcharts/modules/drilldown.js"></script>
 <script src="<?php echo base_url();?>assets/js/Highcharts/exporting.js"></script>

@@ -1302,7 +1302,7 @@ class disaster_model extends CI_Model{
 
 				$aff_munis_all = array();
 
-				$aff_munis_drill = array();
+				$aff_munis_drill[] = array();
 
 				$query_title = $this->db->query("SELECT
 													t1.*,
@@ -2162,7 +2162,7 @@ class disaster_model extends CI_Model{
 
 					$aff_munis = array();
 
-					$aff_munis_drill = array();
+					$aff_munis_drill[] = array();
 
 					for ($iii=0; $iii < count($aff_munis_chart); $iii++) { 
 
@@ -2517,6 +2517,29 @@ class disaster_model extends CI_Model{
 			$data['ecprofile'] = $query1->result_array();
 
 			return $data;
+
+		}
+
+		public function deletesexdata($data){
+
+			$disaster_title_id  = $data['disaster_title_id'];
+			$dromic_id  		= $data['dromic_id'];
+			$evac_id 			= $data['evac_id'];
+			$municipality_id 	= $data['municipality_id'];
+
+			$this->db->where('disaster_title_id', $disaster_title_id);
+			$this->db->where('dromic_id', $dromic_id);
+			$this->db->where('evac_id', $evac_id);
+			$this->db->where('municipality_id', $municipality_id);
+			$this->db->delete('tbl_sex_gender_data');
+
+			if($this->db->trans_status() === FALSE){
+				 $this->db->trans_rollback();
+				 return 0;
+			}else{
+			    $this->db->trans_commit();
+			    return 1;
+			}
 
 		}
 
@@ -7143,6 +7166,399 @@ class disaster_model extends CI_Model{
 
 			return json_decode($str);
 			
+		}
+		
+		public function getsexdata($id){
+
+			session_start();
+
+			$user_level_access = $_SESSION['user_level_access'];
+
+			$query = $this->db->query("SELECT
+											* 
+										FROM
+											(
+											SELECT 
+												(SUM ( NULLIF ( infant_male_cum, '' ) :: INTEGER )) + (SUM ( NULLIF ( infant_female_cum, '' ) :: INTEGER )) infant,
+												(SUM ( NULLIF ( toddler_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( toddler_female_cum, '' ) :: INTEGER )) toddler,
+												(SUM ( NULLIF ( preschooler_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( preschooler_female_cum, '' ) :: INTEGER )) preschooler,
+												(SUM ( NULLIF ( schoolage_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( schoolage_female_cum, '' ) :: INTEGER )) schoolage,
+												(SUM ( NULLIF ( teenage_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( teenage_female_cum, '' ) :: INTEGER )) teenage,
+												(SUM ( NULLIF ( adult_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( adult_female_cum, '' ) :: INTEGER )) adult,
+												(SUM ( NULLIF ( senior_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( senior_female_cum, '' ) :: INTEGER )) senior,
+												SUM ( NULLIF ( pregnant_cum, '' ) :: INTEGER ) pregnant_cum,
+												SUM ( NULLIF ( lactating_cum, '' ) :: INTEGER ) lactating_cum,
+												(SUM ( NULLIF ( disable_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( disable_female_cum, '' ) :: INTEGER )) disabled,
+												SUM ( NULLIF ( solo_cum, '' ) :: INTEGER ) solo_cum,
+												SUM ( NULLIF ( ip_cum, '' ) :: INTEGER ) ip_cum 
+											FROM
+												tbl_sex_gender_data t1 
+											WHERE
+											dromic_id = '$id' 
+											) t1"
+			);
+
+			$arr = $query->result_array();
+
+			$infant 		= $arr[0]['infant'];
+			$toddler 		= $arr[0]['toddler'];
+			$preschooler 	= $arr[0]['preschooler'];
+			$schoolage 		= $arr[0]['schoolage'];
+			$teenage 		= $arr[0]['teenage'];
+			$adult 			= $arr[0]['adult'];
+			$senior 		= $arr[0]['senior'];
+			$pregnant_cum 	= $arr[0]['pregnant_cum'];
+			$lactating_cum 	= $arr[0]['lactating_cum'];
+			$disabled 		= $arr[0]['disabled'];
+			$solo_cum 		= $arr[0]['solo_cum'];
+			$ip_cum 		= $arr[0]['ip_cum'];
+
+			if(!is_null($infant)){
+
+				$data['all'][] = array(
+					'name' 			=> 'Infant',
+					'y' 			=> (int)$infant,
+				);
+
+			}
+
+			if(!is_null($toddler)){
+
+				$data['all'][] = array(
+					'name' 			=> 'Toddler',
+					'y' 			=> (int)$toddler,
+				);
+
+			}
+
+			if(!is_null($preschooler)){
+
+				$data['all'][] = array(
+					'name' 			=> 'Preschooler',
+					'y' 			=> (int)$preschooler,
+				);
+
+			}
+
+			if(!is_null($schoolage)){
+
+				$data['all'][] = array(
+					'name' 			=> 'Schoolage',
+					'y' 			=> (int)$schoolage,
+				);
+
+			}
+
+			if(!is_null($teenage)){
+
+				$data['all'][] = array(
+					'name' 			=> 'Teenage',
+					'y' 			=> (int)$teenage,
+				);
+
+			}
+
+			if(!is_null($adult)){
+
+				$data['all'][] = array(
+					'name' 			=> 'Adult',
+					'y' 			=> (int)$adult,
+				);
+
+			}
+
+			if(!is_null($senior)){
+
+				$data['all'][] = array(
+					'name' 			=> 'Senior Citizen',
+					'y' 			=> (int)$senior,
+				);
+
+			}
+
+			if(!is_null($pregnant_cum)){
+
+				$data['all'][] = array(
+					'name' 			=> 'Pregnant Women',
+					'y' 			=> (int)$pregnant_cum,
+				);
+
+			}
+
+			if(!is_null($lactating_cum)){
+
+				$data['all'][] = array(
+					'name' 			=> 'Lactating Women',
+					'y' 			=> (int)$lactating_cum,
+				);
+
+			}
+
+			if(!is_null($disabled)){
+
+				$data['all'][] = array(
+					'name' 			=> 'Disabled',
+					'y' 			=> (int)$disabled,
+				);
+
+			}
+
+			if(!is_null($solo_cum)){
+
+				$data['all'][] = array(
+					'name' 			=> 'Solo Parents',
+					'y' 			=> (int)$solo_cum,
+				);
+
+			}
+
+			if(!is_null($ip_cum)){
+
+				$data['all'][] = array(
+					'name' 			=> 'Indigenous Persons',
+					'y' 			=> (int)$ip_cum,
+				);
+
+			}
+
+			$query1 = $this->db->query("SELECT
+											* 
+										FROM
+											(
+											SELECT 
+												SUM ( NULLIF ( infant_male_cum, '' ) :: INTEGER ) infant_male_cum,
+												SUM ( NULLIF ( infant_female_cum, '' ) :: INTEGER ) infant_female_cum,
+												SUM ( NULLIF ( toddler_male_cum, '' ) :: INTEGER ) toddler_male_cum,
+												SUM ( NULLIF ( toddler_female_cum, '' ) :: INTEGER ) toddler_female_cum,
+												SUM ( NULLIF ( preschooler_male_cum, '' ) :: INTEGER ) preschooler_male_cum, 
+												SUM ( NULLIF ( preschooler_female_cum, '' ) :: INTEGER ) preschooler_female_cum,
+												SUM ( NULLIF ( schoolage_male_cum, '' ) :: INTEGER ) schoolage_male_cum, 
+												SUM ( NULLIF ( schoolage_female_cum, '' ) :: INTEGER ) schoolage_female_cum,
+												SUM ( NULLIF ( teenage_male_cum, '' ) :: INTEGER ) teenage_male_cum, 
+												SUM ( NULLIF ( teenage_female_cum, '' ) :: INTEGER ) teenage_female_cum,
+												SUM ( NULLIF ( adult_male_cum, '' ) :: INTEGER ) adult_male_cum, 
+												SUM ( NULLIF ( adult_female_cum, '' ) :: INTEGER ) adult_female_cum,
+												SUM ( NULLIF ( senior_male_cum, '' ) :: INTEGER ) senior_male_cum, 
+												SUM ( NULLIF ( senior_female_cum, '' ) :: INTEGER ) senior_female_cum,
+												SUM ( NULLIF ( pregnant_cum, '' ) :: INTEGER ) pregnant_cum,
+												SUM ( NULLIF ( lactating_cum, '' ) :: INTEGER ) lactating_cum,
+												SUM ( NULLIF ( disable_male_cum, '' ) :: INTEGER ) disable_male_cum, 
+												SUM ( NULLIF ( disable_female_cum, '' ) :: INTEGER ) disable_female_cum,
+												SUM ( NULLIF ( solo_cum, '' ) :: INTEGER ) solo_cum,
+												SUM ( NULLIF ( ip_cum, '' ) :: INTEGER ) ip_cum 
+											FROM
+												tbl_sex_gender_data t1 
+											WHERE
+											dromic_id = '1' 
+											) t1"
+			);
+
+			$arr1 = $query1->result_array();
+
+			$data['categories'] = array();
+			$data['male'] = array();
+			$data['female'] = array();
+			$data['solo'] = array();
+			$data['ip'] = array();
+			
+			$infant_male_cum 			= $arr1[0]['infant_male_cum'];
+			$infant_female_cum 			= $arr1[0]['infant_female_cum'];
+			$toddler_male_cum 			= $arr1[0]['toddler_male_cum'];
+			$toddler_female_cum 		= $arr1[0]['toddler_female_cum'];
+			$preschooler_male_cum 		= $arr1[0]['preschooler_male_cum'];
+			$preschooler_female_cum 	= $arr1[0]['preschooler_female_cum'];
+			$schoolage_male_cum 		= $arr1[0]['schoolage_male_cum'];
+			$schoolage_female_cum 		= $arr1[0]['schoolage_female_cum'];
+			$teenage_male_cum 			= $arr1[0]['teenage_male_cum'];
+			$teenage_female_cum 		= $arr1[0]['teenage_female_cum'];
+			$adult_male_cum 			= $arr1[0]['adult_male_cum'];
+			$adult_female_cum 			= $arr1[0]['adult_female_cum'];
+			$senior_male_cum 			= $arr1[0]['senior_male_cum'];
+			$senior_female_cum 			= $arr1[0]['senior_female_cum'];
+			$pregnant_cum 				= $arr1[0]['pregnant_cum'];
+			$lactating_cum 				= $arr1[0]['lactating_cum'];
+			$disable_male_cum 			= $arr1[0]['disable_male_cum'];
+			$disable_female_cum 		= $arr1[0]['disable_female_cum'];
+			$solo_cum 					= $arr1[0]['solo_cum'];
+			$ip_cum 					= $arr1[0]['ip_cum'];
+
+			if(!is_null($infant_male_cum) || !is_null($infant_female_cum)){
+				array_push($data['categories'],"Infant"); 
+
+				if(!is_null($infant_male_cum)){
+					array_push($data['male'],(int)$infant_male_cum); 
+				}else{
+					array_push($data['male'],0);
+				}
+				if(!is_null($infant_female_cum)){
+					array_push($data['female'],(int)$infant_female_cum); 
+				}else{
+					array_push($data['female'],0);
+				}
+
+				array_push($data['solo'],0);
+				array_push($data['ip'],0); 
+
+			}
+
+			if(!is_null($toddler_male_cum) || !is_null($toddler_female_cum)){
+				array_push($data['categories'],"Toddler"); 
+
+				if(!is_null($toddler_male_cum)){
+					array_push($data['male'],(int)$toddler_male_cum); 
+				}else{
+					array_push($data['male'],0); 
+				}
+				if(!is_null($toddler_female_cum)){
+					array_push($data['female'],(int)$toddler_female_cum); 
+				}else{
+					array_push($data['female'],0); 
+				}
+				array_push($data['solo'],0);
+				array_push($data['ip'],0); 
+			}
+
+			if(!is_null($preschooler_male_cum) || !is_null($preschooler_female_cum)){
+				array_push($data['categories'],"Preschooler"); 
+
+				if(!is_null($preschooler_male_cum)){
+					array_push($data['male'],(int)$preschooler_male_cum); 
+				}else{
+					array_push($data['male'],0);
+				}
+				if(!is_null($preschooler_female_cum)){
+					array_push($data['female'],(int)$preschooler_female_cum); 
+				}else{
+					array_push($data['female'],0); 
+				}
+				array_push($data['solo'],0);
+				array_push($data['ip'],0); 
+			}
+
+			if(!is_null($schoolage_male_cum) || !is_null($schoolage_female_cum)){
+				array_push($data['categories'],"Schoolage"); 
+
+				if(!is_null($schoolage_male_cum)){
+					array_push($data['male'],(int)$schoolage_male_cum); 
+				}else{
+					array_push($data['male'],0);
+				}
+				if(!is_null($schoolage_female_cum)){
+					array_push($data['female'],(int)$schoolage_female_cum); 
+				}else{
+					array_push($data['female'],0);
+				}
+				array_push($data['solo'],0);
+				array_push($data['ip'],0); 
+			}
+
+			if(!is_null($teenage_male_cum) || !is_null($teenage_female_cum)){
+				array_push($data['categories'],"Teenage"); 
+
+				if(!is_null($teenage_male_cum)){
+					array_push($data['male'],(int)$teenage_male_cum); 
+				}else{
+					array_push($data['male'],0); 
+				}
+				if(!is_null($teenage_female_cum)){
+					array_push($data['female'],(int)$teenage_female_cum); 
+				}else{
+					array_push($data['female'],0); 
+				}
+				array_push($data['solo'],0);
+				array_push($data['ip'],0); 
+			}
+
+			if(!is_null($adult_male_cum) || !is_null($adult_female_cum)){
+				array_push($data['categories'],"Adult");
+
+				if(!is_null($adult_male_cum)){
+					array_push($data['male'],(int)$adult_male_cum); 
+				}else{
+					array_push($data['male'],0); 
+				}
+				if(!is_null($adult_female_cum)){
+					array_push($data['female'],(int)$adult_female_cum); 
+				}else{
+					array_push($data['female'],0);
+				}
+				array_push($data['solo'],0); 
+				array_push($data['ip'],0); 
+			}
+
+			if(!is_null($senior_male_cum) || !is_null($senior_female_cum)){
+				array_push($data['categories'],"Senior Citizen"); 
+
+				if(!is_null($senior_male_cum)){
+					array_push($data['male'],(int)$senior_male_cum); 
+				}else{
+					array_push($data['male'],0);
+				}
+				if(!is_null($senior_female_cum)){
+					array_push($data['female'],(int)$senior_female_cum); 
+				}else{
+					array_push($data['female'],0); 
+				}
+				array_push($data['solo'],0);
+				array_push($data['ip'],0); 
+			}
+
+			if(!is_null($pregnant_cum)){
+				array_push($data['categories'],"Pregnant Women"); 
+
+				array_push($data['male'],0);
+
+				if(!is_null($pregnant_cum)){
+					array_push($data['female'],(int)$pregnant_cum); 
+				}
+				array_push($data['solo'],0);
+				array_push($data['ip'],0); 
+			}
+
+			if(!is_null($lactating_cum)){
+				array_push($data['categories'],"Lactating Women"); 
+
+				array_push($data['male'],0);
+
+				if(!is_null($lactating_cum)){
+					array_push($data['female'],(int)$lactating_cum); 
+				}
+				array_push($data['solo'],0);
+				array_push($data['ip'],0); 
+			}
+
+			if(!is_null($disable_male_cum) || !is_null($disable_female_cum)){
+				array_push($data['categories'],"Disabled"); 
+
+				if(!is_null($disable_male_cum)){
+					array_push($data['male'],(int)$disable_male_cum); 
+				}else{
+					array_push($data['male'],0);
+				}
+				if(!is_null($disable_female_cum)){
+					array_push($data['female'],(int)$disable_female_cum); 
+				}else{
+					array_push($data['female'],0); 
+				}
+				array_push($data['solo'],0);
+				array_push($data['ip'],0); 
+			}
+
+			if(!is_null($solo_cum)){
+				array_push($data['categories'],"Solo Parent"); 
+
+				array_push($data['solo'],(int)$solo_cum); 
+			}
+
+			if(!is_null($ip_cum)){
+				array_push($data['categories'],"Indigenous Persons"); 
+
+					array_push($data['ip'],(int)$ip_cum); 
+			}
+
+			return $data;
+
+
 		}
 
 

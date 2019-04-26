@@ -3651,14 +3651,14 @@ function get_dromic(n){
 							gt_t_cum 			+= Number(rs.sex[uu_1].infant_male_cum) + Number(rs.sex[uu_1].infant_female_cum) + Number(rs.sex[uu_1].toddler_male_cum) + Number(rs.sex[uu_1].toddler_female_cum) + 
 							Number(rs.sex[uu_1].preschooler_male_cum) + Number(rs.sex[uu_1].preschooler_female_cum) + Number(rs.sex[uu_1].schoolage_male_cum) + Number(rs.sex[uu_1].schoolage_female_cum) + 
 							Number(rs.sex[uu_1].teenage_male_cum) + Number(rs.sex[uu_1].teenage_female_cum) + Number(rs.sex[uu_1].adult_male_cum) + Number(rs.sex[uu_1].adult_female_cum) +
-							Number(rs.sex[uu_1].senior_male_cum) + Number(rs.sex[uu_1].senior_female_cum) + Number(rs.sex[uu_1].pregnant_cum) + Number(rs.sex[uu_1].lactating_cum) + 
-							Number(rs.sex[uu_1].disable_male_cum) + Number(rs.sex[uu_1].disable_female_cum) + Number(rs.sex[uu_1].solo_cum) + Number(rs.sex[uu_1].ip_cum);
+							Number(rs.sex[uu_1].senior_male_cum) + Number(rs.sex[uu_1].senior_female_cum);// + Number(rs.sex[uu_1].pregnant_cum) + Number(rs.sex[uu_1].lactating_cum) + 
+							//Number(rs.sex[uu_1].disable_male_cum) + Number(rs.sex[uu_1].disable_female_cum) + Number(rs.sex[uu_1].solo_cum) + Number(rs.sex[uu_1].ip_cum);
 
 							gt_t_now 			+= Number(rs.sex[uu_1].infant_male_now) + Number(rs.sex[uu_1].infant_female_now) + Number(rs.sex[uu_1].toddler_male_now) + Number(rs.sex[uu_1].toddler_female_now) + 
 							Number(rs.sex[uu_1].preschooler_male_now) + Number(rs.sex[uu_1].preschooler_female_now) + Number(rs.sex[uu_1].schoolage_male_now) + Number(rs.sex[uu_1].schoolage_female_now) + 
 							Number(rs.sex[uu_1].teenage_male_now) + Number(rs.sex[uu_1].teenage_female_now) + Number(rs.sex[uu_1].adult_male_now) + Number(rs.sex[uu_1].adult_female_now) +
-							Number(rs.sex[uu_1].senior_male_now) + Number(rs.sex[uu_1].senior_female_now) + Number(rs.sex[uu_1].pregnant_now) + Number(rs.sex[uu_1].lactating_now) + 
-							Number(rs.sex[uu_1].disable_male_now) + Number(rs.sex[uu_1].disable_female_now) + Number(rs.sex[uu_1].solo_now) + Number(rs.sex[uu_1].ip_now);
+							Number(rs.sex[uu_1].senior_male_now) + Number(rs.sex[uu_1].senior_female_now);// + Number(rs.sex[uu_1].pregnant_now) + Number(rs.sex[uu_1].lactating_now) + 
+							//Number(rs.sex[uu_1].disable_male_now) + Number(rs.sex[uu_1].disable_female_now) + Number(rs.sex[uu_1].solo_now) + Number(rs.sex[uu_1].ip_now);
 
 					}
 
@@ -4336,14 +4336,14 @@ function get_dromic(n){
 								gt_t_cum 			+= Number(rs.sex[uu_1].infant_male_cum) + Number(rs.sex[uu_1].infant_female_cum) + Number(rs.sex[uu_1].toddler_male_cum) + Number(rs.sex[uu_1].toddler_female_cum) + 
 								Number(rs.sex[uu_1].preschooler_male_cum) + Number(rs.sex[uu_1].preschooler_female_cum) + Number(rs.sex[uu_1].schoolage_male_cum) + Number(rs.sex[uu_1].schoolage_female_cum) + 
 								Number(rs.sex[uu_1].teenage_male_cum) + Number(rs.sex[uu_1].teenage_female_cum) + Number(rs.sex[uu_1].adult_male_cum) + Number(rs.sex[uu_1].adult_female_cum) +
-								Number(rs.sex[uu_1].senior_male_cum) + Number(rs.sex[uu_1].senior_female_cum) + Number(rs.sex[uu_1].pregnant_cum) + Number(rs.sex[uu_1].lactating_cum) + 
-								Number(rs.sex[uu_1].disable_male_cum) + Number(rs.sex[uu_1].disable_female_cum) + Number(rs.sex[uu_1].solo_cum) + Number(rs.sex[uu_1].ip_cum);
+								Number(rs.sex[uu_1].senior_male_cum) + Number(rs.sex[uu_1].senior_female_cum);// + Number(rs.sex[uu_1].pregnant_cum) + Number(rs.sex[uu_1].lactating_cum) + 
+								//Number(rs.sex[uu_1].disable_male_cum) + Number(rs.sex[uu_1].disable_female_cum) + Number(rs.sex[uu_1].solo_cum) + Number(rs.sex[uu_1].ip_cum);
 
 								gt_t_now 			+= Number(rs.sex[uu_1].infant_male_now) + Number(rs.sex[uu_1].infant_female_now) + Number(rs.sex[uu_1].toddler_male_now) + Number(rs.sex[uu_1].toddler_female_now) + 
 								Number(rs.sex[uu_1].preschooler_male_now) + Number(rs.sex[uu_1].preschooler_female_now) + Number(rs.sex[uu_1].schoolage_male_now) + Number(rs.sex[uu_1].schoolage_female_now) + 
 								Number(rs.sex[uu_1].teenage_male_now) + Number(rs.sex[uu_1].teenage_female_now) + Number(rs.sex[uu_1].adult_male_now) + Number(rs.sex[uu_1].adult_female_now) +
-								Number(rs.sex[uu_1].senior_male_now) + Number(rs.sex[uu_1].senior_female_now) + Number(rs.sex[uu_1].pregnant_now) + Number(rs.sex[uu_1].lactating_now) + 
-								Number(rs.sex[uu_1].disable_male_now) + Number(rs.sex[uu_1].disable_female_now) + Number(rs.sex[uu_1].solo_now) + Number(rs.sex[uu_1].ip_now);
+								Number(rs.sex[uu_1].senior_male_now) + Number(rs.sex[uu_1].senior_female_now);// + Number(rs.sex[uu_1].pregnant_now) + Number(rs.sex[uu_1].lactating_now) + 
+								//Number(rs.sex[uu_1].disable_male_now) + Number(rs.sex[uu_1].disable_female_now) + Number(rs.sex[uu_1].solo_now) + Number(rs.sex[uu_1].ip_now);
 							}
 
 						}
@@ -5030,14 +5030,14 @@ function get_dromic(n){
 										p_t_cum 			+= Number(rs.sex[uu_1].infant_male_cum) + Number(rs.sex[uu_1].infant_female_cum) + Number(rs.sex[uu_1].toddler_male_cum) + Number(rs.sex[uu_1].toddler_female_cum) + 
 										Number(rs.sex[uu_1].preschooler_male_cum) + Number(rs.sex[uu_1].preschooler_female_cum) + Number(rs.sex[uu_1].schoolage_male_cum) + Number(rs.sex[uu_1].schoolage_female_cum) + 
 										Number(rs.sex[uu_1].teenage_male_cum) + Number(rs.sex[uu_1].teenage_female_cum) + Number(rs.sex[uu_1].adult_male_cum) + Number(rs.sex[uu_1].adult_female_cum) +
-										Number(rs.sex[uu_1].senior_male_cum) + Number(rs.sex[uu_1].senior_female_cum) + Number(rs.sex[uu_1].pregnant_cum) + Number(rs.sex[uu_1].lactating_cum) + 
-										Number(rs.sex[uu_1].disable_male_cum) + Number(rs.sex[uu_1].disable_female_cum) + Number(rs.sex[uu_1].solo_cum) + Number(rs.sex[uu_1].ip_cum);
+										Number(rs.sex[uu_1].senior_male_cum) + Number(rs.sex[uu_1].senior_female_cum);// + Number(rs.sex[uu_1].pregnant_cum) + Number(rs.sex[uu_1].lactating_cum) + 
+										//Number(rs.sex[uu_1].disable_male_cum) + Number(rs.sex[uu_1].disable_female_cum) + Number(rs.sex[uu_1].solo_cum) + Number(rs.sex[uu_1].ip_cum);
 
 										p_t_now 			+= Number(rs.sex[uu_1].infant_male_now) + Number(rs.sex[uu_1].infant_female_now) + Number(rs.sex[uu_1].toddler_male_now) + Number(rs.sex[uu_1].toddler_female_now) + 
 										Number(rs.sex[uu_1].preschooler_male_now) + Number(rs.sex[uu_1].preschooler_female_now) + Number(rs.sex[uu_1].schoolage_male_now) + Number(rs.sex[uu_1].schoolage_female_now) + 
 										Number(rs.sex[uu_1].teenage_male_now) + Number(rs.sex[uu_1].teenage_female_now) + Number(rs.sex[uu_1].adult_male_now) + Number(rs.sex[uu_1].adult_female_now) +
-										Number(rs.sex[uu_1].senior_male_now) + Number(rs.sex[uu_1].senior_female_now) + Number(rs.sex[uu_1].pregnant_now) + Number(rs.sex[uu_1].lactating_now) + 
-										Number(rs.sex[uu_1].disable_male_now) + Number(rs.sex[uu_1].disable_female_now) + Number(rs.sex[uu_1].solo_now) + Number(rs.sex[uu_1].ip_now);
+										Number(rs.sex[uu_1].senior_male_now) + Number(rs.sex[uu_1].senior_female_now);// + Number(rs.sex[uu_1].pregnant_now) + Number(rs.sex[uu_1].lactating_now) + 
+										//Number(rs.sex[uu_1].disable_male_now) + Number(rs.sex[uu_1].disable_female_now) + Number(rs.sex[uu_1].solo_now) + Number(rs.sex[uu_1].ip_now);
 
 									}
 
@@ -5758,14 +5758,14 @@ function get_dromic(n){
 											m_t_cum 			+= Number(rs.sex[uuuu].infant_male_cum) + Number(rs.sex[uuuu].infant_female_cum) + Number(rs.sex[uuuu].toddler_male_cum) + Number(rs.sex[uuuu].toddler_female_cum) + 
 											Number(rs.sex[uuuu].preschooler_male_cum) + Number(rs.sex[uuuu].preschooler_female_cum) + Number(rs.sex[uuuu].schoolage_male_cum) + Number(rs.sex[uuuu].schoolage_female_cum) + 
 											Number(rs.sex[uuuu].teenage_male_cum) + Number(rs.sex[uuuu].teenage_female_cum) + Number(rs.sex[uuuu].adult_male_cum) + Number(rs.sex[uuuu].adult_female_cum) +
-											Number(rs.sex[uuuu].senior_male_cum) + Number(rs.sex[uuuu].senior_female_cum) + Number(rs.sex[uuuu].pregnant_cum) + Number(rs.sex[uuuu].lactating_cum) + 
-											Number(rs.sex[uuuu].disable_male_cum) + Number(rs.sex[uuuu].disable_female_cum) + Number(rs.sex[uuuu].solo_cum) + Number(rs.sex[uuuu].ip_cum);
+											Number(rs.sex[uuuu].senior_male_cum) + Number(rs.sex[uuuu].senior_female_cum);// + Number(rs.sex[uuuu].pregnant_cum) + Number(rs.sex[uuuu].lactating_cum) + 
+											//Number(rs.sex[uuuu].disable_male_cum) + Number(rs.sex[uuuu].disable_female_cum) + Number(rs.sex[uuuu].solo_cum) + Number(rs.sex[uuuu].ip_cum);
 
 											m_t_now 			+= Number(rs.sex[uuuu].infant_male_now) + Number(rs.sex[uuuu].infant_female_now) + Number(rs.sex[uuuu].toddler_male_now) + Number(rs.sex[uuuu].toddler_female_now) + 
 											Number(rs.sex[uuuu].preschooler_male_now) + Number(rs.sex[uuuu].preschooler_female_now) + Number(rs.sex[uuuu].schoolage_male_now) + Number(rs.sex[uuuu].schoolage_female_now) + 
 											Number(rs.sex[uuuu].teenage_male_now) + Number(rs.sex[uuuu].teenage_female_now) + Number(rs.sex[uuuu].adult_male_now) + Number(rs.sex[uuuu].adult_female_now) +
-											Number(rs.sex[uuuu].senior_male_now) + Number(rs.sex[uuuu].senior_female_now) + Number(rs.sex[uuuu].pregnant_now) + Number(rs.sex[uuuu].lactating_now) + 
-											Number(rs.sex[uuuu].disable_male_now) + Number(rs.sex[uuuu].disable_female_now) + Number(rs.sex[uuuu].solo_now) + Number(rs.sex[uuuu].ip_now);
+											Number(rs.sex[uuuu].senior_male_now) + Number(rs.sex[uuuu].senior_female_now);// + Number(rs.sex[uuuu].pregnant_now) + Number(rs.sex[uuuu].lactating_now) + 
+											//Number(rs.sex[uuuu].disable_male_now) + Number(rs.sex[uuuu].disable_female_now) + Number(rs.sex[uuuu].solo_now) + Number(rs.sex[uuuu].ip_now);
 
 										}
 
@@ -6261,14 +6261,14 @@ function get_dromic(n){
 													b_t_cum 			+= Number(rs.sex[uuu].infant_male_cum) + Number(rs.sex[uuu].infant_female_cum) + Number(rs.sex[uuu].toddler_male_cum) + Number(rs.sex[uuu].toddler_female_cum) + 
 													Number(rs.sex[uuu].preschooler_male_cum) + Number(rs.sex[uuu].preschooler_female_cum) + Number(rs.sex[uuu].schoolage_male_cum) + Number(rs.sex[uuu].schoolage_female_cum) + 
 													Number(rs.sex[uuu].teenage_male_cum) + Number(rs.sex[uuu].teenage_female_cum) + Number(rs.sex[uuu].adult_male_cum) + Number(rs.sex[uuu].adult_female_cum) +
-													Number(rs.sex[uuu].senior_male_cum) + Number(rs.sex[uuu].senior_female_cum) + Number(rs.sex[uuu].pregnant_cum) + Number(rs.sex[uuu].lactating_cum) + 
-													Number(rs.sex[uuu].disable_male_cum) + Number(rs.sex[uuu].disable_female_cum) + Number(rs.sex[uuu].solo_cum) + Number(rs.sex[uuu].ip_cum);
+													Number(rs.sex[uuu].senior_male_cum) + Number(rs.sex[uuu].senior_female_cum);// + Number(rs.sex[uuu].pregnant_cum) + Number(rs.sex[uuu].lactating_cum) + 
+													//Number(rs.sex[uuu].disable_male_cum) + Number(rs.sex[uuu].disable_female_cum) + Number(rs.sex[uuu].solo_cum) + Number(rs.sex[uuu].ip_cum);
 
 													b_t_now 			+= Number(rs.sex[uuu].infant_male_now) + Number(rs.sex[uuu].infant_female_now) + Number(rs.sex[uuu].toddler_male_now) + Number(rs.sex[uuu].toddler_female_now) + 
 													Number(rs.sex[uuu].preschooler_male_now) + Number(rs.sex[uuu].preschooler_female_now) + Number(rs.sex[uuu].schoolage_male_now) + Number(rs.sex[uuu].schoolage_female_now) + 
 													Number(rs.sex[uuu].teenage_male_now) + Number(rs.sex[uuu].teenage_female_now) + Number(rs.sex[uuu].adult_male_now) + Number(rs.sex[uuu].adult_female_now) +
-													Number(rs.sex[uuu].senior_male_now) + Number(rs.sex[uuu].senior_female_now) + Number(rs.sex[uuu].pregnant_now) + Number(rs.sex[uuu].lactating_now) + 
-													Number(rs.sex[uuu].disable_male_now) + Number(rs.sex[uuu].disable_female_now) + Number(rs.sex[uuu].solo_now) + Number(rs.sex[uuu].ip_now);
+													Number(rs.sex[uuu].senior_male_now) + Number(rs.sex[uuu].senior_female_now);// + Number(rs.sex[uuu].pregnant_now) + Number(rs.sex[uuu].lactating_now) + 
+													//Number(rs.sex[uuu].disable_male_now) + Number(rs.sex[uuu].disable_female_now) + Number(rs.sex[uuu].solo_now) + Number(rs.sex[uuu].ip_now);
 
 												}
 
@@ -6762,8 +6762,8 @@ function get_dromic(n){
 																e_ip_cum 			= Number(rs.sex[uuu].ip_cum);
 																e_ip_now 			= Number(rs.sex[uuu].ip_now);
 
-																e_t_cum 			= Number(e_male_cum) + Number(e_female_cum) + Number(e_pregnant_cum) + Number(e_lactating_cum) + Number(e_pwd_male_cum) + Number(e_pwd_female_cum) + Number(e_solo_cum) + Number(e_ip_cum);
-																e_t_now 			= Number(e_male_now) + Number(e_female_now) + Number(e_pregnant_now) + Number(e_lactating_now) + Number(e_pwd_male_now) + Number(e_pwd_female_now) + Number(e_solo_now) + Number(e_ip_now);
+																e_t_cum 			= Number(e_male_cum) + Number(e_female_cum);// + Number(e_pregnant_cum) + Number(e_lactating_cum) + Number(e_pwd_male_cum) + Number(e_pwd_female_cum) + Number(e_solo_cum) + Number(e_ip_cum);
+																e_t_now 			= Number(e_male_now) + Number(e_female_now);// + Number(e_pregnant_now) + Number(e_lactating_now) + Number(e_pwd_male_now) + Number(e_pwd_female_now) + Number(e_solo_now) + Number(e_ip_now);
 
 															}
 
@@ -7302,8 +7302,8 @@ function get_dromic(n){
 																	e_ip_cum 			= Number(rs.sex[uuu].ip_cum);
 																	e_ip_now 			= Number(rs.sex[uuu].ip_now);
 
-																	e_t_cum 			= Number(e_male_cum) + Number(e_female_cum) + Number(e_pregnant_cum) + Number(e_lactating_cum) + Number(e_pwd_male_cum) + Number(e_pwd_female_cum) + Number(e_solo_cum) + Number(e_ip_cum);
-																	e_t_now 			= Number(e_male_now) + Number(e_female_now) + Number(e_pregnant_now) + Number(e_lactating_now) + Number(e_pwd_male_now) + Number(e_pwd_female_now) + Number(e_solo_now) + Number(e_ip_now);
+																	e_t_cum 			= Number(e_male_cum) + Number(e_female_cum);// + Number(e_pregnant_cum) + Number(e_lactating_cum) + Number(e_pwd_male_cum) + Number(e_pwd_female_cum) + Number(e_solo_cum) + Number(e_ip_cum);
+																	e_t_now 			= Number(e_male_now) + Number(e_female_now);// + Number(e_pregnant_now) + Number(e_lactating_now) + Number(e_pwd_male_now) + Number(e_pwd_female_now) + Number(e_solo_now) + Number(e_ip_now);
 
 																}
 
@@ -10003,14 +10003,14 @@ function get_dromic(n){
 							gt_t_cum 			+= Number(rs.sex[uu_1].infant_male_cum) + Number(rs.sex[uu_1].infant_female_cum) + Number(rs.sex[uu_1].toddler_male_cum) + Number(rs.sex[uu_1].toddler_female_cum) + 
 							Number(rs.sex[uu_1].preschooler_male_cum) + Number(rs.sex[uu_1].preschooler_female_cum) + Number(rs.sex[uu_1].schoolage_male_cum) + Number(rs.sex[uu_1].schoolage_female_cum) + 
 							Number(rs.sex[uu_1].teenage_male_cum) + Number(rs.sex[uu_1].teenage_female_cum) + Number(rs.sex[uu_1].adult_male_cum) + Number(rs.sex[uu_1].adult_female_cum) +
-							Number(rs.sex[uu_1].senior_male_cum) + Number(rs.sex[uu_1].senior_female_cum) + Number(rs.sex[uu_1].pregnant_cum) + Number(rs.sex[uu_1].lactating_cum) + 
-							Number(rs.sex[uu_1].disable_male_cum) + Number(rs.sex[uu_1].disable_female_cum) + Number(rs.sex[uu_1].solo_cum) + Number(rs.sex[uu_1].ip_cum);
+							Number(rs.sex[uu_1].senior_male_cum) + Number(rs.sex[uu_1].senior_female_cum);// + Number(rs.sex[uu_1].pregnant_cum) + Number(rs.sex[uu_1].lactating_cum) + //
+							//Number(rs.sex[uu_1].disable_male_cum) + Number(rs.sex[uu_1].disable_female_cum) + Number(rs.sex[uu_1].solo_cum) + Number(rs.sex[uu_1].ip_cum);//
 
 							gt_t_now 			+= Number(rs.sex[uu_1].infant_male_now) + Number(rs.sex[uu_1].infant_female_now) + Number(rs.sex[uu_1].toddler_male_now) + Number(rs.sex[uu_1].toddler_female_now) + 
 							Number(rs.sex[uu_1].preschooler_male_now) + Number(rs.sex[uu_1].preschooler_female_now) + Number(rs.sex[uu_1].schoolage_male_now) + Number(rs.sex[uu_1].schoolage_female_now) + 
 							Number(rs.sex[uu_1].teenage_male_now) + Number(rs.sex[uu_1].teenage_female_now) + Number(rs.sex[uu_1].adult_male_now) + Number(rs.sex[uu_1].adult_female_now) +
-							Number(rs.sex[uu_1].senior_male_now) + Number(rs.sex[uu_1].senior_female_now) + Number(rs.sex[uu_1].pregnant_now) + Number(rs.sex[uu_1].lactating_now) + 
-							Number(rs.sex[uu_1].disable_male_now) + Number(rs.sex[uu_1].disable_female_now) + Number(rs.sex[uu_1].solo_now) + Number(rs.sex[uu_1].ip_now);
+							Number(rs.sex[uu_1].senior_male_now) + Number(rs.sex[uu_1].senior_female_now); //+ Number(rs.sex[uu_1].pregnant_now) + Number(rs.sex[uu_1].lactating_now) +// 
+							//Number(rs.sex[uu_1].disable_male_now) + Number(rs.sex[uu_1].disable_female_now) + Number(rs.sex[uu_1].solo_now) + Number(rs.sex[uu_1].ip_now);//
 
 					}
 
@@ -10694,14 +10694,14 @@ function get_dromic(n){
 								p_t_cum 			+= Number(rs.sex[uu_1].infant_male_cum) + Number(rs.sex[uu_1].infant_female_cum) + Number(rs.sex[uu_1].toddler_male_cum) + Number(rs.sex[uu_1].toddler_female_cum) + 
 								Number(rs.sex[uu_1].preschooler_male_cum) + Number(rs.sex[uu_1].preschooler_female_cum) + Number(rs.sex[uu_1].schoolage_male_cum) + Number(rs.sex[uu_1].schoolage_female_cum) + 
 								Number(rs.sex[uu_1].teenage_male_cum) + Number(rs.sex[uu_1].teenage_female_cum) + Number(rs.sex[uu_1].adult_male_cum) + Number(rs.sex[uu_1].adult_female_cum) +
-								Number(rs.sex[uu_1].senior_male_cum) + Number(rs.sex[uu_1].senior_female_cum) + Number(rs.sex[uu_1].pregnant_cum) + Number(rs.sex[uu_1].lactating_cum) + 
-								Number(rs.sex[uu_1].disable_male_cum) + Number(rs.sex[uu_1].disable_female_cum) + Number(rs.sex[uu_1].solo_cum) + Number(rs.sex[uu_1].ip_cum);
+								Number(rs.sex[uu_1].senior_male_cum) + Number(rs.sex[uu_1].senior_female_cum);// + Number(rs.sex[uu_1].pregnant_cum) + Number(rs.sex[uu_1].lactating_cum) + //
+								//Number(rs.sex[uu_1].disable_male_cum) + Number(rs.sex[uu_1].disable_female_cum) + Number(rs.sex[uu_1].solo_cum) + Number(rs.sex[uu_1].ip_cum);//
 
 								p_t_now 			+= Number(rs.sex[uu_1].infant_male_now) + Number(rs.sex[uu_1].infant_female_now) + Number(rs.sex[uu_1].toddler_male_now) + Number(rs.sex[uu_1].toddler_female_now) + 
 								Number(rs.sex[uu_1].preschooler_male_now) + Number(rs.sex[uu_1].preschooler_female_now) + Number(rs.sex[uu_1].schoolage_male_now) + Number(rs.sex[uu_1].schoolage_female_now) + 
 								Number(rs.sex[uu_1].teenage_male_now) + Number(rs.sex[uu_1].teenage_female_now) + Number(rs.sex[uu_1].adult_male_now) + Number(rs.sex[uu_1].adult_female_now) +
-								Number(rs.sex[uu_1].senior_male_now) + Number(rs.sex[uu_1].senior_female_now) + Number(rs.sex[uu_1].pregnant_now) + Number(rs.sex[uu_1].lactating_now) + 
-								Number(rs.sex[uu_1].disable_male_now) + Number(rs.sex[uu_1].disable_female_now) + Number(rs.sex[uu_1].solo_now) + Number(rs.sex[uu_1].ip_now);
+								Number(rs.sex[uu_1].senior_male_now) + Number(rs.sex[uu_1].senior_female_now);// + Number(rs.sex[uu_1].pregnant_now) + Number(rs.sex[uu_1].lactating_now) + 
+								//Number(rs.sex[uu_1].disable_male_now) + Number(rs.sex[uu_1].disable_female_now) + Number(rs.sex[uu_1].solo_now) + Number(rs.sex[uu_1].ip_now);
 
 							}
 
@@ -11413,14 +11413,14 @@ function get_dromic(n){
 												m_t_cum 			+= Number(rs.sex[uuuu].infant_male_cum) + Number(rs.sex[uuuu].infant_female_cum) + Number(rs.sex[uuuu].toddler_male_cum) + Number(rs.sex[uuuu].toddler_female_cum) + 
 												Number(rs.sex[uuuu].preschooler_male_cum) + Number(rs.sex[uuuu].preschooler_female_cum) + Number(rs.sex[uuuu].schoolage_male_cum) + Number(rs.sex[uuuu].schoolage_female_cum) + 
 												Number(rs.sex[uuuu].teenage_male_cum) + Number(rs.sex[uuuu].teenage_female_cum) + Number(rs.sex[uuuu].adult_male_cum) + Number(rs.sex[uuuu].adult_female_cum) +
-												Number(rs.sex[uuuu].senior_male_cum) + Number(rs.sex[uuuu].senior_female_cum) + Number(rs.sex[uuuu].pregnant_cum) + Number(rs.sex[uuuu].lactating_cum) + 
-												Number(rs.sex[uuuu].disable_male_cum) + Number(rs.sex[uuuu].disable_female_cum) + Number(rs.sex[uuuu].solo_cum) + Number(rs.sex[uuuu].ip_cum);
+												Number(rs.sex[uuuu].senior_male_cum) + Number(rs.sex[uuuu].senior_female_cum);// + Number(rs.sex[uuuu].pregnant_cum) + Number(rs.sex[uuuu].lactating_cum) + 
+												//Number(rs.sex[uuuu].disable_male_cum) + Number(rs.sex[uuuu].disable_female_cum) + Number(rs.sex[uuuu].solo_cum) + Number(rs.sex[uuuu].ip_cum);
 
 												m_t_now 			+= Number(rs.sex[uuuu].infant_male_now) + Number(rs.sex[uuuu].infant_female_now) + Number(rs.sex[uuuu].toddler_male_now) + Number(rs.sex[uuuu].toddler_female_now) + 
 												Number(rs.sex[uuuu].preschooler_male_now) + Number(rs.sex[uuuu].preschooler_female_now) + Number(rs.sex[uuuu].schoolage_male_now) + Number(rs.sex[uuuu].schoolage_female_now) + 
 												Number(rs.sex[uuuu].teenage_male_now) + Number(rs.sex[uuuu].teenage_female_now) + Number(rs.sex[uuuu].adult_male_now) + Number(rs.sex[uuuu].adult_female_now) +
-												Number(rs.sex[uuuu].senior_male_now) + Number(rs.sex[uuuu].senior_female_now) + Number(rs.sex[uuuu].pregnant_now) + Number(rs.sex[uuuu].lactating_now) + 
-												Number(rs.sex[uuuu].disable_male_now) + Number(rs.sex[uuuu].disable_female_now) + Number(rs.sex[uuuu].solo_now) + Number(rs.sex[uuuu].ip_now);
+												Number(rs.sex[uuuu].senior_male_now) + Number(rs.sex[uuuu].senior_female_now);// + Number(rs.sex[uuuu].pregnant_now) + Number(rs.sex[uuuu].lactating_now) + 
+												//Number(rs.sex[uuuu].disable_male_now) + Number(rs.sex[uuuu].disable_female_now) + Number(rs.sex[uuuu].solo_now) + Number(rs.sex[uuuu].ip_now);
 
 											}
 
@@ -11916,14 +11916,14 @@ function get_dromic(n){
 														b_t_cum 			+= Number(rs.sex[uuu].infant_male_cum) + Number(rs.sex[uuu].infant_female_cum) + Number(rs.sex[uuu].toddler_male_cum) + Number(rs.sex[uuu].toddler_female_cum) + 
 														Number(rs.sex[uuu].preschooler_male_cum) + Number(rs.sex[uuu].preschooler_female_cum) + Number(rs.sex[uuu].schoolage_male_cum) + Number(rs.sex[uuu].schoolage_female_cum) + 
 														Number(rs.sex[uuu].teenage_male_cum) + Number(rs.sex[uuu].teenage_female_cum) + Number(rs.sex[uuu].adult_male_cum) + Number(rs.sex[uuu].adult_female_cum) +
-														Number(rs.sex[uuu].senior_male_cum) + Number(rs.sex[uuu].senior_female_cum) + Number(rs.sex[uuu].pregnant_cum) + Number(rs.sex[uuu].lactating_cum) + 
-														Number(rs.sex[uuu].disable_male_cum) + Number(rs.sex[uuu].disable_female_cum) + Number(rs.sex[uuu].solo_cum) + Number(rs.sex[uuu].ip_cum);
+														Number(rs.sex[uuu].senior_male_cum) + Number(rs.sex[uuu].senior_female_cum);// + Number(rs.sex[uuu].pregnant_cum) + Number(rs.sex[uuu].lactating_cum) + 
+														//Number(rs.sex[uuu].disable_male_cum) + Number(rs.sex[uuu].disable_female_cum) + Number(rs.sex[uuu].solo_cum) + Number(rs.sex[uuu].ip_cum);
 
 														b_t_now 			+= Number(rs.sex[uuu].infant_male_now) + Number(rs.sex[uuu].infant_female_now) + Number(rs.sex[uuu].toddler_male_now) + Number(rs.sex[uuu].toddler_female_now) + 
 														Number(rs.sex[uuu].preschooler_male_now) + Number(rs.sex[uuu].preschooler_female_now) + Number(rs.sex[uuu].schoolage_male_now) + Number(rs.sex[uuu].schoolage_female_now) + 
 														Number(rs.sex[uuu].teenage_male_now) + Number(rs.sex[uuu].teenage_female_now) + Number(rs.sex[uuu].adult_male_now) + Number(rs.sex[uuu].adult_female_now) +
-														Number(rs.sex[uuu].senior_male_now) + Number(rs.sex[uuu].senior_female_now) + Number(rs.sex[uuu].pregnant_now) + Number(rs.sex[uuu].lactating_now) + 
-														Number(rs.sex[uuu].disable_male_now) + Number(rs.sex[uuu].disable_female_now) + Number(rs.sex[uuu].solo_now) + Number(rs.sex[uuu].ip_now);
+														Number(rs.sex[uuu].senior_male_now) + Number(rs.sex[uuu].senior_female_now);// + Number(rs.sex[uuu].pregnant_now) + Number(rs.sex[uuu].lactating_now) + 
+														//Number(rs.sex[uuu].disable_male_now) + Number(rs.sex[uuu].disable_female_now) + Number(rs.sex[uuu].solo_now) + Number(rs.sex[uuu].ip_now);
 
 													}
 
@@ -12417,8 +12417,8 @@ function get_dromic(n){
 																	e_ip_cum 			= Number(rs.sex[uuu].ip_cum);
 																	e_ip_now 			= Number(rs.sex[uuu].ip_now);
 
-																	e_t_cum 			= Number(e_male_cum) + Number(e_female_cum) + Number(e_pregnant_cum) + Number(e_lactating_cum) + Number(e_pwd_male_cum) + Number(e_pwd_female_cum) + Number(e_solo_cum) + Number(e_ip_cum);
-																	e_t_now 			= Number(e_male_now) + Number(e_female_now) + Number(e_pregnant_now) + Number(e_lactating_now) + Number(e_pwd_male_now) + Number(e_pwd_female_now) + Number(e_solo_now) + Number(e_ip_now);
+																	e_t_cum 			= Number(e_male_cum) + Number(e_female_cum);// + Number(e_pregnant_cum) + Number(e_lactating_cum) + Number(e_pwd_male_cum) + Number(e_pwd_female_cum) + Number(e_solo_cum) + Number(e_ip_cum);
+																	e_t_now 			= Number(e_male_now) + Number(e_female_now);// + Number(e_pregnant_now) + Number(e_lactating_now) + Number(e_pwd_male_now) + Number(e_pwd_female_now) + Number(e_solo_now) + Number(e_ip_now);
 
 																}
 
@@ -12957,8 +12957,8 @@ function get_dromic(n){
 																		e_ip_cum 			= Number(rs.sex[uuu].ip_cum);
 																		e_ip_now 			= Number(rs.sex[uuu].ip_now);
 
-																		e_t_cum 			= Number(e_male_cum) + Number(e_female_cum) + Number(e_pregnant_cum) + Number(e_lactating_cum) + Number(e_pwd_male_cum) + Number(e_pwd_female_cum) + Number(e_solo_cum) + Number(e_ip_cum);
-																		e_t_now 			= Number(e_male_now) + Number(e_female_now) + Number(e_pregnant_now) + Number(e_lactating_now) + Number(e_pwd_male_now) + Number(e_pwd_female_now) + Number(e_solo_now) + Number(e_ip_now);
+																		e_t_cum 			= Number(e_male_cum) + Number(e_female_cum);// + Number(e_pregnant_cum) + Number(e_lactating_cum) + Number(e_pwd_male_cum) + Number(e_pwd_female_cum) + Number(e_solo_cum) + Number(e_ip_cum);
+																		e_t_now 			= Number(e_male_now) + Number(e_female_now);// + Number(e_pregnant_now) + Number(e_lactating_now) + Number(e_pwd_male_now) + Number(e_pwd_female_now) + Number(e_solo_now) + Number(e_ip_now);
 
 																	}
 
@@ -13673,14 +13673,14 @@ function get_dromic(n){
 												m_t_cum 			+= Number(rs.sex[uuuu].infant_male_cum) + Number(rs.sex[uuuu].infant_female_cum) + Number(rs.sex[uuuu].toddler_male_cum) + Number(rs.sex[uuuu].toddler_female_cum) + 
 												Number(rs.sex[uuuu].preschooler_male_cum) + Number(rs.sex[uuuu].preschooler_female_cum) + Number(rs.sex[uuuu].schoolage_male_cum) + Number(rs.sex[uuuu].schoolage_female_cum) + 
 												Number(rs.sex[uuuu].teenage_male_cum) + Number(rs.sex[uuuu].teenage_female_cum) + Number(rs.sex[uuuu].adult_male_cum) + Number(rs.sex[uuuu].adult_female_cum) +
-												Number(rs.sex[uuuu].senior_male_cum) + Number(rs.sex[uuuu].senior_female_cum) + Number(rs.sex[uuuu].pregnant_cum) + Number(rs.sex[uuuu].lactating_cum) + 
-												Number(rs.sex[uuuu].disable_male_cum) + Number(rs.sex[uuuu].disable_female_cum) + Number(rs.sex[uuuu].solo_cum) + Number(rs.sex[uuuu].ip_cum);
+												Number(rs.sex[uuuu].senior_male_cum) + Number(rs.sex[uuuu].senior_female_cum);// + Number(rs.sex[uuuu].pregnant_cum) + Number(rs.sex[uuuu].lactating_cum) + 
+												//Number(rs.sex[uuuu].disable_male_cum) + Number(rs.sex[uuuu].disable_female_cum) + Number(rs.sex[uuuu].solo_cum) + Number(rs.sex[uuuu].ip_cum);
 
 												m_t_now 			+= Number(rs.sex[uuuu].infant_male_now) + Number(rs.sex[uuuu].infant_female_now) + Number(rs.sex[uuuu].toddler_male_now) + Number(rs.sex[uuuu].toddler_female_now) + 
 												Number(rs.sex[uuuu].preschooler_male_now) + Number(rs.sex[uuuu].preschooler_female_now) + Number(rs.sex[uuuu].schoolage_male_now) + Number(rs.sex[uuuu].schoolage_female_now) + 
 												Number(rs.sex[uuuu].teenage_male_now) + Number(rs.sex[uuuu].teenage_female_now) + Number(rs.sex[uuuu].adult_male_now) + Number(rs.sex[uuuu].adult_female_now) +
-												Number(rs.sex[uuuu].senior_male_now) + Number(rs.sex[uuuu].senior_female_now) + Number(rs.sex[uuuu].pregnant_now) + Number(rs.sex[uuuu].lactating_now) + 
-												Number(rs.sex[uuuu].disable_male_now) + Number(rs.sex[uuuu].disable_female_now) + Number(rs.sex[uuuu].solo_now) + Number(rs.sex[uuuu].ip_now);
+												Number(rs.sex[uuuu].senior_male_now) + Number(rs.sex[uuuu].senior_female_now);// + Number(rs.sex[uuuu].pregnant_now) + Number(rs.sex[uuuu].lactating_now) + 
+												//Number(rs.sex[uuuu].disable_male_now) + Number(rs.sex[uuuu].disable_female_now) + Number(rs.sex[uuuu].solo_now) + Number(rs.sex[uuuu].ip_now);
 
 											}
 
@@ -14176,14 +14176,14 @@ function get_dromic(n){
 														b_t_cum 			+= Number(rs.sex[uuu].infant_male_cum) + Number(rs.sex[uuu].infant_female_cum) + Number(rs.sex[uuu].toddler_male_cum) + Number(rs.sex[uuu].toddler_female_cum) + 
 														Number(rs.sex[uuu].preschooler_male_cum) + Number(rs.sex[uuu].preschooler_female_cum) + Number(rs.sex[uuu].schoolage_male_cum) + Number(rs.sex[uuu].schoolage_female_cum) + 
 														Number(rs.sex[uuu].teenage_male_cum) + Number(rs.sex[uuu].teenage_female_cum) + Number(rs.sex[uuu].adult_male_cum) + Number(rs.sex[uuu].adult_female_cum) +
-														Number(rs.sex[uuu].senior_male_cum) + Number(rs.sex[uuu].senior_female_cum) + Number(rs.sex[uuu].pregnant_cum) + Number(rs.sex[uuu].lactating_cum) + 
-														Number(rs.sex[uuu].disable_male_cum) + Number(rs.sex[uuu].disable_female_cum) + Number(rs.sex[uuu].solo_cum) + Number(rs.sex[uuu].ip_cum);
+														Number(rs.sex[uuu].senior_male_cum) + Number(rs.sex[uuu].senior_female_cum);// + Number(rs.sex[uuu].pregnant_cum) + Number(rs.sex[uuu].lactating_cum) + 
+														//Number(rs.sex[uuu].disable_male_cum) + Number(rs.sex[uuu].disable_female_cum) + Number(rs.sex[uuu].solo_cum) + Number(rs.sex[uuu].ip_cum);
 
 														b_t_now 			+= Number(rs.sex[uuu].infant_male_now) + Number(rs.sex[uuu].infant_female_now) + Number(rs.sex[uuu].toddler_male_now) + Number(rs.sex[uuu].toddler_female_now) + 
 														Number(rs.sex[uuu].preschooler_male_now) + Number(rs.sex[uuu].preschooler_female_now) + Number(rs.sex[uuu].schoolage_male_now) + Number(rs.sex[uuu].schoolage_female_now) + 
 														Number(rs.sex[uuu].teenage_male_now) + Number(rs.sex[uuu].teenage_female_now) + Number(rs.sex[uuu].adult_male_now) + Number(rs.sex[uuu].adult_female_now) +
-														Number(rs.sex[uuu].senior_male_now) + Number(rs.sex[uuu].senior_female_now) + Number(rs.sex[uuu].pregnant_now) + Number(rs.sex[uuu].lactating_now) + 
-														Number(rs.sex[uuu].disable_male_now) + Number(rs.sex[uuu].disable_female_now) + Number(rs.sex[uuu].solo_now) + Number(rs.sex[uuu].ip_now);
+														Number(rs.sex[uuu].senior_male_now) + Number(rs.sex[uuu].senior_female_now);// + Number(rs.sex[uuu].pregnant_now) + Number(rs.sex[uuu].lactating_now) + 
+														//Number(rs.sex[uuu].disable_male_now) + Number(rs.sex[uuu].disable_female_now) + Number(rs.sex[uuu].solo_now) + Number(rs.sex[uuu].ip_now);
 
 													}
 
@@ -14677,8 +14677,8 @@ function get_dromic(n){
 																	e_ip_cum 			= Number(rs.sex[uuu].ip_cum);
 																	e_ip_now 			= Number(rs.sex[uuu].ip_now);
 
-																	e_t_cum 			= Number(e_male_cum) + Number(e_female_cum) + Number(e_pregnant_cum) + Number(e_lactating_cum) + Number(e_pwd_male_cum) + Number(e_pwd_female_cum) + Number(e_solo_cum) + Number(e_ip_cum);
-																	e_t_now 			= Number(e_male_now) + Number(e_female_now) + Number(e_pregnant_now) + Number(e_lactating_now) + Number(e_pwd_male_now) + Number(e_pwd_female_now) + Number(e_solo_now) + Number(e_ip_now);
+																	e_t_cum 			= Number(e_male_cum) + Number(e_female_cum);// + Number(e_pregnant_cum) + Number(e_lactating_cum) + Number(e_pwd_male_cum) + Number(e_pwd_female_cum) + Number(e_solo_cum) + Number(e_ip_cum);
+																	e_t_now 			= Number(e_male_now) + Number(e_female_now);// + Number(e_pregnant_now) + Number(e_lactating_now) + Number(e_pwd_male_now) + Number(e_pwd_female_now) + Number(e_solo_now) + Number(e_ip_now);
 
 																}
 
@@ -15217,8 +15217,8 @@ function get_dromic(n){
 																		e_ip_cum 			= Number(rs.sex[uuu].ip_cum);
 																		e_ip_now 			= Number(rs.sex[uuu].ip_now);
 
-																		e_t_cum 			= Number(e_male_cum) + Number(e_female_cum) + Number(e_pregnant_cum) + Number(e_lactating_cum) + Number(e_pwd_male_cum) + Number(e_pwd_female_cum) + Number(e_solo_cum) + Number(e_ip_cum);
-																		e_t_now 			= Number(e_male_now) + Number(e_female_now) + Number(e_pregnant_now) + Number(e_lactating_now) + Number(e_pwd_male_now) + Number(e_pwd_female_now) + Number(e_solo_now) + Number(e_ip_now);
+																		e_t_cum 			= Number(e_male_cum) + Number(e_female_cum);// + Number(e_pregnant_cum) + Number(e_lactating_cum) + Number(e_pwd_male_cum) + Number(e_pwd_female_cum) + Number(e_solo_cum) + Number(e_ip_cum);
+																		e_t_now 			= Number(e_male_now) + Number(e_female_now);// + Number(e_pregnant_now) + Number(e_lactating_now) + Number(e_pwd_male_now) + Number(e_pwd_female_now) + Number(e_solo_now) + Number(e_ip_now);
 
 																	}
 
@@ -26143,8 +26143,12 @@ function updateECSexProfile(i){
 
 	console.log(i);
 
+	$('#deleteECSexData').hide();
+
 	if($('#can_edit').text() == 'f'){
+
 		msgbox("You're not allowed to edit this entry. Kindly contact the administrator");
+
 	}else{
 
 		$('#loader').show();
@@ -26265,6 +26269,66 @@ function updateECSexProfile(i){
 				$('#disable_female_cum').val(a.ecprofile[0].disable_female_cum);
 				$('#disable_female_now').val(a.ecprofile[0].disable_female_now);
 
+				$('#deleteECSexData').show();
+
+
+				$('#deleteECSexData').click(function(){
+
+				$.confirm({
+				    title: '<span class="red">Warning</span>',
+				    content: 'Are you sure you want to delete this data?',
+				    buttons: {
+				    	confirmAction: {
+				    		text: '<i class="fa fa-check"></i> Yes',
+				    		btnClass: 'btn-danger',
+				    		keys: ['enter'],
+				    		action: function(){
+
+				    			console.log(a.ecprofile);
+
+				    			var datas = {
+
+				    				disaster_title_id 	: a.ecprofile[0].disaster_title_id,
+				    				dromic_id  			: a.ecprofile[0].dromic_id,
+				    				evac_id 			: a.ecprofile[0].evac_id,
+				    				municipality_id 	: a.ecprofile[0].municipality_id
+
+				    			}
+
+				    			$.getJSON(serverip+"deletesexdata",datas,function(a){
+
+				    				console.log(a);
+
+				    				$.confirm({
+									    title: '<span class="green">Success</span>',
+									    content: 'Data sucessfully saved!',
+									    buttons: {
+									    	confirmAction: {
+									    		text: '<i class="fa fa-check"></i> Yes',
+									    		btnClass: 'btn-success',
+									    		keys: ['enter'],
+									    		action: function(){
+
+													get_dromic(URLID());
+													$('#addfaminsideECProfile').dialog("close");
+
+									            }
+									    	}
+									    }
+									});
+
+				    			});
+				            }
+				    	},cancelAction: {
+				    		text: '<i class="fa fa-times-circle"></i> Cancel',
+				    		btnClass: 'btn-blue'
+				    	}
+				    }
+				});
+
+			})
+
+
 			}else{
 
 				console.log(0);
@@ -26274,7 +26338,7 @@ function updateECSexProfile(i){
 		});
 
 		setTimeout(function(){
-			$('#addfaminsideECProfile').dialog("open")
+			$('#addfaminsideECProfile').dialog("open");
 			$('#loader').hide();
 		},500);
 	}
@@ -27617,6 +27681,384 @@ function startIntro(){
 
 //This page is a result of an autogenerated content made by running test.html with firefox.
 }
+
+$('#viewchartsexs').click(function(){
+
+	var datas = {
+
+		id : URLID()
+
+	}
+
+	$.getJSON(serverip+"getsexdata",datas,function(a){
+
+		console.log(a);
+
+		Highcharts.chart('dromic_chartsex', {
+		    chart: {
+		        type: 'pie',
+		        // options3d: {
+		        //     enabled: !1,
+		        //     alpha: 45,
+		        //     beta: 0
+		        // }
+		    },
+		    title: {
+		        text: 'Disaggregated Data of Individuals Inside Evacuation Centers'
+		    },
+		    subtitle: {
+		    	text: null
+		    },
+		    tooltip: {
+		        pointFormat: '{series.name}: <b>{point.y}</b>'
+		    },
+		    plotOptions: {
+		        pie: {
+		            allowPointSelect: true,
+		            cursor: 'pointer',
+		            dataLabels: {
+		                enabled: false,
+		                format: '{point.name}'
+		            },
+		            innerSize: 0,
+		            depth: 30,
+		            showInLegend: true
+		        }
+		    },
+		    series: [{
+		        name: 'Disaggregated Data',
+		        colorByPoint: true,
+		        data: a.all
+		    }]
+		});
+
+
+		var cc = 0;
+		for(var uu = 0 ; uu < a.ip.length ; uu++){
+
+			if(a.ip[uu] > 0){
+				cc++;
+			}
+
+		}
+
+		if(a.ip.length > 0){
+
+			var ip = {
+				name 	: 'Indigenous Persons',
+				data 	: a.ip,
+				stack 	: 'sex'
+			}
+
+		}else{
+			var ip = null
+		}
+
+		var c = 0;
+		for(var u = 0 ; u < a.solo.length ; u++){
+
+			if(a.solo[u] > 0){
+				c++;
+			}
+
+		}
+
+		if(c > 0){
+
+			if(cc > 0){
+
+				var series = [{
+			        name: 'Male',
+			        data: a.male,
+			        stack: 'sex'
+			    }, {
+			        name: 'Female',
+			        data: a.female,
+			        stack: 'sex'
+			    }, {
+					name 	: 'Solo Parents',
+					data 	: a.solo,
+					stack 	: 'sex'
+				}, {
+					name 	: 'Indigenous Persons',
+					data 	: a.ip,
+					stack 	: 'sex'
+				}]
+
+			}else{
+				var series = [{
+			        name: 'Male',
+			        data: a.male,
+			        stack: 'sex'
+			    }, {
+			        name: 'Female',
+			        data: a.female,
+			        stack: 'sex'
+			    }, {
+					name 	: 'Solo Parents',
+					data 	: a.solo,
+					stack 	: 'sex'
+				}]
+			}
+
+		}else{
+
+			if(cc > 0){
+
+				var series = [{
+			        name: 'Male',
+			        data: a.male,
+			        stack: 'sex'
+			    }, {
+			        name: 'Female',
+			        data: a.female,
+			        stack: 'sex'
+			    }, {
+					name 	: 'Indigenous Persons',
+					data 	: a.ip,
+					stack 	: 'sex'
+				}]
+
+			}else{
+				var series = [{
+			        name: 'Male',
+			        data: a.male,
+			        stack: 'sex'
+			    }, {
+			        name: 'Female',
+			        data: a.female,
+			        stack: 'sex'
+			    }]
+			}
+
+		}
+
+		Highcharts.chart('dromic_chart_sex2', {
+
+		    chart: {
+		        type: 'column'
+		    },
+
+		    title: {
+		        text: 'Sex Disaggregated Data of Individuals Inside Evacuation Centers'
+		    },
+
+		    xAxis: {
+		        categories: a.categories
+		    },
+
+		    yAxis: {
+		        allowDecimals: false,
+		        min: 0,
+		        title: {
+		            text: 'Number of individuals'
+		        }
+		    },
+
+		    tooltip: {
+		        formatter: function () {
+		            return '<b>' + this.x + '</b><br/>' +
+		                this.series.name + ': ' + this.y + '<br/>' +
+		                'Total: ' + this.point.stackTotal;
+		        }
+		    },
+
+		    plotOptions: {
+		        column: {
+		            stacking: 'normal'
+		        }
+		    },
+
+		    series: series
+		});
+
+
+		setTimeout(function(){
+
+			Highcharts.chart('dromic_chartsex', {
+			    chart: {
+			        type: 'pie',
+			        // options3d: {
+			        //     enabled: !1,
+			        //     alpha: 45,
+			        //     beta: 0
+			        // }
+			    },
+			    title: {
+			        text: 'Disaggregated Data of Individuals Inside Evacuation Centers'
+			    },
+			    subtitle: {
+			    	text: null
+			    },
+			    tooltip: {
+			        pointFormat: '{series.name}: <b>{point.y}</b>'
+			    },
+			    plotOptions: {
+			        pie: {
+			            allowPointSelect: true,
+			            cursor: 'pointer',
+			            dataLabels: {
+			                enabled: false,
+			                format: '{point.name}'
+			            },
+			            innerSize: 0,
+			            depth: 30,
+			            showInLegend: true
+			        }
+			    },
+			    series: [{
+			        name: 'Disaggregated Data',
+			        colorByPoint: true,
+			        data: a.all
+			    }]
+			});
+
+
+			var cc = 0;
+			for(var uu = 0 ; uu < a.ip.length ; uu++){
+
+				if(a.ip[uu] > 0){
+					cc++;
+				}
+
+			}
+
+			if(a.ip.length > 0){
+
+				var ip = {
+					name 	: 'Indigenous Persons',
+					data 	: a.ip,
+					stack 	: 'sex'
+				}
+
+			}else{
+				var ip = null
+			}
+
+			var c = 0;
+			for(var u = 0 ; u < a.solo.length ; u++){
+
+				if(a.solo[u] > 0){
+					c++;
+				}
+
+			}
+
+			if(c > 0){
+
+				if(cc > 0){
+
+					var series = [{
+				        name: 'Male',
+				        data: a.male,
+				        stack: 'sex'
+				    }, {
+				        name: 'Female',
+				        data: a.female,
+				        stack: 'sex'
+				    }, {
+						name 	: 'Solo Parents',
+						data 	: a.solo,
+						stack 	: 'sex'
+					}, {
+						name 	: 'Indigenous Persons',
+						data 	: a.ip,
+						stack 	: 'sex'
+					}]
+
+				}else{
+					var series = [{
+				        name: 'Male',
+				        data: a.male,
+				        stack: 'sex'
+				    }, {
+				        name: 'Female',
+				        data: a.female,
+				        stack: 'sex'
+				    }, {
+						name 	: 'Solo Parents',
+						data 	: a.solo,
+						stack 	: 'sex'
+					}]
+				}
+
+			}else{
+
+				if(cc > 0){
+
+					var series = [{
+				        name: 'Male',
+				        data: a.male,
+				        stack: 'sex'
+				    }, {
+				        name: 'Female',
+				        data: a.female,
+				        stack: 'sex'
+				    }, {
+						name 	: 'Indigenous Persons',
+						data 	: a.ip,
+						stack 	: 'sex'
+					}]
+
+				}else{
+					var series = [{
+				        name: 'Male',
+				        data: a.male,
+				        stack: 'sex'
+				    }, {
+				        name: 'Female',
+				        data: a.female,
+				        stack: 'sex'
+				    }]
+				}
+
+			}
+
+			Highcharts.chart('dromic_chart_sex2', {
+
+			    chart: {
+			        type: 'column'
+			    },
+
+			    title: {
+			        text: 'Sex Disaggregated Data of Individuals Inside Evacuation Centers'
+			    },
+
+			    xAxis: {
+			        categories: a.categories
+			    },
+
+			    yAxis: {
+			        allowDecimals: false,
+			        min: 0,
+			        title: {
+			            text: 'Number of individuals'
+			        }
+			    },
+
+			    tooltip: {
+			        formatter: function () {
+			            return '<b>' + this.x + '</b><br/>' +
+			                this.series.name + ': ' + this.y + '<br/>' +
+			                'Total: ' + this.point.stackTotal;
+			        }
+			    },
+
+			    plotOptions: {
+			        column: {
+			            stacking: 'normal'
+			        }
+			    },
+
+			    series: series
+			});
+
+		},1500)
+
+	});
+
+})
+
 // contextmenu_brgy
 
 
