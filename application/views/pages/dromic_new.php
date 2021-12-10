@@ -6,7 +6,7 @@
       			<div class="panel-heading" style="background-color: gray; color:#fff; border-radius:0px"><i class="fa fa-plus-circle"></i> Add New <b>Disaster Type <label class="pull-right"><a style="color: #fff" href="javascript:void(0);" onclick="javascript:introJs().start();">Show Tutorial!</a></label></b></div>
       			<div class="panel-body" data-step="1" data-intro="To add a DROMIC Disaster Statistical Report. Kindly fill in all the details and then click <span class='green'><b>green button</b></span> tagged as <span class='green'><b>(Save Data)</b></span> to save the report!">
       				<div class="form-group">
-      					<label>Type of Disaster:</label>
+      					<label>Disaster Name:</label>
       					<input type="text" class="form-control input-sm" placeholder="Type of Disaster" id="disaster_name">
       				</div>
       				<div class="form-group">
@@ -78,8 +78,6 @@
 
       <div id="addnewReport" class="modal fade" role="dialog">
         <div class="modal-dialog modal-sm" style="width:35%">
-
-          <!-- Modal content-->
           <div class="modal-content" >
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -159,7 +157,7 @@
                     <label style="margin-top:8px">Position: </label>
                   </div>
                   <div class="form-group col-md-9">
-                    <input type="text" class="form-control" id="approvedbypos" value="OIC - Regional  Director">
+                    <input type="text" class="form-control" id="approvedbypos" value="Regional  Director">
                   </div>
                 </div>
               </div>
@@ -167,13 +165,11 @@
                 <div class="alert alert-danger col-md-12" id="errmsgnewdromic">
                 </div>
               </div>
+            </div>
             <div class="modal-footer">
               <button type="button" class="btn btn-primary btn-sm" onclick="savenewDromic()"><i class="fa fa-mail-forward"></i> Continue</button>
             </div>
           </div>
-
         </div>
       </div>
-    </div>
-
 </div>

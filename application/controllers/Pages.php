@@ -7,7 +7,7 @@
 				show_404();
 			}
 
-			if($page == 'login' || $page == 'logout' || $page == 'check_session'){
+			if($page == 'login' || $page == 'logout' || $page == 'check_session' || $page == 'cpassword'){
 				$this->load->view('pages/'.$page);
 			}else if($page == 'dashboard'){
 				$this->load->view('template/header');
@@ -185,7 +185,7 @@
 
 			$data = array(
 				'disaster_name' 	=> $_GET['disaster_name'],
-				'disaster_date' 	=> $_GET['disaster_date'],
+				'disaster_date' 	=> date("Y-m-d",strtotime($_GET['disaster_date'])),
 				'created_by_user' 	=> $_GET['created_by_user']
 			);
 
@@ -363,7 +363,8 @@
 				'brgy_located'			=> $_GET['eciplaceorigin'],
 				'ec_status'				=> $_GET['ecstatus'],
  		 		'evacuation_center_id' 	=> $_GET['evacuation_center_id'],
- 		 		'fourps' 				=> $_GET['ec4ps']
+ 		 		'fourps' 				=> $_GET['ec4ps'],
+ 		 		'uriID' 			 	=> $_GET['uriID']
 			);
 
 			echo json_encode($data['result'][] = $this->disaster_model->updateEC($_GET['id'],$data));
@@ -399,12 +400,6 @@
 				'disaster_title_id' => $_GET['disaster_title_id'],
 				'municipality_id' 	=> $_GET['municipality_id'],
 				'provinceid' 		=> $_GET['provinceid'],
-				'totally_damaged' 	=> $_GET['totally_damaged'],
-				'partially_damaged' => $_GET['partially_damaged'],
-				'dead' 				=> $_GET['dead'],
-				'injured' 			=> $_GET['injured'],
-				'missing' 			=> $_GET['missing'],
-				'dswd_asst' 		=> $_GET['dswd_asst'],
 				'lgu_asst' 			=> $_GET['lgu_asst'],
 				'ngo_asst' 			=> $_GET['ngo_asst'],
 				'ogo_asst' 			=> $_GET['ogo_asst'],
@@ -437,11 +432,6 @@
 			$data = array(
 				'municipality_id' 	=> $_GET['municipality_id'],
 				'provinceid' 		=> $_GET['provinceid'],
-				'totally_damaged' 	=> $_GET['totally_damaged'],
-				'partially_damaged' => $_GET['partially_damaged'],
-				'dead' 				=> $_GET['dead'],
-				'injured' 			=> $_GET['injured'],
-				'missing' 			=> $_GET['missing'],
 				'dswd_asst' 		=> $_GET['dswd_asst'],
 				'lgu_asst' 			=> $_GET['lgu_asst'],
 				'ngo_asst' 			=> $_GET['ngo_asst'],
@@ -490,7 +480,7 @@
 				'brgy_origin' 			=> $_GET['brgy_origin']
 			);
 
-			echo json_encode($data['result'][] = $this->disaster_model->updateFamOEC($data,$_GET['id']),JSON_NUMERIC_CHECK);
+			echo json_encode($data['result'][] = $this->disaster_model->updateFamOEC($data,$_GET['id'],$_GET['disaster_title_id']),JSON_NUMERIC_CHECK);
 
 		}
 
@@ -834,7 +824,7 @@
 
 		public function deleteECS(){
 
-			echo json_encode($data['result'][] = $this->disaster_model->deleteECS($_GET['id']),JSON_NUMERIC_CHECK);
+			echo json_encode($data['result'][] = $this->disaster_model->deleteECS($_GET['id'],$_GET['brgy_located'],$_GET['uriID']),JSON_NUMERIC_CHECK);
 
 		}
 
@@ -865,9 +855,8 @@
 				'brgy_id' 					=> $_GET['brgy_id'],
 				'totally_damaged' 			=> $_GET['totally_damaged'],
 				'partially_damaged' 		=> $_GET['partially_damaged'],
-				'dead' 						=> $_GET['dead'],
-				'injured' 					=> $_GET['injured'],
-				'missing' 					=> $_GET['missing'],
+				'affected_family' 			=> (int)$_GET['affected_family'],
+				'affected_persons' 			=> (int)$_GET['affected_persons'],
 				'costasst_brgy' 			=> $_GET['costasst_brgy']
 			);
 
@@ -890,15 +879,15 @@
 		public function updatedamageperbrgy(){
 
 			$data = array(
-				'totally_damaged' 	=> $_GET['totally_damaged'],
-				'partially_damaged' => $_GET['partially_damaged'],
-				'dead' 				=> 0,
-				'injured' 			=> 0,
-				'missing' 			=> 0,
-				'costasst_brgy' 	=> $_GET['costasst_brgy']
+				'totally_damaged' 		=> $_GET['totally_damaged'],
+				'partially_damaged' 	=> $_GET['partially_damaged'],
+				'costasst_brgy' 		=> $_GET['costasst_brgy'],
+				'affected_family' 		=> (int)$_GET['affected_family'],
+				'affected_persons' 		=> (int)$_GET['affected_persons']
+
 			);
 
-			echo json_encode($data['result'][] = $this->disaster_model->updatedamageperbrgy($_GET['id'],$_GET['disaster_title_id'],$_GET['municipality_id'],$data),JSON_NUMERIC_CHECK);
+			echo json_encode($data['result'][] = $this->disaster_model->updatedamageperbrgy($_GET['id'],$_GET['disaster_title_id'],$_GET['municipality_id'],$_GET['brgy_dam_per_brgy'],$_GET['provinceid'],$data),JSON_NUMERIC_CHECK);
 
 		}
 
@@ -1082,6 +1071,12 @@
 
 		}
 
+		public function get_feature_info_brgy(){
+
+			echo json_encode($data['result'][] = $this->disaster_model->get_feature_info_brgy($_GET['id'], $_GET['brgy_id']),JSON_NUMERIC_CHECK);
+
+		}
+
 		public function get_mobile_user(){
 
 			echo json_encode($data['result'][] = $this->disaster_model->get_mobile_user());
@@ -1199,7 +1194,7 @@
 
 		public function activatewebuser(){
 
-			echo json_encode($data['result'][] = $this->disaster_model->activatewebuser($_GET['cwebuserslist'],$_GET['isadminpriv'],$_GET['iscancreatepriv'],$_GET['isdswd']));
+			echo json_encode($data['result'][] = $this->disaster_model->activatewebuser($_GET['cwebuserslist'],$_GET['isadminpriv'],$_GET['iscancreatepriv'],$_GET['isdswd'],$_GET['access_level'],$_GET['issuperadminpriv']));
 
 		}
 
@@ -1277,6 +1272,43 @@
 			echo json_encode($data['result'][] = $this->disaster_model->getsexdata($_GET['id']));
 
 		}
+
+		public function saveasnewFNDS(){
+
+			$id = $_GET['disaster_title_id'];
+
+			$data = array(
+				'disaster_title_id' 	=> $_GET['disaster_title_id'],
+				'provinceid' 			=> $_GET['provinceid'],
+				'municipality_id' 		=> $_GET['municipality_id'],
+				'families_served_cum' 	=> $_GET['families_served_cum'],
+				'persons_served_cum' 	=> $_GET['persons_served_cum'],
+				'families_served_now' 	=> $_GET['families_served_now'],
+				'persons_served_now' 	=> $_GET['persons_served_now']
+			);
+
+			echo json_encode($data['result'][] = $this->disaster_model->saveasnewFNDS($id, $data));
+
+		}
+
+		public function deleteFNDS(){
+
+			$id 				= $_GET['disaster_title_id'];
+			$municipality_id 	= $_GET['municipality_id'];
+
+			echo json_encode($data['result'][] = $this->disaster_model->deleteFNDS($id, $municipality_id));
+
+		}
+
+		public function getFNDS(){
+
+			$id 				= $_GET['URLID'];
+			$municipality_id 	= $_GET['municipality_id'];
+
+			echo json_encode($data['result'][] = $this->disaster_model->getFNDS($id, $municipality_id));
+
+		}
+
 
 		// public function send_email(){
 

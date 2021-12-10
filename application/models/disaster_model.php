@@ -304,6 +304,8 @@ class disaster_model extends CI_Model{
 
 			$region = $_SESSION['regionid'];
 
+			$mun_id = $_SESSION['municipality_id'];
+
 			$user_level_access = $_SESSION['user_level_access'];
 
 			if($user_level_access == 'national'){
@@ -320,60 +322,69 @@ class disaster_model extends CI_Model{
 												t1. ID = $id -- disaster_title_id
 									");
 
-				$query_brgys = $this->db->query("SELECT
-													*
+				$query_brgys = $this->db->query("SELECT DISTINCT ON
+													( t1.brgy_located_ec ) t1.province_id,
+													t1.municipality_id,
+													CONCAT ( '0', t1.brgy_located_ec ) :: INTEGER brgy_located_ec,
+													t2.affected_family,
+													t2.affected_persons 
 												FROM
 													(
-														SELECT DISTINCT
-															ON (t1.brgy_located_ec) t1.province_id,
+													SELECT
+														* 
+													FROM
+														(
+														SELECT DISTINCT ON
+															( t1.brgy_located_ec ) t1.province_id,
 															municipality_id,
-															CONCAT ('0', t1.brgy_located_ec) :: INTEGER brgy_located_ec,
-															t1.region_psgc region
+															CONCAT ( '0', t1.brgy_located_ec ) :: INTEGER brgy_located_ec 
 														FROM
 															(
-																SELECT
-																	t0.*
+															SELECT
+																t0.* 
+															FROM
+																(
+																SELECT DISTINCT ON
+																	( t1.province_id, t1.municipality_id, t1.brgy_located_ec ) t1.province_id :: CHARACTER VARYING,
+																	t1.municipality_id :: CHARACTER VARYING,
+																	t1.brgy_located_ec :: CHARACTER VARYING 
 																FROM
-																	(
-																		SELECT DISTINCT
-																			ON (
-																				t1.province_id,
-																				t1.municipality_id,
-																				t1.brgy_located_ec,
-																				t3.region_psgc
-																			) t1.province_id :: CHARACTER VARYING,
-																			t1.municipality_id :: CHARACTER VARYING,
-																			t1.brgy_located_ec :: CHARACTER VARYING,
-																			t3.region_psgc:: CHARACTER VARYING
-																		FROM
-																			tbl_activated_ec t1
-																		LEFT JOIN tbl_disaster_title t2 ON t1.dromic_id :: CHARACTER VARYING = t2.dromic_id :: CHARACTER VARYING
-																		LEFT JOIN lib_provinces t3 ON t1.province_id :: CHARACTER VARYING = t3. ID :: CHARACTER VARYING
-																		WHERE
-																			t2. ID = '$id'
-																	) t0
+																	tbl_activated_ec t1
+																	LEFT JOIN tbl_disaster_title t2 ON t1.dromic_id :: CHARACTER VARYING = t2.dromic_id ::
+																	CHARACTER VARYING LEFT JOIN lib_provinces t3 ON t1.province_id :: CHARACTER VARYING = t3.ID :: CHARACTER VARYING 
+																WHERE
+																	t2.ID = '$id' 
+																) t0 UNION ALL
+																(
+																SELECT DISTINCT ON
+																	( t1.provinceid, t1.municipality_id, t1.brgy_host ) t1.provinceid :: CHARACTER VARYING,
+																	t1.municipality_id :: CHARACTER VARYING,
+																	t1.brgy_host :: CHARACTER VARYING 
+																FROM
+																	tbl_evac_outside_stats t1
+																	LEFT JOIN lib_provinces t2 ON t1.provinceid :: CHARACTER VARYING = t2.ID :: CHARACTER VARYING 
+																WHERE
+																	t1.disaster_title_id = '$id' 
+																) 
 																UNION ALL
-																	(
-																		SELECT DISTINCT
-																			ON (
-																				t1.provinceid,
-																				t1.municipality_id,
-																				t1.brgy_host,
-																				t2.region_psgc
-																			) t1.provinceid :: CHARACTER VARYING,
-																			t1.municipality_id :: CHARACTER VARYING,
-																			t1.brgy_host :: CHARACTER VARYING,
-																			t2.region_psgc:: CHARACTER VARYING
-																		FROM
-																			tbl_evac_outside_stats t1
-																		LEFT JOIN lib_provinces t2 ON t1.provinceid :: CHARACTER VARYING = t2. ID :: CHARACTER VARYING
-																		WHERE
-																			t1.disaster_title_id = '$id'
-																	)
-															) t1
+																(
+																SELECT DISTINCT ON
+																	( t1.provinceid, t1.municipality_id, t1.brgy_id ) t1.provinceid :: CHARACTER VARYING,
+																	t1.municipality_id :: CHARACTER VARYING,
+																	t1.brgy_id :: CHARACTER VARYING 
+																FROM
+																	tbl_damage_per_brgy t1
+																	LEFT JOIN lib_provinces t2 ON t1.provinceid :: CHARACTER VARYING = t2.ID :: CHARACTER VARYING 
+																WHERE
+																	t1.disaster_title_id = '$id' 
+																)
+															) t1 
+														) t1 
+													ORDER BY
+														t1.brgy_located_ec 
 													) t1
-												ORDER BY
-													t1.brgy_located_ec
+													LEFT JOIN tbl_damage_per_brgy t2 ON t2.brgy_id = t1.brgy_located_ec
+													WHERE t2.disaster_title_id = '$id'
 										");
 
 				$query = $this->db->query("SELECT
@@ -399,6 +410,7 @@ class disaster_model extends CI_Model{
 												t3.evacuation_name ASC,
 												t5.brgy_located_ec ASC,
 												t3.brgy_located ASC
+												
 										");
 
 				$query_outec = $this->db->query("SELECT
@@ -1241,28 +1253,52 @@ class disaster_model extends CI_Model{
 				}
 
 				$query_brgy_unique_ec = $this->db->query("
-														SELECT DISTINCT
-															ON (t1.brgy_located) t1.region_psgc,
-															t1.province_id,
-															t1.municipality_id,
-															t1.brgy_located_ec,
-															t1.brgy_located
+														SELECT
+															* 
 														FROM
 															(
+															SELECT DISTINCT ON
+																( t1.brgy_located_ec, t1.brgy_located ) t1.region_psgc,
+																t1.province_id,
+																t1.municipality_id,
+																t1.brgy_located_ec :: INTEGER,
+																t1.brgy_located :: INTEGER 
+															FROM
+																(
 																SELECT
-																	t3.region_psgc,
-																	t1.province_id,
-																	t1.municipality_id,
-																	t1.brgy_located_ec,
-																	regexp_split_to_table(t2.brgy_located, ',') AS brgy_located
+																	* 
 																FROM
-																	tbl_activated_ec t1
-																LEFT JOIN tbl_evacuation_stats t2 ON t1. ID = t2.evacuation_name :: INTEGER
-																AND t1.dromic_id = t2.dromic_ids
-																LEFT JOIN lib_provinces t3 ON t1.province_id :: INTEGER = t3. ID
-																WHERE
-																	t2.disaster_title_id = '$id'
-															) t1
+																	(
+																	SELECT
+																		t3.region_psgc,
+																		t1.province_id,
+																		t1.municipality_id,
+																		t1.brgy_located_ec,
+																		regexp_split_to_table( t2.brgy_located, ',' ) AS brgy_located 
+																	FROM
+																		tbl_activated_ec t1
+																		LEFT JOIN tbl_evacuation_stats t2 ON t1.ID = t2.evacuation_name :: INTEGER 
+																		AND t1.dromic_id = t2.dromic_ids
+																		LEFT JOIN lib_provinces t3 ON t1.province_id :: INTEGER = t3.ID 
+																	WHERE
+																		t2.disaster_title_id = '$id'
+																	) t1 
+																) t1 
+															) t1 
+														ORDER BY
+															t1.municipality_id ASC,
+															t1.brgy_located_ec ASC,
+															t1.brgy_located ASC 
+				");
+
+				$query_served_not_displaced = $this->db->query("
+														SELECT
+															t2.region_psgc,
+															t1.*
+														FROM
+															tbl_not_displaced_served t1 
+															LEFT JOIN lib_provinces t2 ON t1.provinceid::character varying = t2.id::character varying 
+															WHERE t1.disaster_title_id = '$id'
 				");
 
 
@@ -1296,9 +1332,11 @@ class disaster_model extends CI_Model{
 
 				$data['all_affected'] 			= $query_all_affected->result();
 
+				$data['fnds'] 					= $query_served_not_displaced->result();
+
 				return $data;
 
-			}else{
+			}else if($user_level_access == 'province' || $user_level_access == 'region'){
 
 				$aff_munis_all = array();
 
@@ -1315,57 +1353,72 @@ class disaster_model extends CI_Model{
 													t1. ID = $id -- disaster_title_id
 										");
 
-				$query_brgys = $this->db->query("SELECT
-													*
+				$query_brgys = $this->db->query("SELECT DISTINCT ON
+													( t1.brgy_located_ec ) t1.province_id,
+													t1.municipality_id,
+													CONCAT ( '0', t1.brgy_located_ec ) :: INTEGER brgy_located_ec,
+													t2.affected_family,
+													t2.affected_persons 
 												FROM
 													(
-														SELECT DISTINCT
-															ON (t1.brgy_located_ec) t1.province_id,
+													SELECT
+														* 
+													FROM
+														(
+														SELECT DISTINCT ON
+															( t1.brgy_located_ec ) t1.province_id,
 															municipality_id,
-															CONCAT ('0', t1.brgy_located_ec) :: INTEGER brgy_located_ec
+															CONCAT ( '0', t1.brgy_located_ec ) :: INTEGER brgy_located_ec 
 														FROM
 															(
-																SELECT
-																	t0.*
+															SELECT
+																t0.* 
+															FROM
+																(
+																SELECT DISTINCT ON
+																	( t1.province_id, t1.municipality_id, t1.brgy_located_ec ) t1.province_id :: CHARACTER VARYING,
+																	t1.municipality_id :: CHARACTER VARYING,
+																	t1.brgy_located_ec :: CHARACTER VARYING 
 																FROM
-																	(
-																		SELECT DISTINCT
-																			ON (
-																				t1.province_id,
-																				t1.municipality_id,
-																				t1.brgy_located_ec
-																			) t1.province_id :: CHARACTER VARYING,
-																			t1.municipality_id :: CHARACTER VARYING,
-																			t1.brgy_located_ec :: CHARACTER VARYING
-																		FROM
-																			tbl_activated_ec t1
-																		LEFT JOIN tbl_disaster_title t2 ON t1.dromic_id :: CHARACTER VARYING = t2.dromic_id :: CHARACTER VARYING
-																		LEFT JOIN lib_provinces t3 ON t1.province_id:: CHARACTER VARYING = t3. ID :: CHARACTER VARYING
-																		WHERE
-																			t2. ID = '$id'
-																		AND t3.region_psgc :: CHARACTER VARYING = '$region'
-																	) t0
+																	tbl_activated_ec t1
+																	LEFT JOIN tbl_disaster_title t2 ON t1.dromic_id :: CHARACTER VARYING = t2.dromic_id ::
+																	CHARACTER VARYING LEFT JOIN lib_provinces t3 ON t1.province_id :: CHARACTER VARYING = t3.ID :: CHARACTER VARYING 
+																WHERE
+																	t2.ID = '$id' 
+																	AND t3.region_psgc :: CHARACTER VARYING = '$region' 
+																) t0 UNION ALL
+																(
+																SELECT DISTINCT ON
+																	( t1.provinceid, t1.municipality_id, t1.brgy_host ) t1.provinceid :: CHARACTER VARYING,
+																	t1.municipality_id :: CHARACTER VARYING,
+																	t1.brgy_host :: CHARACTER VARYING 
+																FROM
+																	tbl_evac_outside_stats t1
+																	LEFT JOIN lib_provinces t2 ON t1.provinceid :: CHARACTER VARYING = t2.ID :: CHARACTER VARYING 
+																WHERE
+																	t1.disaster_title_id = '$id' 
+																	AND t2.region_psgc :: CHARACTER VARYING = '$region' 
+																) 
 																UNION ALL
-																	(
-																		SELECT DISTINCT
-																			ON (
-																				t1.provinceid,
-																				t1.municipality_id,
-																				t1.brgy_host
-																			) t1.provinceid :: CHARACTER VARYING,
-																			t1.municipality_id :: CHARACTER VARYING,
-																			t1.brgy_host :: CHARACTER VARYING
-																		FROM
-																			tbl_evac_outside_stats t1
-																		LEFT JOIN lib_provinces t2 ON t1.provinceid:: CHARACTER VARYING = t2. ID :: CHARACTER VARYING
-																		WHERE
-																			t1.disaster_title_id = '$id'
-																		AND t2.region_psgc :: CHARACTER VARYING = '$region'
-																	)
-															) t1
+																(
+																SELECT DISTINCT ON
+																	( t1.provinceid, t1.municipality_id, t1.brgy_id ) t1.provinceid :: CHARACTER VARYING,
+																	t1.municipality_id :: CHARACTER VARYING,
+																	t1.brgy_id :: CHARACTER VARYING 
+																FROM
+																	tbl_damage_per_brgy t1
+																	LEFT JOIN lib_provinces t2 ON t1.provinceid :: CHARACTER VARYING = t2.ID :: CHARACTER VARYING 
+																WHERE
+																	t1.disaster_title_id = '$id' 
+																	AND t2.region_psgc :: CHARACTER VARYING = '$region' 
+																)
+															) t1 
+														) t1 
+													ORDER BY
+														t1.brgy_located_ec 
 													) t1
-												ORDER BY
-													t1.brgy_located_ec
+													LEFT JOIN tbl_damage_per_brgy t2 ON t2.brgy_id = t1.brgy_located_ec
+													WHERE t2.disaster_title_id = '$id'
 										");
 
 				$query = $this->db->query("SELECT
@@ -2109,46 +2162,46 @@ class disaster_model extends CI_Model{
 																				t1.municipality_id,
 																				t1.municipality_name,
 																				t1.disaster_title
-																			FROM
-																				(
-																					SELECT
-																						SUM (t1.family_cum :: NUMERIC) AS family_cum,
-																						t1.municipality_id,
-																						t3.municipality_name,
-																						t2.disaster_title
-																					FROM
-																						public.tbl_evacuation_stats t1
-																					LEFT JOIN public.tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
-																					LEFT JOIN public.lib_municipality t3 ON t1.municipality_id = t3. ID
-																					WHERE
-																						t1.disaster_title_id = $id
-																					GROUP BY
-																						t1.municipality_id,
-																						t3.municipality_name,
-																						t2.disaster_title
-																					UNION ALL
-																						(
-																							SELECT
-																								SUM (t1.family_cum :: NUMERIC) AS family_cum,
-																								t1.municipality_id,
-																								t3.municipality_name,
-																								t2.disaster_title
-																							FROM
-																								public.tbl_evac_outside_stats t1
-																							LEFT JOIN public.tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
-																							LEFT JOIN public.lib_municipality t3 ON t1.municipality_id = t3. ID
-																							WHERE
-																								t1.disaster_title_id = $id
-																							GROUP BY
-																								t1.municipality_id,
-																								t3.municipality_name,
-																								t2.disaster_title
-																						)
-																				) t1
-																			GROUP BY
-																				t1.municipality_id,
-																				t1.municipality_name,
-																				t1.disaster_title
+																				FROM
+																					(
+																						SELECT
+																							SUM (t1.family_cum :: NUMERIC) AS family_cum,
+																							t1.municipality_id,
+																							t3.municipality_name,
+																							t2.disaster_title
+																						FROM
+																							public.tbl_evacuation_stats t1
+																						LEFT JOIN public.tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
+																						LEFT JOIN public.lib_municipality t3 ON t1.municipality_id = t3. ID
+																						WHERE
+																							t1.disaster_title_id = $id
+																						GROUP BY
+																							t1.municipality_id,
+																							t3.municipality_name,
+																							t2.disaster_title
+																						UNION ALL
+																							(
+																								SELECT
+																									SUM (t1.family_cum :: NUMERIC) AS family_cum,
+																									t1.municipality_id,
+																									t3.municipality_name,
+																									t2.disaster_title
+																								FROM
+																									public.tbl_evac_outside_stats t1
+																								LEFT JOIN public.tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
+																								LEFT JOIN public.lib_municipality t3 ON t1.municipality_id = t3. ID
+																								WHERE
+																									t1.disaster_title_id = $id
+																								GROUP BY
+																									t1.municipality_id,
+																									t3.municipality_name,
+																									t2.disaster_title
+																							)
+																					) t1
+																				GROUP BY
+																					t1.municipality_id,
+																					t1.municipality_name,
+																					t1.disaster_title
 																		) t1
 																	LEFT JOIN public.lib_municipality t2 ON t1.municipality_id = t2. ID
 																	LEFT JOIN public.lib_provinces t3 ON t2.provinceid = t3. ID
@@ -2195,29 +2248,54 @@ class disaster_model extends CI_Model{
 				}
 
 				$query_brgy_unique_ec = $this->db->query("
-														SELECT DISTINCT
-															ON (t1.brgy_located) t1.region_psgc,
+													SELECT
+														* 
+													FROM
+														(
+														SELECT DISTINCT ON
+															( t1.brgy_located_ec, t1.brgy_located ) t1.region_psgc,
 															t1.province_id,
 															t1.municipality_id,
-															t1.brgy_located_ec,
-															t1.brgy_located
+															t1.brgy_located_ec :: INTEGER,
+															t1.brgy_located :: INTEGER 
 														FROM
 															(
+															SELECT
+																* 
+															FROM
+																(
 																SELECT
 																	t3.region_psgc,
 																	t1.province_id,
 																	t1.municipality_id,
 																	t1.brgy_located_ec,
-																	regexp_split_to_table(t2.brgy_located, ',') AS brgy_located
+																	regexp_split_to_table( t2.brgy_located, ',' ) AS brgy_located 
 																FROM
 																	tbl_activated_ec t1
-																LEFT JOIN tbl_evacuation_stats t2 ON t1. ID = t2.evacuation_name :: INTEGER
-																AND t1.dromic_id = t2.dromic_ids
-																LEFT JOIN lib_provinces t3 ON t1.province_id :: INTEGER = t3. ID
+																	LEFT JOIN tbl_evacuation_stats t2 ON t1.ID = t2.evacuation_name :: INTEGER 
+																	AND t1.dromic_id = t2.dromic_ids
+																	LEFT JOIN lib_provinces t3 ON t1.province_id :: INTEGER = t3.ID 
 																WHERE
-																	t2.disaster_title_id = '$id'
-																AND t3.region_psgc = '$region'
-															) t1
+																	t2.disaster_title_id = '$id' 
+																	AND t3.region_psgc = '$region' 
+																) t1 
+															) t1 
+														) t1 
+													ORDER BY
+														t1.municipality_id ASC,
+														t1.brgy_located_ec ASC,
+														t1.brgy_located ASC 
+				");
+
+				$query_served_not_displaced = $this->db->query("
+														SELECT
+															t2.region_psgc,
+															t1.*
+														FROM
+															tbl_not_displaced_served t1 
+															LEFT JOIN lib_provinces t2 ON t1.provinceid::character varying = t2.id::character varying 
+															WHERE t1.disaster_title_id = '$id'
+															AND t2.region_psgc = '$region'
 				");
 
 
@@ -2250,6 +2328,1091 @@ class disaster_model extends CI_Model{
 				$data['brgy_unique_ec'] 		= $query_brgy_unique_ec->result();
 
 				$data['all_affected'] 			= $query_all_affected->result();
+
+				$data['fnds'] 					= $query_served_not_displaced->result();
+
+				return $data;
+
+			}else if($user_level_access == 'municipality'){
+
+				$aff_munis_all = array();
+
+				$aff_munis_drill[] = array();
+
+				$query_title = $this->db->query("SELECT
+													t1.*,
+													t2.disaster_name,
+													t2.disaster_date
+												FROM
+													tbl_disaster_title t1
+												LEFT JOIN public.tbl_dromic t2 ON t1.dromic_id = t2. ID
+												WHERE
+													t1. ID = $id -- disaster_title_id
+										");
+
+				$query_brgys = $this->db->query("SELECT DISTINCT ON
+													( t1.brgy_located_ec ) t1.province_id,
+													t1.municipality_id,
+													CONCAT ( '0', t1.brgy_located_ec ) :: INTEGER brgy_located_ec,
+													t2.affected_family,
+													t2.affected_persons 
+												FROM
+													(
+													SELECT
+														* 
+													FROM
+														(
+														SELECT DISTINCT ON
+															( t1.brgy_located_ec ) t1.province_id,
+															municipality_id,
+															CONCAT ( '0', t1.brgy_located_ec ) :: INTEGER brgy_located_ec 
+														FROM
+															(
+															SELECT
+																t0.* 
+															FROM
+																(
+																SELECT DISTINCT ON
+																	( t1.province_id, t1.municipality_id, t1.brgy_located_ec ) t1.province_id :: CHARACTER VARYING,
+																	t1.municipality_id :: CHARACTER VARYING,
+																	t1.brgy_located_ec :: CHARACTER VARYING 
+																FROM
+																	tbl_activated_ec t1
+																	LEFT JOIN tbl_disaster_title t2 ON t1.dromic_id :: CHARACTER VARYING = t2.dromic_id ::
+																	CHARACTER VARYING LEFT JOIN lib_provinces t3 ON t1.province_id :: CHARACTER VARYING = t3.ID :: CHARACTER VARYING 
+																WHERE
+																	t2.ID = '$id' 
+																	AND t3.region_psgc :: CHARACTER VARYING = '$region' 
+																) t0 UNION ALL
+																(
+																SELECT DISTINCT ON
+																	( t1.provinceid, t1.municipality_id, t1.brgy_host ) t1.provinceid :: CHARACTER VARYING,
+																	t1.municipality_id :: CHARACTER VARYING,
+																	t1.brgy_host :: CHARACTER VARYING 
+																FROM
+																	tbl_evac_outside_stats t1
+																	LEFT JOIN lib_provinces t2 ON t1.provinceid :: CHARACTER VARYING = t2.ID :: CHARACTER VARYING 
+																WHERE
+																	t1.disaster_title_id = '$id' 
+																	AND t2.region_psgc :: CHARACTER VARYING = '$region' 
+																) 
+																UNION ALL
+																(
+																SELECT DISTINCT ON
+																	( t1.provinceid, t1.municipality_id, t1.brgy_id ) t1.provinceid :: CHARACTER VARYING,
+																	t1.municipality_id :: CHARACTER VARYING,
+																	t1.brgy_id :: CHARACTER VARYING 
+																FROM
+																	tbl_damage_per_brgy t1
+																	LEFT JOIN lib_provinces t2 ON t1.provinceid :: CHARACTER VARYING = t2.ID :: CHARACTER VARYING 
+																WHERE
+																	t1.disaster_title_id = '$id' 
+																	AND t2.region_psgc :: CHARACTER VARYING = '$region' 
+																)
+															) t1 
+														) t1 
+													ORDER BY
+														t1.brgy_located_ec 
+													) t1
+													LEFT JOIN tbl_damage_per_brgy t2 ON t2.brgy_id = t1.brgy_located_ec
+													WHERE t2.disaster_title_id = '$id'
+										");
+
+				$query = $this->db->query("SELECT
+												t1. ID dromic_id,
+												t3.*, t5.ec_name evacuation_names,
+												t5.brgy_located_ec,
+												t5.ec_cum,
+												t5.ec_now,
+												t5.ec_status
+											FROM
+												tbl_disaster_title t1
+											LEFT JOIN tbl_dromic t2 ON t1.dromic_id = t2. ID
+											LEFT JOIN tbl_evacuation_stats t3 ON t1. ID = t3.disaster_title_id
+											LEFT JOIN lib_municipality t4 ON t3.municipality_id = t4. ID -- LEFT JOIN lib_provinces t5 ON t3.provinceid = t5. ID
+											-- LEFT JOIN lib_barangay t6 ON CONCAT('0',t3.brgy_located)::integer = t6.id::integer
+											LEFT JOIN tbl_activated_ec t5 ON t3.evacuation_name = t5. ID :: CHARACTER VARYING
+											LEFT JOIN lib_provinces t6 ON t3.provinceid = t6.id
+											WHERE
+												t1. ID = '$id' -- disaster_title_id
+											AND t6.region_psgc = '$region'
+											ORDER BY
+												t3.municipality_id ASC,
+												t3.evacuation_name ASC,
+												t5.brgy_located_ec ASC,
+												t3.brgy_located ASC
+												
+										");
+
+				$query_outec = $this->db->query("SELECT
+													*
+												FROM
+													tbl_evac_outside_stats t1
+												LEFT JOIN lib_provinces t2 ON t1.provinceid = t2.id
+												WHERE
+													t1.disaster_title_id = '$id' -- disaster_title_id
+												AND t2.region_psgc = '$region'
+												ORDER BY
+													t1.provinceid,
+													t1.municipality_id,
+													t1.brgy_host
+										");
+
+
+				$queryecs = $this->db->query("SELECT
+													t1.*
+												FROM
+													tbl_activated_ec t1
+												LEFT JOIN tbl_disaster_title t2 ON t1.dromic_id :: CHARACTER VARYING = t2.dromic_id :: CHARACTER VARYING
+												LEFT JOIN lib_provinces t3 ON t1.province_id::character varying = t3.id::character varying
+												WHERE
+													t2. ID = '$id'
+												AND t3.region_psgc = '$region'
+												ORDER BY
+													t1.province_id,
+													t1.municipality_id,
+													t1.brgy_located_ec
+											");
+
+				$query1 = $this->db->query("SELECT DISTINCT
+												ON (t1.municipality_id) t1.municipality_id ID,
+												t2.municipality_name,
+												t1.provinceid,
+												t1.region
+											FROM
+												(
+													SELECT DISTINCT
+														ON (t1.municipality_id) t1.municipality_id,
+														t1.provinceid,
+														t1.region
+													FROM
+														(
+															SELECT
+																t1.municipality_id,
+																t1.provinceid,
+																t2.region_psgc region
+															FROM
+																tbl_evacuation_stats t1
+															LEFT JOIN lib_provinces t2 ON t1.provinceid = t2. ID
+															WHERE
+																t1.disaster_title_id = '$id'
+																AND t2.region_psgc = '$region'
+															UNION ALL
+																(
+																	SELECT
+																		t1.municipality_id,
+																		t1.provinceid,
+																		t2.region_psgc region
+																	FROM
+																		tbl_casualty_asst t1
+																	LEFT JOIN lib_provinces t2 ON t1.provinceid = t2. ID
+																	WHERE
+																		t1.disaster_title_id = '$id'
+																		AND t2.region_psgc = '$region'
+																)
+															UNION ALL
+																(
+																	SELECT
+																		t1.municipality_id,
+																		t1.provinceid,
+																		t2.region_psgc region
+																	FROM
+																		tbl_evac_outside_stats t1
+																	LEFT JOIN lib_provinces t2 ON t1.provinceid = t2. ID
+																	WHERE
+																		t1.disaster_title_id = '$id'
+																		AND t2.region_psgc = '$region'
+																)
+															UNION ALL
+																(
+																	SELECT
+																		t1.municipality_id,
+																		t1.provinceid,
+																		t2.region_psgc region
+																	FROM
+																		tbl_affected t1
+																	LEFT JOIN lib_provinces t2 ON t1.provinceid = t2. ID
+																	WHERE
+																		t1.disaster_title_id = '$id'
+																		AND t2.region_psgc = '$region'
+																)
+														) t1
+												) t1
+											LEFT JOIN lib_municipality t2 ON t1.municipality_id = t2. ID
+											ORDER BY
+												t1.municipality_id,
+												t1.provinceid
+					");
+
+
+				$querybrgy = $this->db->query("SELECT
+													t1.*, t2.municipality_name,
+													t3.province_name
+												FROM
+													lib_barangay t1
+												LEFT JOIN lib_municipality t2 ON t1.municipality_id = t2. ID
+												LEFT JOIN lib_provinces t3 ON t1.provinceid = t3. ID
+												WHERE t3.region_psgc = '$region'
+												ORDER BY
+													t1. ID
+											");
+
+				$query2 = $this->db->query("SELECT
+												t5.province_name,
+												t4.municipality_name,
+												COALESCE (
+													t6.brgy_name,
+													'NOT INDICATED'
+												) brgy_name,
+												t1. ID dromic_id,
+												t3.*
+											FROM
+												tbl_disaster_title t1
+											LEFT JOIN tbl_dromic t2 ON t1.dromic_id = t2. ID
+											LEFT JOIN  tbl_evac_outside_stats t3 ON t1. ID = t3.disaster_title_id
+											LEFT JOIN  lib_municipality t4 ON t3.municipality_id = t4. ID
+											LEFT JOIN  lib_provinces t5 ON t3.provinceid = t5. ID
+											LEFT JOIN  lib_barangay t6 ON t3.brgy_host :: CHARACTER VARYING = t6. ID :: CHARACTER VARYING
+											WHERE
+												t3.disaster_title_id = '$id' -- disaster_title_id
+											AND t5.region_psgc = '$region'
+											ORDER BY
+												t3.municipality_id,
+												t3.brgy_host
+										");
+
+				$query_fnfis = $this->db->query("SELECT
+													t2.provinceid,
+													t2.municipality_id,
+													t2.disaster_title_id,
+													t1.fnfi_name,
+													t1.quantity,
+													t1. COST,
+													t1.fnfitype
+												FROM
+													tbl_fnfi_assistance_list t1
+												LEFT JOIN tbl_fnfi_assistance t2 ON t1.fnfi_assistance_id = t2. ID
+												LEFT JOIN tbl_disaster_title t3 ON t2.disaster_title_id = t3. ID
+												LEFT JOIN lib_provinces t4 ON t2.provinceid = t4.id
+												WHERE
+													t2.disaster_title_id = '$id'
+												AND t4.region_psgc = '$region'
+										");
+
+				$query_sex_gender = $this->db->query("SELECT
+															t1.*, t3.brgy_located_ec
+														FROM
+															tbl_sex_gender_data t1
+														LEFT JOIN tbl_disaster_title t2 ON t1.disaster_title_id :: CHARACTER VARYING = t2. ID :: CHARACTER VARYING
+														LEFT JOIN tbl_activated_ec t3 ON t1.evac_id :: CHARACTER VARYING = t3. ID :: CHARACTER VARYING
+														LEFT JOIN lib_provinces t4 ON t1.province_id :: CHARACTER VARYING = t4.id :: CHARACTER VARYING
+														WHERE
+															t2. ID = '$id'
+														AND t4.region_psgc = '$region'
+										");
+
+				$query_facilities = $this->db->query("SELECT
+														t1.*, t3.brgy_located_ec
+													FROM
+														tbl_ec_facilities t1
+													LEFT JOIN tbl_disaster_title t2 ON t1.disaster_title_id :: CHARACTER VARYING = t2. ID :: CHARACTER VARYING
+													LEFT JOIN tbl_activated_ec t3 ON t1.evac_id :: CHARACTER VARYING = t3. ID :: CHARACTER VARYING
+													LEFT JOIN lib_provinces t4 ON t1.province_id :: CHARACTER VARYING = t4. ID :: CHARACTER VARYING
+													WHERE
+														t2. ID = '$id'
+													AND t4.region_psgc = '$region'
+										");
+
+				$masterquery = $this->db->query("SELECT
+													t1.provinceid,
+													t1.municipality_id,
+													SUM (family_a_t) family_a_t,
+													SUM (person_a_t) person_a_t,
+													SUM (family_cum_i) family_cum_i,
+													SUM (family_now_i) family_now_i,
+													SUM (person_cum_i) person_cum_i,
+													SUM (person_now_i) person_now_i,
+													SUM (family_cum_o) family_cum_o,
+													SUM (family_now_o) family_now_o,
+													SUM (person_cum_o) person_cum_o,
+													SUM (person_now_o) person_now_o,
+													SUM (family_cum_s_t) family_cum_s_t,
+													SUM (family_now_s_t) family_now_s_t,
+													SUM (person_cum_s_t) person_cum_s_t,
+													SUM (person_now_s_t) person_now_s_t
+												FROM
+													(
+														SELECT
+															t1.provinceid,
+															t1.municipality_id,
+															COALESCE (t1.family_cum_i, '0') + COALESCE (t1.family_cum_o, '0') family_a_t,
+															COALESCE (t1.person_cum_i, '0') + COALESCE (t1.person_cum_o, '0') person_a_t,
+															t1.family_cum_i,
+															t1.family_now_i,
+															t1.person_cum_i,
+															t1.person_now_i,
+															t1.family_cum_o,
+															t1.family_now_o,
+															t1.person_cum_o,
+															t1.person_now_o,
+															COALESCE (t1.family_cum_i, '0') + COALESCE (t1.family_cum_o, '0') family_cum_s_t,
+															COALESCE (t1.family_now_i, '0') + COALESCE (t1.family_now_o, '0') family_now_s_t,
+															COALESCE (t1.person_cum_i, '0') + COALESCE (t1.person_cum_o, '0') person_cum_s_t,
+															COALESCE (t1.person_now_i, '0') + COALESCE (t1.person_now_o, '0') person_now_s_t
+														FROM
+															(
+																SELECT
+																	t1.provinceid,
+																	t1.municipality_id,
+																	t1.family_cum_i,
+																	t1.family_now_i,
+																	t1.person_cum_i,
+																	t1.person_now_i,
+																	t1.family_cum_o,
+																	t1.family_now_o,
+																	t1.person_cum_o,
+																	t1.person_now_o
+																FROM
+																	(
+																		SELECT
+																			t0.*
+																		FROM
+																			(
+																				SELECT
+																					t1.provinceid,
+																					t1.municipality_id,
+																					t1.family_cum :: INTEGER family_cum_i,
+																					t1.family_now :: INTEGER family_now_i,
+																					t1.person_cum :: INTEGER person_cum_i,
+																					t1.person_now :: INTEGER person_now_i,
+																					'0' :: INTEGER family_cum_o,
+																					'0' :: INTEGER family_now_o,
+																					'0' :: INTEGER person_cum_o,
+																					'0' :: INTEGER person_now_o
+																				FROM
+																					tbl_evacuation_stats t1
+																				LEFT JOIN tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
+																				LEFT JOIN lib_provinces t3 On t1.provinceid = t3.id
+																				WHERE
+																					t1.disaster_title_id =  '$id'
+																					AND t3.region_psgc = '$region'
+																				ORDER BY
+																					t1.municipality_id
+																			) t0
+																		UNION ALL
+																			(
+																				SELECT
+																					t1.provinceid,
+																					t1.municipality_id,
+																					'0' :: INTEGER family_cum_i,
+																					'0' :: INTEGER family_now_i,
+																					'0' :: INTEGER person_cum_i,
+																					'0' :: INTEGER person_now_i,
+																					t1.family_cum :: INTEGER family_cum_o,
+																					t1.family_now :: INTEGER family_now_o,
+																					t1.person_cum :: INTEGER person_cum_o,
+																					t1.person_now :: INTEGER person_now_o
+																				FROM
+																					tbl_evac_outside_stats t1
+																				LEFT JOIN tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
+																				LEFT JOIN lib_provinces t3 On t1.provinceid = t3.id
+																				WHERE
+																					t1.disaster_title_id =  '$id'
+																					AND t3.region_psgc = '$region'
+																				ORDER BY
+																					t1.municipality_id
+																			)
+																		UNION ALL
+																			(
+																				SELECT
+																					t1.provinceid,
+																					t1.municipality_id,
+																					'0' :: INTEGER family_cum_i,
+																					'0' :: INTEGER family_now_i,
+																					'0' :: INTEGER person_cum_i,
+																					'0' :: INTEGER person_now_i,
+																					'0' :: INTEGER family_cum_o,
+																					'0' :: INTEGER family_now_o,
+																					'0' :: INTEGER person_cum_o,
+																					'0' :: INTEGER person_now_o
+																				FROM
+																					tbl_casualty_asst t1
+																				LEFT JOIN tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
+																				LEFT JOIN lib_provinces t3 On t1.provinceid = t3.id
+																				WHERE
+																					t1.disaster_title_id =  '$id'
+																					AND t3.region_psgc = '$region'
+																				ORDER BY
+																					t1.municipality_id
+																			)
+																	) t1
+															) t1
+														ORDER BY
+															t1.municipality_id
+													) t1
+												LEFT JOIN lib_provinces t2 ON t1.provinceid = t2. ID
+												WHERE t2.region_psgc = '$region'
+												GROUP BY
+													t1.provinceid,
+													t1.municipality_id
+												ORDER BY
+													t1.municipality_id
+										");
+				$masterquery2 = $this->db->query("SELECT
+													t1.*
+												FROM
+													(
+														SELECT
+															t1.provinceid,
+															t1.municipality_id,
+															COUNT (t1.brgy :: INTEGER) brgynum
+														FROM
+															(
+																SELECT
+																	*
+																FROM
+																	(
+																		SELECT DISTINCT
+																			ON (t1.brgy) t1.provinceid,
+																			t1.municipality_id,
+																			CONCAT ('0', t1.brgy) :: INTEGER brgy
+																		FROM
+																			(
+																				SELECT DISTINCT
+																					ON (tx.brgy) tx.provinceid,
+																					tx.municipality_id,
+																					CONCAT ('0', tx.brgy) :: INTEGER brgy
+																				FROM
+																					(
+																						SELECT DISTINCT
+																							tx.*
+																						FROM
+																							(
+																								SELECT
+																									t4.provinceid,
+																									t4.municipality_id,
+																									regexp_split_to_table(t4.brgy_located, '[\\s,]+') brgy
+																								FROM
+																									PUBLIC .tbl_evacuation_stats t4
+																								LEFT JOIN PUBLIC .tbl_disaster_title t5 ON t4.disaster_title_id = t5. ID
+																								WHERE
+																									t4.disaster_title_id = $id -- disaster_title_id
+																								GROUP BY
+																									t4.municipality_id,
+																									t4.provinceid,
+																									t4.brgy_located
+																								ORDER BY
+																									t4.brgy_located ASC,
+																									t4.municipality_id ASC
+																							) tx
+																						UNION ALL
+																							(
+																								SELECT DISTINCT
+																									ON (t1.brgy) *
+																								FROM
+																									(
+																										SELECT
+																											*
+																										FROM
+																											(
+																												SELECT DISTINCT
+																													ON (t4.brgy_host) t4.provinceid,
+																													t4.municipality_id,
+																													t4.brgy_host brgy
+																												FROM
+																													PUBLIC .tbl_evac_outside_stats t4
+																												LEFT JOIN PUBLIC .tbl_disaster_title t5 ON t4.disaster_title_id = t5. ID
+																												WHERE
+																													t4.disaster_title_id = $id -- disaster_title_id
+																												AND t4.brgy_host <> '0'
+																												GROUP BY
+																													t4.municipality_id,
+																													t4.provinceid,
+																													t4.brgy_host
+																												ORDER BY
+																													t4.brgy_host ASC,
+																													t4.municipality_id ASC
+																											) t1
+																										UNION ALL
+																											(
+																												SELECT DISTINCT
+																													ON (t4.brgy_origin) t4.provinceid,
+																													t4.municipality_id,
+																													t4.brgy_origin brgy
+																												FROM
+																													PUBLIC .tbl_evac_outside_stats t4
+																												LEFT JOIN PUBLIC .tbl_disaster_title t5 ON t4.disaster_title_id = t5. ID
+																												WHERE
+																													t4.disaster_title_id = $id -- disaster_title_id
+																												AND t4.brgy_origin ~ '^\d+(.\d+)?$' = TRUE
+																												GROUP BY
+																													t4.municipality_id,
+																													t4.provinceid,
+																													t4.brgy_origin
+																												ORDER BY
+																													t4.brgy_origin ASC,
+																													t4.municipality_id ASC
+																											)
+																									) t1
+																							)
+																						UNION ALL
+																							(
+																								SELECT
+																									t1.*
+																								FROM
+																									(
+																										SELECT DISTINCT
+																											ON (t1.brgy) t1.provinceid,
+																											t1.municipality_id,
+																											t1.brgy
+																										FROM
+																											(
+																												SELECT
+																													t1.*
+																												FROM
+																													(
+																														SELECT
+																															t1.provinceid,
+																															t1.municipality_id,
+																															regexp_split_to_table(t1.brgy_id, '[\\s|]+') brgy
+																														FROM
+																															PUBLIC .tbl_casualty_asst t1
+																														WHERE
+																															t1.disaster_title_id = $id
+																													) t1
+																											) t1
+																										ORDER BY
+																											t1.brgy
+																									) t1
+																								ORDER BY
+																									t1.provinceid,
+																									t1.municipality_id,
+																									t1.brgy
+																							)
+																					) tx
+																				ORDER BY
+																					tx.brgy
+																			) t1
+																		ORDER BY
+																			t1.brgy
+																	) t1
+															) t1
+														GROUP BY
+															t1.provinceid,
+															t1.municipality_id
+													) t1
+												LEFT JOIN lib_provinces t2 ON t1.provinceid = t2. ID
+												WHERE
+													t2.region_psgc = '$region'
+												ORDER BY
+													t1.provinceid,
+													t1.municipality_id
+
+										");
+				$masterquery3 = $this->db->query("SELECT
+													t1.provinceid,
+													t1.municipality_id,
+													t4.ec_cum,
+													t4.ec_now
+												FROM
+													PUBLIC .tbl_evacuation_stats t1
+												LEFT JOIN PUBLIC .tbl_disaster_title t3 ON t1.disaster_title_id = t3. ID
+												LEFT JOIN tbl_activated_ec t4 ON t1.evacuation_name :: CHARACTER VARYING = t4. ID :: CHARACTER VARYING
+												LEFT JOIN lib_provinces t5 ON t1.provinceid = t5. ID
+												WHERE
+													t4.ec_cum = '1'
+												AND t1.disaster_title_id = '$id' -- disaster_title_id
+												AND t5.region_psgc = '$region'
+												ORDER BY
+													t1.municipality_id
+										");
+				$query_casualty_title = $this->db->query("SELECT
+															t1.*, t3.municipality_name
+														FROM
+															tbl_casualty_asst t1
+														LEFT JOIN tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
+														LEFT JOIN lib_municipality t3 ON t1.municipality_id = t3. ID
+														LEFT JOIN lib_provinces t4 ON t1.provinceid = t4. ID
+														WHERE
+															t2. ID = '$id' -- disaster_title_id
+														AND t4.region_psgc = '$region'
+														ORDER BY
+															t1.municipality_id
+										");
+
+				$query_casualties = $this->db->query("SELECT
+														t1. ID,
+														t1.disaster_title_id,
+														UPPER (t1.lastname) lastname,
+														UPPER (t1.firstname) firstname,
+														UPPER (t1.middle_i) middle_i,
+														UPPER (t1.gender) gender,
+														t1.provinceid,
+														t1.municipalityid,
+														UPPER (t1.brgyname) brgyname,
+														t1.isdead,
+														t1.ismissing,
+														t1.isinjured,
+														UPPER (t1.remarks) remarks,
+														t1.age,
+														t3.municipality_name,
+														t4.province_name
+													FROM
+														public.tbl_casualty t1
+													LEFT JOIN public.tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
+													LEFT JOIN public.lib_municipality t3 ON t1.municipalityid = t3. ID
+													LEFT JOIN public.lib_provinces t4 ON t1.provinceid = t4. ID
+													WHERE
+														t1.disaster_title_id = $id -- disaster_title_id
+													ORDER BY
+														t1.provinceid,
+														t1.municipalityid,
+														t1.brgyname
+									");
+
+				$query_dam_per_brgy = $this->db->query("SELECT
+															t1.*, t2.brgy_name
+														FROM
+															PUBLIC .tbl_damage_per_brgy t1
+														LEFT JOIN PUBLIC .lib_barangay t2 ON t1.brgy_id = t2. ID
+														LEFT JOIN lib_provinces t3 ON t1.provinceid = t3. ID
+														WHERE
+															t1.disaster_title_id = '$id'
+														AND t3.region_psgc = '$region'
+														ORDER BY
+															t1. ID
+									");
+
+				$query_all_affected = $this->db->query("SELECT
+														t1.*
+													FROM
+														public.tbl_affected t1
+														LEFT JOIN lib_provinces t3 ON t1.provinceid = t3. ID
+													WHERE
+														t1.disaster_title_id = '$id'
+														AND t3.region_psgc = '$region'
+													ORDER BY t1.id
+								");
+
+				$query_all_munis = $this->db->query("SELECT
+														COUNT (t1.municipality_id) all_munis,
+														t1.iscity
+													FROM
+														(
+															SELECT
+																t1.*, t2.iscity
+															FROM
+																(
+																	SELECT DISTINCT
+																		(t1.municipality_id)
+																	FROM
+																		(
+																			SELECT DISTINCT
+																				(municipality_id)
+																			FROM
+																				tbl_evacuation_stats t1
+																			LEFT JOIN lib_provinces t2 ON t1.provinceid = t2. ID
+																			WHERE
+																				disaster_title_id = '$id'
+																			AND t2.region_psgc = '$region'
+																			UNION ALL
+																				(
+																					SELECT DISTINCT
+																						(t2.municipality_id)
+																					FROM
+																						PUBLIC .tbl_evac_outside_stats t2
+																					LEFT JOIN lib_provinces t3 ON t2.provinceid = t3. ID
+																					WHERE
+																						disaster_title_id = '$id'
+																					AND t3.region_psgc = '$region'
+																				)
+																			UNION ALL
+																				(
+																					SELECT DISTINCT
+																						(t3.municipality_id)
+																					FROM
+																						PUBLIC .tbl_casualty_asst t3
+																					LEFT JOIN lib_provinces t4 ON t3.provinceid = t4. ID
+																					WHERE
+																						disaster_title_id = '$id'
+																					AND t4.region_psgc = '$region'
+																				)
+																			UNION ALL
+																				(
+																					SELECT DISTINCT
+																						(t3.municipality_id)
+																					FROM
+																						PUBLIC .tbl_affected t3
+																					LEFT JOIN lib_provinces t4 ON t3.provinceid = t4. ID
+																					WHERE
+																						disaster_title_id = '$id'
+																					AND t4.region_psgc = '$region'
+																				)
+																		) t1
+																) t1
+															LEFT JOIN PUBLIC .lib_municipality t2 ON t1.municipality_id = t2. ID
+														) t1
+													GROUP BY
+														t1.iscity
+									");
+
+				$query_all_prov_chart = $this->db->query("SELECT
+															t3. ID,
+															t3.province_name,
+															SUM (t1.family_cum) fam_cum
+														FROM
+															(
+																SELECT
+																	SUM (t1.family_cum :: NUMERIC) AS family_cum,
+																	t1.municipality_id,
+																	t1.municipality_name,
+																	t1.disaster_title
+																FROM
+																	(
+																		SELECT
+																			SUM (t1.family_cum :: NUMERIC) AS family_cum,
+																			t1.municipality_id,
+																			t3.municipality_name,
+																			t2.disaster_title
+																		FROM
+																			PUBLIC .tbl_evacuation_stats t1
+																		LEFT JOIN PUBLIC .tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
+																		LEFT JOIN PUBLIC .lib_municipality t3 ON t1.municipality_id = t3. ID
+																		WHERE
+																			t1.disaster_title_id = $id
+																		GROUP BY
+																			t1.municipality_id,
+																			t3.municipality_name,
+																			t2.disaster_title
+																		UNION ALL
+																			(
+																				SELECT
+																					SUM (t1.family_cum :: NUMERIC) AS family_cum,
+																					t1.municipality_id,
+																					t3.municipality_name,
+																					t2.disaster_title
+																				FROM
+																					PUBLIC .tbl_evac_outside_stats t1
+																				LEFT JOIN PUBLIC .tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
+																				LEFT JOIN PUBLIC .lib_municipality t3 ON t1.municipality_id = t3. ID
+																				WHERE
+																					t1.disaster_title_id = $id
+																				GROUP BY
+																					t1.municipality_id,
+																					t3.municipality_name,
+																					t2.disaster_title
+																			)
+																	) t1
+																GROUP BY
+																	t1.municipality_id,
+																	t1.municipality_name,
+																	t1.disaster_title
+															) t1
+														LEFT JOIN PUBLIC .lib_municipality t2 ON t1.municipality_id = t2. ID
+														LEFT JOIN lib_provinces t3 ON t2.provinceid = t3. ID
+														WHERE t3.region_psgc = '$region'
+														GROUP BY
+															t3. ID,
+															t3.province_name
+														ORDER BY
+															t3. ID
+									");
+
+				$aff_prov_chart = $query_all_prov_chart->result_array();
+
+				$aff_prov = array();
+
+				$pid = "";
+
+				for ($ii=0; $ii < count($aff_prov_chart); $ii++) { 
+
+					$chars = 'ABCDEF0123456789';
+				    $colors = '#';
+
+				    for ( $l = 0; $l < 6; $l++ ) {
+				       $colors .= $chars[rand(0, strlen($chars) - 1)];
+				    }
+
+					$aff_prov[] = array(
+						'name' 			=> $aff_prov_chart[$ii]['province_name'],
+						'y' 			=> (int)$aff_prov_chart[$ii]['fam_cum'],
+						'drilldown' 	=> $aff_prov_chart[$ii]['province_name'],
+						'color' 		=> $colors
+
+					);
+
+					$pid = $aff_prov_chart[$ii]['id'];
+
+
+					$query_all_munis_chart = $this->db->query("SELECT
+																t1.*
+															FROM
+																(
+																	SELECT
+																		t3. ID,
+																		t3.province_name,
+																		t2.municipality_name,
+																		t1.family_cum
+																	FROM
+																		(
+																			SELECT
+																				SUM (t1.family_cum :: NUMERIC) AS family_cum,
+																				t1.municipality_id,
+																				t1.municipality_name,
+																				t1.disaster_title
+																				FROM
+																					(
+																						SELECT
+																							SUM (t1.family_cum :: NUMERIC) AS family_cum,
+																							t1.municipality_id,
+																							t3.municipality_name,
+																							t2.disaster_title
+																						FROM
+																							public.tbl_evacuation_stats t1
+																						LEFT JOIN public.tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
+																						LEFT JOIN public.lib_municipality t3 ON t1.municipality_id = t3. ID
+																						WHERE
+																							t1.disaster_title_id = $id
+																						GROUP BY
+																							t1.municipality_id,
+																							t3.municipality_name,
+																							t2.disaster_title
+																						UNION ALL
+																							(
+																								SELECT
+																									SUM (t1.family_cum :: NUMERIC) AS family_cum,
+																									t1.municipality_id,
+																									t3.municipality_name,
+																									t2.disaster_title
+																								FROM
+																									public.tbl_evac_outside_stats t1
+																								LEFT JOIN public.tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
+																								LEFT JOIN public.lib_municipality t3 ON t1.municipality_id = t3. ID
+																								WHERE
+																									t1.disaster_title_id = $id
+																								GROUP BY
+																									t1.municipality_id,
+																									t3.municipality_name,
+																									t2.disaster_title
+																							)
+																					) t1
+																				GROUP BY
+																					t1.municipality_id,
+																					t1.municipality_name,
+																					t1.disaster_title
+																		) t1
+																	LEFT JOIN public.lib_municipality t2 ON t1.municipality_id = t2. ID
+																	LEFT JOIN public.lib_provinces t3 ON t2.provinceid = t3. ID
+																	ORDER BY
+																		t3. ID
+																) t1
+															WHERE t1.id = '$pid'
+									");
+
+					$aff_munis_chart = $query_all_munis_chart->result_array();
+
+					$aff_munis = array();
+
+					$aff_munis_drill[] = array();
+
+					for ($iii=0; $iii < count($aff_munis_chart); $iii++) { 
+
+						$chars = 'ABCDEF0123456789';
+					    $colors = '#';
+
+					    for ( $ll = 0; $ll < 6; $ll++ ) {
+					       $colors .= $chars[rand(0, strlen($chars) - 1)];
+					    }
+
+						$aff_munis[] = array(
+							'name' 			=> $aff_munis_chart[$iii]['municipality_name'],
+							'y' 			=> (int)$aff_munis_chart[$iii]['family_cum'],
+							'color' 		=> $colors
+						);
+
+						$aff_munis_all[] = array(
+							'name' 			=> $aff_munis_chart[$iii]['municipality_name'],
+							'y' 			=> (int)$aff_munis_chart[$iii]['family_cum'],
+							'color' 		=> $colors
+						);
+					}
+
+					$aff_munis_drill[] = array(
+						'name' 			=> $aff_prov_chart[$ii]['province_name'],
+						'id' 			=> $aff_prov_chart[$ii]['province_name'],
+						'data' 			=> $aff_munis
+					);
+
+				}
+
+				$query_all_brgy_chart = $this->db->query("SELECT
+																t1.municipality_id,
+																t1.municipality_name,
+																t1.brgy_located_ec,
+																t2.brgy_name,
+																t1.family_cum 
+															FROM
+																(
+																SELECT SUM
+																	( t1.family_cum :: NUMERIC ) AS family_cum,
+																	t1.municipality_id,
+																	t1.municipality_name,
+																	t1.disaster_title,
+																	t1.brgy_located_ec 
+																FROM
+																	(
+																	SELECT SUM
+																		( t1.family_cum :: NUMERIC ) AS family_cum,
+																		t1.municipality_id,
+																		t3.municipality_name,
+																		t2.disaster_title,
+																		t4.brgy_located_ec 
+																	FROM
+																		PUBLIC.tbl_evacuation_stats t1
+																		LEFT JOIN PUBLIC.tbl_disaster_title t2 ON t1.disaster_title_id = t2.
+																		ID LEFT JOIN PUBLIC.lib_municipality t3 ON t1.municipality_id = t3.
+																		ID LEFT JOIN PUBLIC.tbl_activated_ec t4 ON t1.evacuation_name :: INTEGER = t4.ID 
+																	WHERE
+																		t1.disaster_title_id = '$id'
+																	GROUP BY
+																		t1.municipality_id,
+																		t3.municipality_name,
+																		t2.disaster_title,
+																		t4.brgy_located_ec UNION ALL
+																		(
+																		SELECT SUM
+																			( t1.family_cum :: NUMERIC ) AS family_cum,
+																			t1.municipality_id,
+																			t3.municipality_name,
+																			t2.disaster_title,
+																			t1.brgy_host brgy_located_ec 
+																		FROM
+																			PUBLIC.tbl_evac_outside_stats t1
+																			LEFT JOIN PUBLIC.tbl_disaster_title t2 ON t1.disaster_title_id = t2.
+																			ID LEFT JOIN PUBLIC.lib_municipality t3 ON t1.municipality_id = t3.ID 
+																		WHERE
+																			t1.disaster_title_id = '$id'
+																		GROUP BY
+																			t1.municipality_id,
+																			t3.municipality_name,
+																			t2.disaster_title,
+																			t1.brgy_host 
+																		)) t1 
+																GROUP BY
+																	t1.municipality_id,
+																	t1.municipality_name,
+																	t1.disaster_title,
+																	t1.brgy_located_ec 
+																) t1
+																LEFT JOIN lib_barangay t2 On t1.brgy_located_ec::integer = t2.ID
+																WHERE t1.municipality_id = '$mun_id'
+					");
+
+				$aff_brgy_chart = $query_all_brgy_chart->result_array();
+
+				$aff_brgy = array();
+
+				for ($vv = 0; $vv < count($aff_brgy_chart); $vv++) { 
+
+					$chars = 'ABCDEF0123456789';
+				    $colors = '#';
+
+				    for ( $ll = 0; $ll < 6; $ll++ ) {
+				       $colors .= $chars[rand(0, strlen($chars) - 1)];
+				    }
+
+					$aff_brgy[] = array(
+						'name' 			=> $aff_brgy_chart[$vv]['brgy_name'],
+						'y' 			=> (int)$aff_brgy_chart[$vv]['family_cum'],
+						'color' 		=> $colors
+					);
+
+				}
+
+				$query_brgy_unique_ec = $this->db->query("
+														SELECT
+															* 
+														FROM
+															(
+															SELECT DISTINCT ON
+																( t1.brgy_located_ec, t1.brgy_located ) t1.region_psgc,
+																t1.province_id,
+																t1.municipality_id,
+																t1.brgy_located_ec :: INTEGER,
+																t1.brgy_located :: INTEGER 
+															FROM
+																(
+																SELECT
+																	* 
+																FROM
+																	(
+																	SELECT
+																		t3.region_psgc,
+																		t1.province_id,
+																		t1.municipality_id,
+																		t1.brgy_located_ec,
+																		regexp_split_to_table( t2.brgy_located, ',' ) AS brgy_located 
+																	FROM
+																		tbl_activated_ec t1
+																		LEFT JOIN tbl_evacuation_stats t2 ON t1.ID = t2.evacuation_name :: INTEGER 
+																		AND t1.dromic_id = t2.dromic_ids
+																		LEFT JOIN lib_provinces t3 ON t1.province_id :: INTEGER = t3.ID 
+																	WHERE
+																		t2.disaster_title_id = '$id' 
+																		AND t3.region_psgc = '$region' 
+																	) t1 
+																) t1 
+															) t1 
+														ORDER BY
+															t1.municipality_id ASC,
+															t1.brgy_located_ec ASC,
+															t1.brgy_located ASC 
+				");
+
+				$query_served_not_displaced = $this->db->query("
+														SELECT
+															t2.region_psgc,
+															t1.*
+														FROM
+															tbl_not_displaced_served t1 
+															LEFT JOIN lib_provinces t2 ON t1.provinceid::character varying = t2.id::character varying 
+															WHERE t1.disaster_title_id = '$id'
+															AND t2.region_psgc = '$region'
+				");
+
+
+				$data['rs'] 					= $query->result();
+				$data['rsoutside'] 				= $query2->result();
+				$data['city'] 					= $query1->result();
+				$data['brgy'] 					= $querybrgy->result();
+				$data['brgys'] 					= $query_brgys->result();
+				$data['masterquery'] 			= $masterquery->result();
+				$data['masterquery2'] 			= $masterquery2->result();
+				$data['masterquery3'] 			= $masterquery3->result();
+				$data['query_title'] 			= $query_title->result();
+				$data['query_asst'] 			= $query_casualty_title->result();
+				$data['query_casualties'] 		= $query_casualties->result();
+				$data['query_damage_per_brgy'] 	= $query_dam_per_brgy->result();
+				$data['query_all_munis'] 		= $query_all_munis->result();
+				$data['aff_prov'] 				= $aff_prov;
+				$data['aff_munis_drill'] 		= $aff_munis_drill;
+				$data['aff_munis_all'] 			= $aff_munis_all;
+				$data['aff_brgy'] 				= $aff_brgy;
+
+				$data['queryecs'] 				= $queryecs->result();
+
+				$data['query_outec'] 			= $query_outec->result();
+
+				$data['query_fnfis'] 			= $query_fnfis->result();
+
+				$data['sex'] 					= $query_sex_gender->result();
+				$data['facilities'] 			= $query_facilities->result();
+
+				$data['brgy_unique_ec'] 		= $query_brgy_unique_ec->result();
+
+				$data['all_affected'] 			= $query_all_affected->result();
+
+				$data['fnds'] 					= $query_served_not_displaced->result();
 
 				return $data;
 			}
@@ -2354,6 +3517,111 @@ class disaster_model extends CI_Model{
 				else
 				{
 				    $this->db->trans_commit();
+
+				    $query2_a= $this->db->query("
+													SELECT
+														t1.brgy_located_ec,
+														SUM ( t1.fam_cum :: INTEGER ) fam_cum,
+														SUM ( t1.person_cum :: INTEGER ) person_cum 
+													FROM
+														(
+														SELECT
+															* 
+														FROM
+															(
+															SELECT
+																t2.brgy_located_ec,
+																SUM ( t1.family_cum :: INTEGER ) fam_cum,
+																SUM ( t1.person_cum :: INTEGER ) person_cum 
+															FROM
+																tbl_evacuation_stats t1
+																LEFT JOIN tbl_activated_ec t2 ON t1.evacuation_name :: INTEGER = t2.ID 
+															WHERE
+																t1.disaster_title_id = '$disaster_title_id' 
+																AND t2.brgy_located_ec = '$brgy_located' 
+															GROUP BY
+																t2.brgy_located_ec 
+															) t1 UNION ALL
+															(
+															SELECT
+																t1.brgy_host,
+																SUM ( t1.family_cum :: INTEGER ) fam_cum,
+																SUM ( t1.person_cum :: INTEGER ) person_cum 
+															FROM
+																tbl_evac_outside_stats t1 
+															WHERE
+																t1.disaster_title_id = '$disaster_title_id' 
+																AND t1.brgy_host = '$brgy_located' 
+															GROUP BY
+															t1.brgy_host 
+														)) t1
+														GROUP BY
+																t1.brgy_located_ec 
+					");
+
+					$arr_a = $query2_a->result_array();
+
+					if($query2_a->num_rows() > 0){
+
+						$q_2 = $this->db->query("SELECT * FROM tbl_damage_per_brgy WHERE disaster_title_id = '$disaster_title_id' AND brgy_id = '$brgy_located'");
+						$arr2_q = $q_2->result_array();
+
+						$tmp_fam = 0;
+						$tmp_per = 0;
+						$affected_family = 0;
+						$affected_persons = 0;
+
+						if($q_2->num_rows() > 0){
+
+							for($r = 0 ; $r < count($arr2_q) ; $r++){
+								$tmp_fam += $arr2_q[$r]["affected_family"];
+								$tmp_per += $arr2_q[$r]["affected_persons"];
+							}
+
+							if($tmp_fam >= $arr_a[0]['fam_cum']){
+								$affected_family = $tmp_fam;
+							}else{
+								$affected_family = $arr_a[0]['fam_cum'];
+							}
+
+							if($tmp_per >= $arr_a[0]['person_cum']){
+								$affected_persons = $tmp_per;
+							}else{
+								$affected_persons = $arr_a[0]['person_cum'];
+							}
+
+							$data_ec_up = array(
+								'affected_family' 			=> $affected_family,
+								'affected_persons' 			=> $affected_persons
+							);
+
+							$q_a = $this->db->where('disaster_title_id', $data['disaster_title_id']);
+							$q_a = $this->db->where('brgy_id', $data['brgy_located_ec']);
+							$q_a = $this->db->update('tbl_damage_per_brgy', $data_ec_up);
+
+						}else{
+
+							$affected_family = $arr_a[0]['fam_cum'];
+							$affected_persons = $arr_a[0]['person_cum'];
+
+							$data_ec_ins = array(
+								'disaster_title_id' 		=> $data['disaster_title_id'],
+								'provinceid' 				=> $data['provinceid'],
+								'municipality_id' 			=> $data['municipality_id'],
+								'brgy_id' 					=> $data['brgy_located_ec'],
+								'totally_damaged' 			=> 0,
+								'partially_damaged' 		=> 0,
+								'affected_family' 			=> $affected_family,
+								'affected_persons' 			=> $affected_persons,
+								'costasst_brgy' 			=> 0
+							);
+
+							$this->db->insert("tbl_damage_per_brgy",$data_ec_ins);
+
+						}
+
+					}
+
 				    return 1;
 				}
 
@@ -2399,10 +3667,115 @@ class disaster_model extends CI_Model{
 				{
 				    $this->db->trans_rollback();
 				    return 0;
-				}
-				else
-				{
+
+				}else{
+
 				    $this->db->trans_commit();
+
+				    $query2_a = $this->db->query("
+													SELECT
+														t1.brgy_located_ec,
+														SUM ( t1.fam_cum :: INTEGER ) fam_cum,
+														SUM ( t1.person_cum :: INTEGER ) person_cum 
+													FROM
+														(
+														SELECT
+															* 
+														FROM
+															(
+															SELECT
+																t2.brgy_located_ec,
+																SUM ( t1.family_cum :: INTEGER ) fam_cum,
+																SUM ( t1.person_cum :: INTEGER ) person_cum 
+															FROM
+																tbl_evacuation_stats t1
+																LEFT JOIN tbl_activated_ec t2 ON t1.evacuation_name :: INTEGER = t2.ID 
+															WHERE
+																t1.disaster_title_id = '$disaster_title_id' 
+																AND t2.brgy_located_ec = '$brgy_located' 
+															GROUP BY
+																t2.brgy_located_ec 
+															) t1 UNION ALL
+															(
+															SELECT
+																t1.brgy_host,
+																SUM ( t1.family_cum :: INTEGER ) fam_cum,
+																SUM ( t1.person_cum :: INTEGER ) person_cum 
+															FROM
+																tbl_evac_outside_stats t1 
+															WHERE
+																t1.disaster_title_id = '$disaster_title_id' 
+																AND t1.brgy_host = '$brgy_located' 
+															GROUP BY
+															t1.brgy_host 
+														)) t1
+														GROUP BY
+																t1.brgy_located_ec 
+					");
+
+					$arr_a = $query2_a->result_array();
+
+					if($query2_a->num_rows() > 0){
+
+						$q_2 = $this->db->query("SELECT * FROM tbl_damage_per_brgy WHERE disaster_title_id = '$disaster_title_id' AND brgy_id = '$brgy_located'");
+						$arr2_q = $q_2->result_array();
+
+						$tmp_fam = 0;
+						$tmp_per = 0;
+						$affected_family = 0;
+						$affected_persons = 0;
+
+						if($q_2->num_rows() > 0){
+
+							for($r = 0 ; $r < count($arr2_q) ; $r++){
+								$tmp_fam += $arr2_q[$r]["affected_family"];
+								$tmp_per += $arr2_q[$r]["affected_persons"];
+							}
+
+							if($tmp_fam >= $arr_a[0]['fam_cum']){
+								$affected_family = $tmp_fam;
+							}else{
+								$affected_family = $arr_a[0]['fam_cum'];
+							}
+
+							if($tmp_per >= $arr_a[0]['person_cum']){
+								$affected_persons = $tmp_per;
+							}else{
+								$affected_persons = $arr_a[0]['person_cum'];
+							}
+
+							$data_ec_up = array(
+								'affected_family' 			=> $affected_family,
+								'affected_persons' 			=> $affected_persons
+							);
+
+							$q_a = $this->db->where('disaster_title_id', $data['disaster_title_id']);
+							$q_a = $this->db->where('brgy_id', $data['brgy_located_ec']);
+							$q_a = $this->db->update('tbl_damage_per_brgy', $data_ec_up);
+
+						}else{
+
+							$affected_family = $arr_a[0]['fam_cum'];
+							$affected_persons = $arr_a[0]['person_cum'];
+
+							$data_ec_ins = array(
+								'disaster_title_id' 		=> $data['disaster_title_id'],
+								'provinceid' 				=> $data['provinceid'],
+								'municipality_id' 			=> $data['municipality_id'],
+								'brgy_id' 					=> $data['brgy_located_ec'],
+								'totally_damaged' 			=> 0,
+								'partially_damaged' 		=> 0,
+								'affected_family' 			=> $affected_family,
+								'affected_persons' 			=> $affected_persons,
+								'costasst_brgy' 			=> 0
+							);
+
+							$this->db->insert("tbl_damage_per_brgy", $data_ec_ins);
+
+						}
+
+					}
+
 				    return 1;
 				}
 
@@ -2644,8 +4017,13 @@ class disaster_model extends CI_Model{
 
 		public function updateEC($id,$data){
 
+			$disaster_title_id = $data["uriID"];
+
+			$did =  (int)$disaster_title_id;
 
 			$evacuation_center_id = $data['evacuation_center_id'];
+
+			$brgy_located_ec = $data['brgy_located_ec'];
 
 			$dataupactivated_ec = array(
 				'ec_name' 			=> $data['evacuation_name'],
@@ -2667,8 +4045,6 @@ class disaster_model extends CI_Model{
 				$arr = array();
 
 				$dataupec = array( 
-					'municipality_id'		=> $data['municipality_id'],
-					'provinceid'			=> $data['provinceid'],
 					'family_cum'			=> $data['family_cum'],
 					'family_now'			=> $data['family_now'],
 					'person_cum'			=> $data['person_cum'],
@@ -2685,6 +4061,92 @@ class disaster_model extends CI_Model{
 				if($stat1 == TRUE){
 
 					if($query){
+
+						$query2_a= $this->db->query("
+														SELECT
+															t1.brgy_located_ec,
+															SUM ( t1.fam_cum :: INTEGER ) fam_cum,
+															SUM ( t1.person_cum :: INTEGER ) person_cum 
+														FROM
+															(
+															SELECT
+																* 
+															FROM
+																(
+																SELECT
+																	t2.brgy_located_ec,
+																	SUM ( t1.family_cum :: INTEGER ) fam_cum,
+																	SUM ( t1.person_cum :: INTEGER ) person_cum 
+																FROM
+																	tbl_evacuation_stats t1
+																	LEFT JOIN tbl_activated_ec t2 ON t1.evacuation_name :: INTEGER = t2.ID 
+																WHERE
+																	t1.disaster_title_id = $did 
+																	AND t2.brgy_located_ec = '$brgy_located_ec' 
+																GROUP BY
+																	t2.brgy_located_ec 
+																) t1 UNION ALL
+																(
+																SELECT
+																	t1.brgy_host,
+																	SUM ( t1.family_cum :: INTEGER ) fam_cum,
+																	SUM ( t1.person_cum :: INTEGER ) person_cum 
+																FROM
+																	tbl_evac_outside_stats t1 
+																WHERE
+																	t1.disaster_title_id = $did
+																	AND t1.brgy_host = '$brgy_located_ec' 
+																GROUP BY
+																t1.brgy_host 
+															)) t1
+															GROUP BY
+																	t1.brgy_located_ec 
+						");
+
+						$arr_a = $query2_a->result_array();
+
+						if($query2_a->num_rows() > 0){
+
+							$q_2 = $this->db->query("SELECT * FROM tbl_damage_per_brgy WHERE disaster_title_id = '$did' AND brgy_id = '$brgy_located_ec'");
+							$arr2_q = $q_2->result_array();
+
+							$tmp_fam = 0;
+							$tmp_per = 0;
+							$affected_family = 0;
+							$affected_persons = 0;
+
+							if($q_2->num_rows() > 0){
+
+								for($r = 0 ; $r < count($arr2_q) ; $r++){
+									$tmp_fam += $arr2_q[$r]["affected_family"];
+									$tmp_per += $arr2_q[$r]["affected_persons"];
+								}
+
+								if($tmp_fam >= $arr_a[0]['fam_cum']){
+									$affected_family = $tmp_fam;
+								}else{
+									$affected_family = $arr_a[0]['fam_cum'];
+								}
+
+								if($tmp_per >= $arr_a[0]['person_cum']){
+									$affected_persons = $tmp_per;
+								}else{
+									$affected_persons = $arr_a[0]['person_cum'];
+								}
+
+								$data_ec_up = array(
+									'affected_family' 			=> $affected_family,
+									'affected_persons' 			=> $affected_persons
+								);
+
+								$q_a = $this->db->where('disaster_title_id', $did);
+								$q_a = $this->db->where('brgy_id', $brgy_located_ec);
+								$q_a = $this->db->update('tbl_damage_per_brgy', $data_ec_up);
+
+							}
+
+						}
+
 
 						$q2 = $this->db->where('id', $id);
 						$q2 = $this->db->get('tbl_evacuation_stats');
@@ -2825,9 +4287,6 @@ class disaster_model extends CI_Model{
 						'provinceid' 			=> $data['rs'][$i]['provinceid'],
 						'totally_damaged' 		=> $data['rs'][$i]['totally_damaged'],
 						'partially_damaged' 	=> $data['rs'][$i]['partially_damaged'],
-						'dead' 					=> $data['rs'][$i]['dead'],
-						'injured' 				=> $data['rs'][$i]['injured'],
-						'missing' 				=> $data['rs'][$i]['missing'],
 						'dswd_asst' 			=> $data['rs'][$i]['dswd_asst'],
 						'lgu_asst' 				=> $data['rs'][$i]['lgu_asst'],
 						'ngo_asst' 				=> $data['rs'][$i]['ngo_asst'],
@@ -2913,10 +4372,9 @@ class disaster_model extends CI_Model{
 						'brgy_id' 				=> $data['rs'][$i]['brgy_id'],
 						'totally_damaged' 		=> $data['rs'][$i]['totally_damaged'],
 						'partially_damaged' 	=> $data['rs'][$i]['partially_damaged'],
-						'dead' 					=> $data['rs'][$i]['dead'],
-						'injured' 				=> $data['rs'][$i]['injured'],
-						'missing' 				=> $data['rs'][$i]['missing'],
-						'costasst_brgy' 		=> $data['rs'][$i]['costasst_brgy']
+						'costasst_brgy' 		=> $data['rs'][$i]['costasst_brgy'],
+						'affected_family' 		=> $data['rs'][$i]['affected_family'],
+						'affected_persons' 		=> $data['rs'][$i]['affected_persons'],
 					);
 
 					$q7_a= $this->db->insert('tbl_damage_per_brgy',$datai);
@@ -3020,7 +4478,32 @@ class disaster_model extends CI_Model{
 				}
 
 
-				$this->db->query("UPDATE tbl_activated_ec set ec_status = 'Existing' WHERE dromic_id = '$dromic_id' AND ((lower(ec_status) = lower('newly-opened')) OR (lower(ec_status) = lower('re-activated')))");
+				$this->db->query("
+					UPDATE tbl_activated_ec set ec_status = 'Existing' 
+					WHERE dromic_id = '$dromic_id' 
+					AND ((lower(ec_status) = lower('newly-opened')) OR (lower(ec_status) = lower('re-activated')))
+				");
+
+				$q10 = $this->db->where('disaster_title_id',$oid);
+				$q10 = $this->db->get('tbl_not_displaced_served');
+
+				$data['rs'] = $q10->result_array();
+
+				for($i = 0 ; $i < count($data['rs']) ; $i++){
+
+					$datafnds = array(	
+						'disaster_title_id' 		=> $insert_id,
+						'provinceid' 				=> $data['rs'][$i]['provinceid'], 
+						'municipality_id' 			=> $data['rs'][$i]['municipality_id'],  
+						'families_served_cum' 		=> $data['rs'][$i]['families_served_cum'], 
+						'families_served_now' 		=> $data['rs'][$i]['families_served_now'], 
+						'persons_served_cum' 		=> $data['rs'][$i]['persons_served_cum'], 
+						'persons_served_now' 		=> $data['rs'][$i]['persons_served_now']			
+					);
+
+					$q10_a= $this->db->insert('tbl_not_displaced_served',$datafnds);
+
+				}
 
  
 				return $insert_id;
@@ -3049,9 +4532,6 @@ class disaster_model extends CI_Model{
 				$data = array(
 					'municipality_id' 	=> $_GET['municipality_id'],
 					'provinceid' 		=> $_GET['provinceid'],
-					'totally_damaged' 	=> $_GET['totally_damaged'],
-					'partially_damaged' => $_GET['partially_damaged'],
-					'dswd_asst' 		=> $_GET['dswd_asst'],
 					'lgu_asst' 			=> $_GET['lgu_asst'],
 					'ngo_asst' 			=> $_GET['ngo_asst'],
 					'ogo_asst' 			=> $_GET['ogo_asst']
@@ -3075,6 +4555,7 @@ class disaster_model extends CI_Model{
 					return 0;
 				}
 
+
 			}else{
 
 				$q = $this->db->insert('tbl_casualty_asst',$data);
@@ -3083,7 +4564,6 @@ class disaster_model extends CI_Model{
 				}
 
 			}
-
 			
 
 		}
@@ -3191,7 +4671,10 @@ class disaster_model extends CI_Model{
 
 		public function savenewfamOEC($data){
 
-			$q= $this->db->insert('tbl_evac_outside_stats',$data);
+			$disaster_title_id = $data["disaster_title_id"];
+			$brgy_located = $data["brgy_host"];
+
+			$q = $this->db->insert('tbl_evac_outside_stats',$data);
 
 			if ($this->db->trans_status() === FALSE)
 			{
@@ -3201,6 +4684,111 @@ class disaster_model extends CI_Model{
 			else
 			{
 			    $this->db->trans_commit();
+
+			    $query2_a= $this->db->query("
+												SELECT
+													t1.brgy_located_ec,
+													SUM ( t1.fam_cum :: INTEGER ) fam_cum,
+													SUM ( t1.person_cum :: INTEGER ) person_cum 
+												FROM
+													(
+													SELECT
+														* 
+													FROM
+														(
+														SELECT
+															t2.brgy_located_ec,
+															SUM ( t1.family_cum :: INTEGER ) fam_cum,
+															SUM ( t1.person_cum :: INTEGER ) person_cum 
+														FROM
+															tbl_evacuation_stats t1
+															LEFT JOIN tbl_activated_ec t2 ON t1.evacuation_name :: INTEGER = t2.ID 
+														WHERE
+															t1.disaster_title_id = '$disaster_title_id' 
+															AND t2.brgy_located_ec = '$brgy_located' 
+														GROUP BY
+															t2.brgy_located_ec 
+														) t1 UNION ALL
+														(
+														SELECT
+															t1.brgy_host,
+															SUM ( t1.family_cum :: INTEGER ) fam_cum,
+															SUM ( t1.person_cum :: INTEGER ) person_cum 
+														FROM
+															tbl_evac_outside_stats t1 
+														WHERE
+															t1.disaster_title_id = '$disaster_title_id' 
+															AND t1.brgy_host = '$brgy_located' 
+														GROUP BY
+														t1.brgy_host 
+													)) t1
+													GROUP BY
+															t1.brgy_located_ec 
+				");
+
+				$arr_a = $query2_a->result_array();
+
+				if($query2_a->num_rows() > 0){
+
+					$q_2 = $this->db->query("SELECT * FROM tbl_damage_per_brgy WHERE disaster_title_id = '$disaster_title_id' AND brgy_id = '$brgy_located'");
+					$arr2_q = $q_2->result_array();
+
+					$tmp_fam = 0;
+					$tmp_per = 0;
+					$affected_family = 0;
+					$affected_persons = 0;
+
+					if($q_2->num_rows() > 0){
+
+						for($r = 0 ; $r < count($arr2_q) ; $r++){
+							$tmp_fam += $arr2_q[$r]["affected_family"];
+							$tmp_per += $arr2_q[$r]["affected_persons"];
+						}
+
+						if($tmp_fam >= $arr_a[0]['fam_cum']){
+							$affected_family = $tmp_fam;
+						}else{
+							$affected_family = $arr_a[0]['fam_cum'];
+						}
+
+						if($tmp_per >= $arr_a[0]['person_cum']){
+							$affected_persons = $tmp_per;
+						}else{
+							$affected_persons = $arr_a[0]['person_cum'];
+						}
+
+						$data_ec_up = array(
+							'affected_family' 			=> $affected_family,
+							'affected_persons' 			=> $affected_persons
+						);
+
+						$q_a = $this->db->where('disaster_title_id', $data['disaster_title_id']);
+						$q_a = $this->db->where('brgy_id', $data['brgy_host']);
+						$q_a = $this->db->update('tbl_damage_per_brgy', $data_ec_up);
+
+					}else{
+
+						$affected_family = $arr_a[0]['fam_cum'];
+						$affected_persons = $arr_a[0]['person_cum'];
+
+						$data_ec_ins = array(
+							'disaster_title_id' 		=> $data['disaster_title_id'],
+							'provinceid' 				=> $data['provinceid'],
+							'municipality_id' 			=> $data['municipality_id'],
+							'brgy_id' 					=> $data['brgy_host'],
+							'totally_damaged' 			=> 0,
+							'partially_damaged' 		=> 0,
+							'affected_family' 			=> $affected_family,
+							'affected_persons' 			=> $affected_persons,
+							'costasst_brgy' 			=> 0
+						);
+
+						$this->db->insert("tbl_damage_per_brgy",$data_ec_ins);
+
+					}
+
+				}
+
 			    return 1;
 			}
 
@@ -3250,15 +4838,109 @@ class disaster_model extends CI_Model{
 
 		}
 
-		public function updateFamOEC($data,$id){
+		public function updateFamOEC($data,$id,$disaster_title_id){
 
-			$query = $this->db->where('id', $id);
-			$query = $this->db->update('tbl_evac_outside_stats', $data);
+			$this->db->trans_start();
 
-			if($query){
-				return 1;
-			}else{
+			$brgy_located = $data['brgy_host'];
+
+			try{
+
+				$query = $this->db->where('id', $id);
+				$query = $this->db->update('tbl_evac_outside_stats', $data);
+
+				$query2_a= $this->db->query("
+												SELECT
+													t1.brgy_located_ec,
+													SUM ( t1.fam_cum :: INTEGER ) fam_cum,
+													SUM ( t1.person_cum :: INTEGER ) person_cum 
+												FROM
+													(
+													SELECT
+														* 
+													FROM
+														(
+														SELECT
+															t2.brgy_located_ec,
+															SUM ( t1.family_cum :: INTEGER ) fam_cum,
+															SUM ( t1.person_cum :: INTEGER ) person_cum 
+														FROM
+															tbl_evacuation_stats t1
+															LEFT JOIN tbl_activated_ec t2 ON t1.evacuation_name :: INTEGER = t2.ID 
+														WHERE
+															t1.disaster_title_id = '$disaster_title_id' 
+															AND t2.brgy_located_ec = '$brgy_located' 
+														GROUP BY
+															t2.brgy_located_ec 
+														) t1 UNION ALL
+														(
+														SELECT
+															t1.brgy_host,
+															SUM ( t1.family_cum :: INTEGER ) fam_cum,
+															SUM ( t1.person_cum :: INTEGER ) person_cum 
+														FROM
+															tbl_evac_outside_stats t1 
+														WHERE
+															t1.disaster_title_id = '$disaster_title_id' 
+															AND t1.brgy_host = '$brgy_located' 
+														GROUP BY
+														t1.brgy_host 
+													)) t1
+													GROUP BY
+															t1.brgy_located_ec 
+				");
+
+				$arr_a = $query2_a->result_array();
+
+				if($query2_a->num_rows() > 0){
+
+					$q_2 = $this->db->query("SELECT * FROM tbl_damage_per_brgy WHERE disaster_title_id = '$disaster_title_id' AND brgy_id = '$brgy_located'");
+					$arr2_q = $q_2->result_array();
+
+					$tmp_fam = 0;
+					$tmp_per = 0;
+					$affected_family = 0;
+					$affected_persons = 0;
+
+					if($q_2->num_rows() > 0){
+
+						for($r = 0 ; $r < count($arr2_q) ; $r++){
+							$tmp_fam += $arr2_q[$r]["affected_family"];
+							$tmp_per += $arr2_q[$r]["affected_persons"];
+						}
+
+						if($tmp_fam >= $arr_a[0]['fam_cum']){
+							$affected_family = $tmp_fam;
+						}else{
+							$affected_family = $arr_a[0]['fam_cum'];
+						}
+
+						if($tmp_per >= $arr_a[0]['person_cum']){
+							$affected_persons = $tmp_per;
+						}else{
+							$affected_persons = $arr_a[0]['person_cum'];
+						}
+
+						$data_ec_up = array(
+							'affected_family' 			=> $affected_family,
+							'affected_persons' 			=> $affected_persons
+						);
+
+						$q_a = $this->db->where('disaster_title_id', $disaster_title_id);
+						$q_a = $this->db->where('brgy_id', $data['brgy_host']);
+						$q_a = $this->db->update('tbl_damage_per_brgy', $data_ec_up);
+					}
+
+				}
+
+				$this->db->trans_commit();
+			    return 1;
+
+			}catch(Exception $e){
+
+				$this->db->trans_rollback();
 				return 0;
+
 			}
 
 		}
@@ -4413,7 +6095,7 @@ class disaster_model extends CI_Model{
 
 					$data['num_aff_family'] = $query2->result_array();
 					for($j = 0 ; $j < count($data['num_aff_family']) ; $j++){
-						$aff_family = $aff_family + $data['num_aff_family'][$j]['aff_family'];
+						$aff_family = (int) $aff_family + (int) $data['num_aff_family'][$j]['aff_family'];
 					}
 
 					$query3 = $this->db->query("SELECT
@@ -4440,7 +6122,7 @@ class disaster_model extends CI_Model{
 
 					$data['num_aff_ind'] = $query3->result_array();
 					for($j = 0 ; $j < count($data['num_aff_ind']) ; $j++){
-						$aff_person = $aff_person + $data['num_aff_ind'][$j]['aff_person'];
+						$aff_person = (int) $aff_person + (int) $data['num_aff_ind'][$j]['aff_person'];
 					}
 
 					$query4 = $this->db->query("SELECT
@@ -4453,7 +6135,7 @@ class disaster_model extends CI_Model{
 
 					$data['num_dswd_asst'] = $query4->result_array();
 					for($j = 0 ; $j < count($data['num_dswd_asst']) ; $j++){
-						$dswd_asst = $dswd_asst + $data['num_dswd_asst'][$j]['dswd_asst'];
+						$dswd_asst = (int) $dswd_asst + (int) $data['num_dswd_asst'][$j]['dswd_asst'];
 					}
 
 					$query6 = $this->db->query("SELECT
@@ -4466,7 +6148,7 @@ class disaster_model extends CI_Model{
 
 					$data['aff_familyinec'] = $query6->result_array();
 					for($j = 0 ; $j < count($data['aff_familyinec']) ; $j++){
-						$aff_familyinec = $aff_familyinec + $data['aff_familyinec'][$j]['aff_familyinec'];
+						$aff_familyinec = (int) $aff_familyinec + (int) $data['aff_familyinec'][$j]['aff_familyinec'];
 					}
 
 					$query7 = $this->db->query("SELECT
@@ -4479,7 +6161,7 @@ class disaster_model extends CI_Model{
 
 					$data['aff_familyoutec'] = $query7->result_array();
 					for($j = 0 ; $j < count($data['aff_familyoutec']) ; $j++){
-						$aff_familyoutec = $aff_familyoutec + $data['aff_familyoutec'][$j]['aff_familyoutec'];
+						$aff_familyoutec = (int) $aff_familyoutec + (int) $data['aff_familyoutec'][$j]['aff_familyoutec'];
 					}
 
 					$querya = $this->db->query("SELECT
@@ -4532,67 +6214,109 @@ class disaster_model extends CI_Model{
 						);
 					}
 
-					$queryafffamilydrill = $this->db->query("SELECT
-																SUM(t1.family_cum::numeric) as family_cum,
-																t1.municipality_id,
-																t1.municipality_name,
-																t1.disaster_title
-															FROM
-																(
-																	SELECT
-																		SUM(t1.family_cum::numeric) as family_cum,
-																		t1.municipality_id,
-																		t3.municipality_name,
-																		t2.disaster_title
-																	FROM
-																		tbl_evacuation_stats t1
-																	LEFT JOIN tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
-																	LEFT JOIN lib_municipality t3 ON t1.municipality_id = t3.id
-																	WHERE
-																		t1.disaster_title_id = $id
-																	GROUP BY
-																		t1.municipality_id,t3.municipality_name,t2.disaster_title
-																	UNION ALL
-																		(
-																			SELECT
-																				SUM(t1.family_cum::numeric) as family_cum,
-																				t1.municipality_id,
-																				t3.municipality_name,
-																				t2.disaster_title
-																			FROM
-																				tbl_evac_outside_stats t1
-																			LEFT JOIN tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
-																			LEFT JOIN lib_municipality t3 ON t1.municipality_id = t3.id
-																			WHERE
-																				t1.disaster_title_id = $id
-																			GROUP BY
-																				t1.municipality_id,t3.municipality_name,t2.disaster_title
-																		)
-																) t1
-															GROUP BY
-																t1.municipality_id,t1.municipality_name,t1.disaster_title
-					");
+					if($_SESSION['user_level_access'] != 'municipality'){
 
-					$rsafffamilydrill = $queryafffamilydrill->result_array();
+						$queryafffamilydrill = $this->db->query("SELECT
+																	SUM(t1.family_cum::numeric) as family_cum,
+																	t1.municipality_id,
+																	t1.municipality_name,
+																	t1.disaster_title
+																FROM
+																	(
+																		SELECT
+																			SUM(t1.family_cum::numeric) as family_cum,
+																			t1.municipality_id,
+																			t3.municipality_name,
+																			t2.disaster_title
+																		FROM
+																			tbl_evacuation_stats t1
+																		LEFT JOIN tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
+																		LEFT JOIN lib_municipality t3 ON t1.municipality_id = t3.id
+																		WHERE
+																			t1.disaster_title_id = $id
+																		GROUP BY
+																			t1.municipality_id,t3.municipality_name,t2.disaster_title
+																		UNION ALL
+																			(
+																				SELECT
+																					SUM(t1.family_cum::numeric) as family_cum,
+																					t1.municipality_id,
+																					t3.municipality_name,
+																					t2.disaster_title
+																				FROM
+																					tbl_evac_outside_stats t1
+																				LEFT JOIN tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
+																				LEFT JOIN lib_municipality t3 ON t1.municipality_id = t3.id
+																				WHERE
+																					t1.disaster_title_id = $id
+																				GROUP BY
+																					t1.municipality_id,t3.municipality_name,t2.disaster_title
+																			)
+																	) t1
+																GROUP BY
+																	t1.municipality_id,t1.municipality_name,t1.disaster_title
+						");
 
-					if($queryafffamilydrill->num_rows() > 0){
+						$rsafffamilydrill = $queryafffamilydrill->result_array();
 
-						$drilltitle = $rsafffamilydrill[0]['disaster_title'];
+						if($queryafffamilydrill->num_rows() > 0){
 
-						for($f = 0 ; $f < count($rsafffamilydrill) ; $f++){
-							$queryafffamilydrillcity[] = array(
-								'name' 			=> $rsafffamilydrill[$f]['municipality_name'],
-								'y' 			=> $rsafffamilydrill[$f]['family_cum']
+							$drilltitle = $rsafffamilydrill[0]['disaster_title'];
+
+							for($f = 0 ; $f < count($rsafffamilydrill) ; $f++){
+								$queryafffamilydrillcity[] = array(
+									'name' 			=> $rsafffamilydrill[$f]['municipality_name'],
+									'y' 			=> $rsafffamilydrill[$f]['family_cum']
+								);
+							}
+
+							$queryafffamilydrills[] = array(
+								'name' 			=> $drilltitle,
+								'id' 			=> $drilltitle,
+								'data' 			=> $queryafffamilydrillcity
 							);
+
+							$queryafffamilydrillcity = [];
+
 						}
 
-						$queryafffamilydrills[] = array(
-							'name' 			=> $drilltitle,
-							'id' 			=> $drilltitle,
-							'data' 			=> $queryafffamilydrillcity
-						);
+					}else{
 
-						$queryafffamilydrillcity = [];
+						$queryafffamilydrill = $this->db->query("SELECT
+																	t3.disaster_title,
+																	t2.id,
+																	t2.brgy_name,
+																	t1.affected_family family_cum 
+																FROM
+																	tbl_damage_per_brgy t1
+																	LEFT JOIN lib_barangay t2 ON t1.brgy_id = t2.ID 
+																	LEFT JOIN tbl_disaster_title t3 ON t1.disaster_title_id = t3.id
+																WHERE
+																	t1.disaster_title_id = $id
+						");
+
+						$rsafffamilydrill = $queryafffamilydrill->result_array();
+
+						if($queryafffamilydrill->num_rows() > 0){
+
+							$drilltitle = $rsafffamilydrill[0]['disaster_title'];
+
+							for($f = 0 ; $f < count($rsafffamilydrill) ; $f++){
+								$queryafffamilydrillcity[] = array(
+									'name' 			=> $rsafffamilydrill[$f]['brgy_name'],
+									'y' 			=> $rsafffamilydrill[$f]['family_cum']
+								);
+							}
+
+							$queryafffamilydrills[] = array(
+								'name' 			=> $drilltitle,
+								'id' 			=> $drilltitle,
+								'data' 			=> $queryafffamilydrillcity
+							);
+
+							$queryafffamilydrillcity = [];
+
+						}
 
 					}
 					
@@ -4623,7 +6347,7 @@ class disaster_model extends CI_Model{
 							if($ra[$g]['dswd_asst'] != ""){
 								$title = $ra[$g]['disaster_title'];
 							}
-							$assts = $assts + $ra[$g]['dswd_asst'];
+							$assts = (int) $assts + (int) $ra[$g]['dswd_asst'];
 						}
 
 						if($assts == 0){
@@ -4649,31 +6373,31 @@ class disaster_model extends CI_Model{
 
 
 					$queryasst_lgu = $this->db->query("SELECT
-														t1.dswd_asst,
-														t1.municipality_name,
-														t1.disaster_title
-													FROM
-														(
-															SELECT
-																t1.dswd_asst,
-																t3.municipality_name,
-																t2.disaster_title
-															FROM
-																tbl_casualty_asst t1
-															LEFT JOIN tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
-															LEFT JOIN lib_municipality t3 ON t1.municipality_id = t3. ID
-															WHERE
-																t1.disaster_title_id = $id
-															GROUP BY
-																t1.dswd_asst,
-																t3.municipality_name,
-																t2.disaster_title
-														) t1
-													WHERE t1.dswd_asst <> ''
-													GROUP BY
-														t1.dswd_asst,
-														t1.municipality_name,
-														t1.disaster_title
+															t1.dswd_asst,
+															t1.municipality_name,
+															t1.disaster_title
+														FROM
+															(
+																SELECT
+																	t1.dswd_asst,
+																	t3.municipality_name,
+																	t2.disaster_title
+																FROM
+																	tbl_casualty_asst t1
+																LEFT JOIN tbl_disaster_title t2 ON t1.disaster_title_id = t2. ID
+																LEFT JOIN lib_municipality t3 ON t1.municipality_id = t3. ID
+																WHERE
+																	t1.disaster_title_id = $id
+																GROUP BY
+																	t1.dswd_asst,
+																	t3.municipality_name,
+																	t2.disaster_title
+															) t1
+														WHERE t1.dswd_asst <> ''
+														GROUP BY
+															t1.dswd_asst,
+															t1.municipality_name,
+															t1.disaster_title
 					");
 
 					$rs_asstdrill = $queryasst_lgu->result_array();
@@ -4730,7 +6454,7 @@ class disaster_model extends CI_Model{
 					$data['aff_brgy'] = $query5->result_array();
 					
 					for($j = 0 ; $j < count($data['aff_brgy']) ; $j++){
-						$aff_brgy = $aff_brgy + $data['aff_brgy'][$j]['affbrgy'];
+						$aff_brgy = (int) $aff_brgy + (int) $data['aff_brgy'][$j]['affbrgy'];
 					}
 
 				}
@@ -4812,7 +6536,7 @@ class disaster_model extends CI_Model{
 				$rsfnfi = $q3->result_array();
 
 				for($h = 0 ; $h < count($rsfnfi) ; $h++){
-					$tot = $tot + ($rsfnfi[$h]['cost'] * $rsfnfi[$h]['quantity']);
+					$tot = (int) $tot + (int) ($rsfnfi[$h]['cost'] * $rsfnfi[$h]['quantity']);
 				}
 
 				$data_asst = array(
@@ -4858,7 +6582,7 @@ class disaster_model extends CI_Model{
 				$rsfnfi = $q3->result_array();
 
 				for($h = 0 ; $h < count($rsfnfi) ; $h++){
-					$tot = $tot + ($rsfnfi[$h]['cost'] * $rsfnfi[$h]['quantity']);
+					$tot = (int) $tot + (int) ($rsfnfi[$h]['cost'] * $rsfnfi[$h]['quantity']);
 				}
 
 				$data_asst = array(
@@ -4893,26 +6617,86 @@ class disaster_model extends CI_Model{
 
 		public function get_dswd_assistance($id){
 
-			$query = $this->db->query("
-										SELECT
-											t1.*, t2.*, t3.municipality_name, t4.region_psgc region
-										FROM
-											tbl_fnfi_assistance t1
-										LEFT JOIN tbl_fnfi_assistance_list t2 ON t1. ID = t2.fnfi_assistance_id
-										LEFT JOIN lib_municipality t3 ON t1.municipality_id = t3. ID
-										LEFT JOIN lib_provinces t4 ON t1.provinceid = t4.id
-										WHERE
-											t1.disaster_title_id = '$id'
-										ORDER BY
-											t1.municipality_id ASC,
-											t2.date_augmented :: DATE DESC,
-											t2.quantity ASC,
-											CASE
-										WHEN LOWER (t2.fnfi_name) LIKE LOWER ('family%') THEN
-											1
-										END ASC
+			session_start();
 
-			");
+			$user_level_access = $_SESSION['user_level_access'];
+
+			if($user_level_access == 'national' || $user_level_access == 'region'){
+
+				$query = $this->db->query("
+											SELECT
+												t1.*, t2.*, t3.municipality_name, t4.region_psgc region
+											FROM
+												tbl_fnfi_assistance t1
+											LEFT JOIN tbl_fnfi_assistance_list t2 ON t1. ID = t2.fnfi_assistance_id
+											LEFT JOIN lib_municipality t3 ON t1.municipality_id = t3. ID
+											LEFT JOIN lib_provinces t4 ON t1.provinceid = t4.id
+											WHERE
+												t1.disaster_title_id = '$id'
+											ORDER BY
+												t1.municipality_id ASC,
+												t2.date_augmented :: DATE DESC,
+												CASE
+												WHEN LOWER (t2.fnfi_name) LIKE LOWER ('family%') THEN
+													1
+												END ASC,
+												t2.quantity ASC
+
+				");
+
+			}else if($user_level_access == 'province'){
+
+				$provinceid = $_SESSION['provinceid'];
+
+				$query = $this->db->query("
+											SELECT
+												t1.*, t2.*, t3.municipality_name, t4.region_psgc region
+											FROM
+												tbl_fnfi_assistance t1
+											LEFT JOIN tbl_fnfi_assistance_list t2 ON t1. ID = t2.fnfi_assistance_id
+											LEFT JOIN lib_municipality t3 ON t1.municipality_id = t3. ID
+											LEFT JOIN lib_provinces t4 ON t1.provinceid = t4.id
+											WHERE
+												t1.disaster_title_id = '$id'
+												AND t1.provinceid = '$provinceid'
+											ORDER BY
+												t1.municipality_id ASC,
+												t2.date_augmented :: DATE DESC,
+												CASE
+												WHEN LOWER (t2.fnfi_name) LIKE LOWER ('family%') THEN
+													1
+												END ASC,
+												t2.quantity ASC
+
+				");
+
+			}else{
+
+				$municipality_id = $_SESSION['municipality_id'];
+
+				$query = $this->db->query("
+											SELECT
+												t1.*, t2.*, t3.municipality_name, t4.region_psgc region
+											FROM
+												tbl_fnfi_assistance t1
+											LEFT JOIN tbl_fnfi_assistance_list t2 ON t1. ID = t2.fnfi_assistance_id
+											LEFT JOIN lib_municipality t3 ON t1.municipality_id = t3. ID
+											LEFT JOIN lib_provinces t4 ON t1.provinceid = t4.id
+											WHERE
+												t1.disaster_title_id = '$id'
+												AND t1.municipality_id = '$municipality_id'
+											ORDER BY
+												t1.municipality_id ASC,
+												t2.date_augmented :: DATE DESC,
+												CASE
+												WHEN LOWER (t2.fnfi_name) LIKE LOWER ('family%') THEN
+													1
+												END ASC,
+												t2.quantity ASC
+
+				");
+
+			}
 
 			return $query->result_array();
 
@@ -4935,7 +6719,7 @@ class disaster_model extends CI_Model{
 											WHERE
 												t1.disaster_title_id = '$id'
 											ORDER BY
-												t1.municipality_id ASC
+												t1.municipality_id ASC, t4.brgy_name
 				");
 
 				return $query->result_array();
@@ -5435,7 +7219,7 @@ class disaster_model extends CI_Model{
 
 		}
 
-		public function deleteECS($id){
+		public function deleteECS($id,$brgy_located,$disaster_title_id){
 
 			$arr = array();
 			$c = 0;
@@ -5444,21 +7228,97 @@ class disaster_model extends CI_Model{
 			$arr = $querys->result_array();
 			$ecid = $arr[0]['evacuation_name'];
 
-			$query2 = $this->db->query("SELECT * FROM tbl_evacuation_stats WHERE evacuation_name = '$ecid'");
+			$this->db->trans_start();
 
-			$c = $query2->num_rows();
+			try{
 
-			$query = $this->db->where('id',$id);
-			$query = $this->db->delete('tbl_evacuation_stats');
+				$query2 = $this->db->query("SELECT * FROM tbl_evacuation_stats WHERE evacuation_name = '$ecid'");
 
-			if($c <= 1){
-				$query3 = $this->db->where('id',$ecid);
-				$query3 = $this->db->delete('tbl_activated_ec');
-			}
+				$c = $query2->num_rows();
 
-			if($query){
+				$query = $this->db->where('id',$id);
+				$query = $this->db->delete('tbl_evacuation_stats');
+
+				if($c <= 1){
+					$query3 = $this->db->where('id',$ecid);
+					$query3 = $this->db->delete('tbl_activated_ec');
+				}
+
+				$this->db->trans_commit();
+
+				$query2_a= $this->db->query("
+												SELECT
+													t1.brgy_located_ec,
+													SUM ( t1.fam_cum :: INTEGER ) fam_cum,
+													SUM ( t1.person_cum :: INTEGER ) person_cum 
+												FROM
+													(
+													SELECT
+														* 
+													FROM
+														(
+														SELECT
+															t2.brgy_located_ec,
+															SUM ( t1.family_cum :: INTEGER ) fam_cum,
+															SUM ( t1.person_cum :: INTEGER ) person_cum 
+														FROM
+															tbl_evacuation_stats t1
+															LEFT JOIN tbl_activated_ec t2 ON t1.evacuation_name :: INTEGER = t2.ID 
+														WHERE
+															t1.disaster_title_id = '$disaster_title_id' 
+															AND t2.brgy_located_ec = '$brgy_located' 
+														GROUP BY
+															t2.brgy_located_ec 
+														) t1 UNION ALL
+														(
+														SELECT
+															t1.brgy_host,
+															SUM ( t1.family_cum :: INTEGER ) fam_cum,
+															SUM ( t1.person_cum :: INTEGER ) person_cum 
+														FROM
+															tbl_evac_outside_stats t1 
+														WHERE
+															t1.disaster_title_id = '$disaster_title_id' 
+															AND t1.brgy_host = '$brgy_located' 
+														GROUP BY
+														t1.brgy_host 
+													)) t1
+													GROUP BY
+															t1.brgy_located_ec 
+				");
+
+				$arr_a = $query2_a->result_array();
+
+				if($query2_a->num_rows() > 0){
+
+					$q_2 = $this->db->query("SELECT * FROM tbl_damage_per_brgy WHERE disaster_title_id = '$disaster_title_id' AND brgy_id = '$brgy_located'");
+					$arr2_q = $q_2->result_array();
+
+					$affected_family = 0;
+					$affected_persons = 0;
+
+
+					$affected_family = $arr_a[0]['fam_cum'];
+
+
+					$affected_persons = $arr_a[0]['person_cum'];
+
+					$data_ec_up = array(
+						'affected_family' 	=> $affected_family,
+						'affected_persons' 	=> $affected_persons
+					);
+
+					$q_a = $this->db->where('disaster_title_id', $disaster_title_id);
+					$q_a = $this->db->where('brgy_id', $brgy_located);
+					$q_a = $this->db->update('tbl_damage_per_brgy', $data_ec_up);
+
+				}
+
 				return 1;
-			}else{
+
+			}catch(Exception $e){
+
+				$this->db->trans_rollback();
 				return 0;
 			}
 
@@ -5498,85 +7358,250 @@ class disaster_model extends CI_Model{
 
 		public function saveDamageperBrgy($data){
 
-			$this->db->trans_begin();
-
 			$did = $data['disaster_title_id'];
 			$mid = $data['municipality_id'];
 			$bid = $data['brgy_id'];
 
-			$query1 = $this->db->query("
-				SELECT * FROM tbl_damage_per_brgy t1 WHERE t1.disaster_title_id = '$did' AND t1.municipality_id = '$mid' and t1.brgy_id = '$bid'
+			$affected_family = $data['affected_family'];
+			$affected_persons = $data['affected_persons'];
+
+
+
+			$query2= $this->db->query("
+											SELECT
+												t1.brgy_located_ec,
+												SUM ( t1.fam_cum :: INTEGER ) fam_cum,
+												SUM ( t1.person_cum :: INTEGER ) person_cum 
+											FROM
+												(
+												SELECT
+													* 
+												FROM
+													(
+													SELECT
+														t2.brgy_located_ec,
+														SUM ( t1.family_cum :: INTEGER ) fam_cum,
+														SUM ( t1.person_cum :: INTEGER ) person_cum 
+													FROM
+														tbl_evacuation_stats t1
+														LEFT JOIN tbl_activated_ec t2 ON t1.evacuation_name :: INTEGER = t2.ID 
+													WHERE
+														t1.disaster_title_id = '$did' 
+														AND t2.brgy_located_ec = '$bid' 
+													GROUP BY
+														t2.brgy_located_ec 
+													) t1 UNION ALL
+													(
+													SELECT
+														t1.brgy_host,
+														SUM ( t1.family_cum :: INTEGER ) fam_cum,
+														SUM ( t1.person_cum :: INTEGER ) person_cum 
+													FROM
+														tbl_evac_outside_stats t1 
+													WHERE
+														t1.disaster_title_id = '$did' 
+														AND t1.brgy_host = '$bid' 
+													GROUP BY
+													t1.brgy_host 
+												)) t1
+												GROUP BY
+														t1.brgy_located_ec 
 			");
 
-			if($query1->num_rows() < 1){
+			$arr = $query2->result_array();
 
-				$this->db->insert("tbl_damage_per_brgy",$data);
+			if($query2->num_rows() > 0){
 
-				$query2 = $this->db->query("SELECT * FROM tbl_casualty_asst WHERE disaster_title_id = '$did' AND municipality_id = '$mid'");
+				$q_2 = $this->db->query("SELECT * FROM tbl_damage_per_brgy WHERE disaster_title_id = '$did' AND brgy_id = '$bid'");
+				$arr2 = $q_2->result_array();
 
-				$arx = $query2->result_array();
+				if($q_2->num_rows() > 0){
 
-				$query3 = $this->db->query("
-					SELECT * FROM tbl_damage_per_brgy t1 WHERE t1.disaster_title_id = '$did' AND t1.municipality_id = '$mid'
-				");
+					$tmp_fam = 0;
+					$tmp_per = 0;
 
-				$tot 			= 0;
-				$part 			= 0;
-				$dead 			= 0;
-				$injured 		= 0;
-				$missing 		= 0;
-				$costasst_brgy 	= 0;
-				$brgy_id 		= "";
+					for($r = 0 ; $r < count($arr2) ; $r++){
+						$tmp_fam += $arr2[$r]["affected_family"];
+						$tmp_per += $arr2[$r]["affected_persons"];
+					}
 
-				$arr = $query3->result_array();
+					if($tmp_fam >= $data['affected_family']){
+						$data['affected_family'] = $tmp_fam;
+					}
 
-				for($r = 0 ; $r < count($arr) ; $r++){
+					if($tmp_per >= $data['affected_persons']){
+						$data['affected_persons'] = $tmp_per;
+					}
 
-					$tot 		= $tot + $arr[$r]['totally_damaged'];
-					$part 		= $part + $arr[$r]['partially_damaged'];
-					$dead 		= $dead + $arr[$r]['dead'];
-					$injured 	= $injured + $arr[$r]['injured'];
-					$missing 	= $missing + $arr[$r]['missing'];
+				}else{
 
-					if($r == 0){
-						$brgy_id = $arr[$r]['brgy_id'];
-					}else{
-						$brgy_id = $brgy_id."|".$arr[$r]['brgy_id'];
+					if($arr[0]['fam_cum'] >= $data['affected_family']){
+						$data['affected_family'] = $arr[0]['fam_cum'];
+					}
+
+					if($arr[0]['person_cum'] >= $data['affected_persons']){
+						$data['affected_persons'] = $arr[0]['person_cum'];
 					}
 
 				}
 
-				$data_tot = array(
+				$this->db->trans_begin();
 
-					'disaster_title_id' 		=> $did,
-					'municipality_id' 			=> $mid,
-					'provinceid' 				=> $data['provinceid'],
-					'totally_damaged' 			=> $tot,
-					'partially_damaged' 		=> $part,
-					'brgy_id' 					=> $brgy_id
+				$query1 = $this->db->query("
+					SELECT * FROM tbl_damage_per_brgy t1 WHERE t1.disaster_title_id = '$did' AND t1.municipality_id = '$mid' and t1.brgy_id = '$bid'
+				");
 
-				);
+				if($query1->num_rows() < 1){
 
-				if($query2->num_rows() < 1){
-				
-					$this->db->insert('tbl_casualty_asst',$data_tot);
+					$this->db->insert("tbl_damage_per_brgy",$data);
 
-				}else{
+					$query2 = $this->db->query("SELECT * FROM tbl_casualty_asst WHERE disaster_title_id = '$did' AND municipality_id = '$mid'");
 
-					$this->db->where('id',$arx[0]['id']);
-					$this->db->update('tbl_casualty_asst',$data_tot);
+					$arx = $query2->result_array();
+
+					$query3 = $this->db->query("
+						SELECT * FROM tbl_damage_per_brgy t1 WHERE t1.disaster_title_id = '$did' AND t1.municipality_id = '$mid'
+					");
+
+					$tot 			= 0;
+					$part 			= 0;
+					$costasst_brgy 	= 0;
+					$brgy_id 		= "";
+
+					$arr = $query3->result_array();
+
+					for($r = 0 ; $r < count($arr) ; $r++){
+
+						$tot 		= (int) $tot + (int) $arr[$r]['totally_damaged'];
+						$part 		= (int) $part + (int) $arr[$r]['partially_damaged'];
+
+						if($r == 0){
+							if((int) $arr[$r]['totally_damaged'] > 0 || (int) $arr[$r]['partially_damaged'] > 0){
+								$brgy_id = $arr[$r]['brgy_id'];
+							}
+						}else{
+							if((int) $arr[$r]['totally_damaged'] > 0 || (int) $arr[$r]['partially_damaged'] > 0){
+								$brgy_id = $brgy_id."|".$arr[$r]['brgy_id'];
+							}
+						}
+
+					}
+
+					$data_tot = array(
+
+						'disaster_title_id' 		=> $did,
+						'municipality_id' 			=> $mid,
+						'provinceid' 				=> $data['provinceid'],
+						'totally_damaged' 			=> $tot,
+						'partially_damaged' 		=> $part,
+						'brgy_id' 					=> $brgy_id
+
+					);
+
+					if($query2->num_rows() < 1){
+					
+						$this->db->insert('tbl_casualty_asst',$data_tot);
+
+					}else{
+
+						$this->db->where('id',$arx[0]['id']);
+						$this->db->update('tbl_casualty_asst',$data_tot);
+
+					}
+
+					if($this->db->trans_status() == FALSE){
+						$this->db->trans_rollback();
+						return 0;
+					}else{
+						$this->db->trans_commit();
+						return 1;
+					}
 
 				}
 
-				if($this->db->trans_status() == FALSE){
-					$this->db->trans_rollback();
-					return 0;
-				}else{
-					$this->db->trans_commit();
-					return 1;
-				}
+			}else{
 
+
+				if($affected_family < 1 || $affected_persons < 1){
+					return 3;
+				}else{
+
+					$this->db->trans_begin();
+
+					$query1 = $this->db->query("
+						SELECT * FROM tbl_damage_per_brgy t1 WHERE t1.disaster_title_id = '$did' AND t1.municipality_id = '$mid' and t1.brgy_id = '$bid'
+					");
+
+					if($query1->num_rows() < 1){
+
+						$this->db->insert("tbl_damage_per_brgy",$data);
+
+						$query2 = $this->db->query("SELECT * FROM tbl_casualty_asst WHERE disaster_title_id = '$did' AND municipality_id = '$mid'");
+
+						$arx = $query2->result_array();
+
+						$query3 = $this->db->query("
+							SELECT * FROM tbl_damage_per_brgy t1 WHERE t1.disaster_title_id = '$did' AND t1.municipality_id = '$mid'
+						");
+
+						$tot 			= 0;
+						$part 			= 0;
+						$costasst_brgy 	= 0;
+						$brgy_id 		= "";
+
+						$arr = $query3->result_array();
+
+						for($r = 0 ; $r < count($arr) ; $r++){
+
+							$tot 		= (int) $tot + (int) $arr[$r]['totally_damaged'];
+							$part 		= (int) $part + (int) $arr[$r]['partially_damaged'];
+
+							if($r == 0){
+								if((int) $arr[$r]['totally_damaged'] > 0 || (int) $arr[$r]['partially_damaged'] > 0){
+									$brgy_id = $arr[$r]['brgy_id'];
+								}
+							}else{
+								if((int) $arr[$r]['totally_damaged'] > 0 || (int) $arr[$r]['partially_damaged'] > 0){
+									$brgy_id = $brgy_id."|".$arr[$r]['brgy_id'];
+								}
+							}
+
+						}
+
+						$data_tot = array(
+
+							'disaster_title_id' 		=> $did,
+							'municipality_id' 			=> $mid,
+							'provinceid' 				=> $data['provinceid'],
+							'totally_damaged' 			=> $tot,
+							'partially_damaged' 		=> $part,
+							'brgy_id' 					=> $brgy_id
+
+						);
+
+						if($query2->num_rows() < 1){
+						
+							$this->db->insert('tbl_casualty_asst',$data_tot);
+
+						}else{
+
+							$this->db->where('id',$arx[0]['id']);
+							$this->db->update('tbl_casualty_asst',$data_tot);
+
+						}
+
+						if($this->db->trans_status() == FALSE){
+							$this->db->trans_rollback();
+							return 0;
+						}else{
+							$this->db->trans_commit();
+							return 1;
+						}
+
+					}
+				}
 			}
+
 
 		}
 
@@ -5613,134 +7638,343 @@ class disaster_model extends CI_Model{
 			$disaster_title_id 	= $data['details'][0]['disaster_title_id'];
 			$totally_damaged 	= $data['details'][0]['totally_damaged'];
 			$partially_damaged 	= $data['details'][0]['partially_damaged'];
-			$dead 				= $data['details'][0]['dead'];
-			$injured 			= $data['details'][0]['injured'];
-			$missing 			= $data['details'][0]['missing'];
+
+			$affected_family 	= $data['details'][0]['affected_family'];
+			$affected_persons 	= $data['details'][0]['affected_persons'];
+
 			$brgyid 			= $data['details'][0]['brgy_id'];
 
-			$q1 = $this->db->query("SELECT * FROM tbl_casualty_asst WHERE disaster_title_id = '$disaster_title_id' AND municipality_id = '$mid'");
+			$query2= $this->db->query("
+											SELECT
+												t1.brgy_located_ec,
+												SUM ( t1.fam_cum :: INTEGER ) fam_cum,
+												SUM ( t1.person_cum :: INTEGER ) person_cum 
+											FROM
+												(
+												SELECT
+													* 
+												FROM
+													(
+													SELECT
+														t2.brgy_located_ec,
+														SUM ( t1.family_cum :: INTEGER ) fam_cum,
+														SUM ( t1.person_cum :: INTEGER ) person_cum 
+													FROM
+														tbl_evacuation_stats t1
+														LEFT JOIN tbl_activated_ec t2 ON t1.evacuation_name :: INTEGER = t2.ID 
+													WHERE
+														t1.disaster_title_id = '$disaster_title_id' 
+														AND t2.brgy_located_ec = '$brgyid' 
+													GROUP BY
+														t2.brgy_located_ec 
+													) t1 UNION ALL
+													(
+													SELECT
+														t1.brgy_host,
+														SUM ( t1.family_cum :: INTEGER ) fam_cum,
+														SUM ( t1.person_cum :: INTEGER ) person_cum 
+													FROM
+														tbl_evac_outside_stats t1 
+													WHERE
+														t1.disaster_title_id = '$disaster_title_id' 
+														AND t1.brgy_host = '$brgyid' 
+													GROUP BY
+													t1.brgy_host 
+												)) t1
+												GROUP BY
+														t1.brgy_located_ec 
+			");
 
-			$data['asst'] = $q1->result_array();
+			$arr = $query2->result_array();
 
-			$asstid 				= $data['asst'][0]['id'];
-			$totally_damaged_tot 	= $data['asst'][0]['totally_damaged'] - $totally_damaged;
-			$partially_damaged_tot 	= $data['asst'][0]['partially_damaged'] - $partially_damaged;
-			$dead_tot 				= $data['asst'][0]['dead'] - $dead;
-			$injured_tot 			= $data['asst'][0]['injured'] - $injured;
-			$missing_tot 			= $data['asst'][0]['missing'] - $missing;
+			$brgys2 = "";
 
-			$dswd_asst 				= $data['asst'][0]['dswd_asst'];
-			$lgu_asst 				= $data['asst'][0]['lgu_asst'];
-			$ngo_asst 				= $data['asst'][0]['ngo_asst'];
-			$brgys  				= $data['asst'][0]['brgy_id'];
+			if($query2->num_rows() > 0){
 
-			$brgy_new 				= explode("|",$brgys);
+				return 0;
 
-			$brgy_new 				= array_diff($brgy_new, [$brgyid]);
+			}else{
 
-			$brgys2 				= "";
+				$q1 = $this->db->query("SELECT * FROM tbl_casualty_asst WHERE disaster_title_id = '$disaster_title_id' AND municipality_id = '$mid'");
 
-			for($r = 0 ; $r < count($brgy_new) ; $r++){
-				if($r == 0){
-					$brgys2 = $brgy_new[$r];
-				}else{
-					$brgys2 = "|".$brgy_new[$r];
-				}
-			}
-
-			$dataup = array(
-				'totally_damaged' 	=> $totally_damaged_tot,
-				'partially_damaged' => $partially_damaged_tot,
-				'dead' 				=> $dead_tot,
-				'injured' 			=> $injured_tot,
-				'missing' 			=> $missing_tot,
-				'brgy_id' 			=> $brgys2
-			);
+				$data['asst'] = $q1->result_array();
 
 
-			$q2 = $this->db->where('id',$id);
-			$q2 = $this->db->delete('tbl_damage_per_brgy');
+				$asstid = "";
+				$totally_damaged_tot = 0;
+				$partially_damaged_tot = 0;
 
-			if($q2){
-				if($totally_damaged_tot <= 0 AND $partially_damaged_tot <= 0 AND $dead_tot <= 0 AND $injured_tot <= 0 AND $missing_tot <= 0 AND $dswd_asst <= 0 AND $lgu_asst <= 0 AND $ngo_asst <= 0){
-					$q3 = $this->db->where('id',$asstid);
-					$q3 = $this->db->delete('tbl_casualty_asst');
-				}else{
+				if(count($data['asst']) > 0){
+
+					$asstid 				= $data['asst'][0]['id'];
+					$totally_damaged_tot 	= (int) $data['asst'][0]['totally_damaged'] - (int) $totally_damaged;
+					$partially_damaged_tot 	= (int) $data['asst'][0]['partially_damaged'] - (int) $partially_damaged;
+
 					$q3 = $this->db->where('id',$asstid);
 					$q3 = $this->db->update('tbl_casualty_asst',$dataup);
-				}
-			}
 
-			if($this->db->trans_status() === FALSE){
-				$this->db->trans_rollback();
-				return 0;
-			}else{
+				}
+
+				$q2_1 = $this->db->where('id',$id);
+				$q2_1 = $this->db->delete('tbl_damage_per_brgy');
+
+				$q2 = $this->db->query("SELECT * FROM tbl_damage_per_brgy WHERE disaster_title_id = '$disaster_title_id' AND municipality_id = '$mid'");
+
+				$arr2 = $q2->result_array();
+
+				for($r = 0 ; $r < count($arr2) ; $r++){
+
+					if($r == 0){
+						if((int) $arr2[$r]['totally_damaged'] > 0 || (int) $arr2[$r]['partially_damaged'] > 0){
+							$brgys2 = $arr2[$r]['brgy_id'];
+						}
+					}else{
+						if($brgys2 == ""){
+							if((int) $arr2[$r]['totally_damaged'] > 0 || (int) $arr2[$r]['partially_damaged'] > 0){
+								$brgys2 = $arr2[$r]['brgy_id'];
+							}
+						}else{
+							if((int) $arr2[$r]['totally_damaged'] > 0 || (int) $arr2[$r]['partially_damaged'] > 0){
+								$brgys2 = $brgys2."|".$arr2[$r]['brgy_id'];
+							}
+						}
+					}
+				}
+
+				$dataup = array(
+					'totally_damaged' 	=> $totally_damaged_tot,
+					'partially_damaged' => $partially_damaged_tot,
+					'brgy_id' 			=> $brgys2
+				);
+
 				$this->db->trans_commit();
 				return 1;
+
 			}
 
 		}
 
-		public function updatedamageperbrgy($id,$disaster_title_id,$municipality_id,$data){
-
-			$this->db->trans_begin();
+		public function updatedamageperbrgy($id,$disaster_title_id,$municipality_id,$brgy_dam_per_brgy,$provinceid,$data){
 
 			$totally_damaged 	= 0;
 			$partially_damaged 	= 0;
-			$dead 				= 0;
-			$injured 			= 0;
-			$missing 			= 0;
 			$brgy_id 			= "";
 
-			$q1 = $this->db->where('id',$id);
-			$q1 = $this->db->update('tbl_damage_per_brgy',$data);
+			$affected_family = $data['affected_family'];
+			$affected_persons = $data['affected_persons'];
 
-			if($q1){
+			$bid = $brgy_dam_per_brgy;
 
-				$q2 = $this->db->query("SELECT * FROM tbl_damage_per_brgy WHERE disaster_title_id = '$disaster_title_id' AND municipality_id = '$municipality_id'");
-				$arr = $q2->result_array();
 
-				for($i = 0 ; $i < count($arr) ; $i++){
+			$query2= $this->db->query("
+											SELECT
+												t1.brgy_located_ec,
+												SUM ( t1.fam_cum :: INTEGER ) fam_cum,
+												SUM ( t1.person_cum :: INTEGER ) person_cum 
+											FROM
+												(
+												SELECT
+													* 
+												FROM
+													(
+													SELECT
+														t2.brgy_located_ec,
+														SUM ( t1.family_cum :: INTEGER ) fam_cum,
+														SUM ( t1.person_cum :: INTEGER ) person_cum 
+													FROM
+														tbl_evacuation_stats t1
+														LEFT JOIN tbl_activated_ec t2 ON t1.evacuation_name :: INTEGER = t2.ID 
+													WHERE
+														t1.disaster_title_id = '$disaster_title_id' 
+														AND t2.brgy_located_ec = '$bid' 
+													GROUP BY
+														t2.brgy_located_ec 
+													) t1 UNION ALL
+													(
+													SELECT
+														t1.brgy_host,
+														SUM ( t1.family_cum :: INTEGER ) fam_cum,
+														SUM ( t1.person_cum :: INTEGER ) person_cum 
+													FROM
+														tbl_evac_outside_stats t1 
+													WHERE
+														t1.disaster_title_id = '$disaster_title_id' 
+														AND t1.brgy_host = '$bid' 
+													GROUP BY
+													t1.brgy_host 
+												)) t1
+												GROUP BY
+														t1.brgy_located_ec 
+			");
 
-					$totally_damaged 	= $totally_damaged + $arr[$i]['totally_damaged'];
-					$partially_damaged 	= $partially_damaged + $arr[$i]['partially_damaged'];
-					$dead 				= $dead + $arr[$i]['dead'];
-					$injured 			= $injured + $arr[$i]['injured'];
-					$missing 			= $missing + $arr[$i]['missing'];
+			$arr = $query2->result_array();
 
-					if($i == 0){
-						$brgy_id = $arr[$i]['brgy_id'];
-					}else{
-						$brgy_id = $brgy_id."|".$arr[$i]['brgy_id'];
+			if($query2->num_rows() > 0){
+
+				$this->db->trans_begin();
+
+				try{
+
+					$q_2 = $this->db->query("SELECT * FROM tbl_damage_per_brgy WHERE disaster_title_id = '$disaster_title_id' AND brgy_id = '$bid'");
+					$arr2 = $q_2->result_array();
+
+					$bool_fam = ($arr[0]['fam_cum'] > $data['affected_family']);
+						
+					$bool_person = ($arr[0]['person_cum'] > $data['affected_persons']);
+
+
+					if($bool_fam == TRUE || $bool_person == TRUE){
+						return 2;
 					}
+
+					$brgys2 = "";	
+
+					$q1 = $this->db->where('id',$id);
+					$q1 = $this->db->update('tbl_damage_per_brgy',$data);
+
+					if($q1){
+
+						$q2 = $this->db->query("SELECT * FROM tbl_damage_per_brgy WHERE disaster_title_id = '$disaster_title_id' AND municipality_id = '$municipality_id'");
+						$arr = $q2->result_array();
+
+						for($i = 0 ; $i < count($arr) ; $i++){
+
+							$totally_damaged 	= (int) $totally_damaged + (int) $arr[$i]['totally_damaged'];
+							$partially_damaged 	= (int) $partially_damaged + (int) $arr[$i]['partially_damaged'];
+
+							if($i == 0){
+								if((int) $arr[$i]['totally_damaged'] > 0 || (int) $arr[$i]['partially_damaged'] > 0){
+									$brgys2 = $arr[$i]['brgy_id'];
+								}
+							}else{
+								if($brgys2 == ""){
+									if((int) $arr[$i]['totally_damaged'] > 0 || (int) $arr[$i]['partially_damaged'] > 0){
+										$brgys2 = $arr[$i]['brgy_id'];
+									}
+								}else{
+									if((int) $arr[$i]['totally_damaged'] > 0 || (int) $arr[$i]['partially_damaged'] > 0){
+										$brgys2 = $brgys2."|".$arr[$i]['brgy_id'];
+									}
+								}
+							}
+
+						}
+
+						$dataup = array(
+							'disaster_title_id' => $disaster_title_id,
+							'provinceid' 		=> $provinceid,
+							'municipality_id' 	=> $municipality_id,
+							'totally_damaged' 	=> $totally_damaged,
+							'partially_damaged' => $partially_damaged,
+							'brgy_id'			=> $brgys2
+						);
+
+						$q3 = $this->db->query("SELECT * FROM tbl_casualty_asst WHERE disaster_title_id = '$disaster_title_id' AND municipality_id = '$municipality_id'");
+						$arx = $q3->result_array();
+
+						if($q3->num_rows() > 0){
+
+							$cid = $arx[0]['id'];
+
+							$q4 = $this->db->where('id',$cid);
+							$q4 = $this->db->update('tbl_casualty_asst',$dataup);
+
+						}else{
+
+							$q4 = $this->db->insert('tbl_casualty_asst',$dataup);
+
+						}
+
+					}
+
+					$this->db->trans_commit();
+					return 1;
+
+				}catch(Exception $e){
+
+					$this->db->trans_rollback();
+					return 0; 
 
 				}
 
-				$dataup = array(
-					'totally_damaged' 	=> $totally_damaged,
-					'partially_damaged' => $partially_damaged,
-					'dead' 				=> $dead,
-					'injured' 			=> $injured,
-					'missing' 			=> $missing,
-					'brgy_id'			=> $brgy_id
-				);
 
-				$q3 = $this->db->query("SELECT * FROM tbl_casualty_asst WHERE disaster_title_id = '$disaster_title_id' AND municipality_id = '$municipality_id'");
-				$arx = $q3->result_array();
-
-				$cid = $arx[0]['id'];
-
-				$q4 = $this->db->where('id',$cid);
-				$q4 = $this->db->update('tbl_casualty_asst',$dataup);
-
-			}
-
-			if($this->db->trans_status() === FALSE){
-				$this->db->trans_rollback();
-				return 0; 
 			}else{
-				$this->db->trans_commit();
-				return 1;
+
+				$this->db->trans_begin();
+
+				try{
+
+					$q1 = $this->db->where('id',$id);
+					$q1 = $this->db->update('tbl_damage_per_brgy',$data);
+
+					$brgys2 = "";
+
+					if($q1){
+
+						$q2 = $this->db->query("SELECT * FROM tbl_damage_per_brgy WHERE disaster_title_id = '$disaster_title_id' AND municipality_id = '$municipality_id'");
+						$arr = $q2->result_array();
+
+						for($i = 0 ; $i < count($arr) ; $i++){
+
+							$totally_damaged 	= (int) $totally_damaged + (int) $arr[$i]['totally_damaged'];
+							$partially_damaged 	= (int) $partially_damaged + (int) $arr[$i]['partially_damaged'];
+
+							if($i == 0){
+								if((int) $arr[$i]['totally_damaged'] > 0 || (int) $arr[$i]['partially_damaged'] > 0){
+									$brgys2 = $arr[$i]['brgy_id'];
+								}
+							}else{
+								if($brgys2 == ""){
+									if((int) $arr[$i]['totally_damaged'] > 0 || (int) $arr[$i]['partially_damaged'] > 0){
+										$brgys2 = $arr[$i]['brgy_id'];
+									}
+								}else{
+									if((int) $arr[$i]['totally_damaged'] > 0 || (int) $arr[$i]['partially_damaged'] > 0){
+										$brgys2 = $brgys2."|".$arr[$i]['brgy_id'];
+									}
+								}
+							}
+
+						}
+
+
+						$dataup = array(
+							'disaster_title_id' => $disaster_title_id,
+							'provinceid' 		=> $provinceid,
+							'municipality_id' 	=> $municipality_id,
+							'totally_damaged' 	=> $totally_damaged,
+							'partially_damaged' => $partially_damaged,
+							'brgy_id'			=> $brgys2
+						);
+
+						$q3 = $this->db->query("SELECT * FROM tbl_casualty_asst WHERE disaster_title_id = '$disaster_title_id' AND municipality_id = '$municipality_id'");
+						$arx = $q3->result_array();
+
+						if($q3->num_rows() > 0){
+
+							$cid = $arx[0]['id'];
+
+							$q4 = $this->db->where('id',$cid);
+							$q4 = $this->db->update('tbl_casualty_asst',$dataup);
+
+						}else{
+
+							$q4 = $this->db->insert('tbl_casualty_asst',$dataup);
+
+						}
+
+					}
+						
+					$this->db->trans_commit();
+					return 1;
+
+				}catch(Exception $e){
+
+					$this->db->trans_rollback();
+					return 0;
+
+				}
+
 			}
 
 		}
@@ -5901,7 +8135,7 @@ class disaster_model extends CI_Model{
 					$data['tot'] = $query3->result_array();
 
 					for($i = 0 ; $i < count($data['tot']) ; $i++){
-						$dswd_asst = $dswd_asst + ($data['tot'][$i]['cost'] * $data['tot'][$i]['quantity']);
+						$dswd_asst = (int) $dswd_asst + (int) ($data['tot'][$i]['cost'] * $data['tot'][$i]['quantity']);
 					}
 
 					$query4 = $this->db->query("SELECT * FROM tbl_casualty_asst WHERE disaster_title_id = '$disaster_title_id' AND municipality_id = '$municipality_id'");
@@ -6927,6 +9161,8 @@ class disaster_model extends CI_Model{
 		public function getmunicipality($id){
 
 
+			$data = [];
+
 			$query = $this->db->where('id',$id);
 			$query = $this->db->get('lib_municipality');
 
@@ -6937,7 +9173,14 @@ class disaster_model extends CI_Model{
 			$query1 = $this->db->where('provinceid',$provinceid);
 			$query1 = $this->db->get('lib_municipality');
 
-			return $query1->result_array();
+			$data = $query1->result_array();
+
+			$query2 = $this->db->where('provinceid',$provinceid);
+			$query2 = $this->db->get('lib_barangay');
+
+			$data['brgy'] = $query2->result_array();
+
+			return $data;
 
 		}
 
@@ -7173,391 +9416,1190 @@ class disaster_model extends CI_Model{
 			session_start();
 
 			$user_level_access = $_SESSION['user_level_access'];
+			$provinceid = $_SESSION['provinceid'];
+			$municipality_id = $_SESSION['municipality_id'];
 
-			$query = $this->db->query("SELECT
-											* 
-										FROM
-											(
-											SELECT 
-												(SUM ( NULLIF ( infant_male_cum, '' ) :: INTEGER )) + (SUM ( NULLIF ( infant_female_cum, '' ) :: INTEGER )) infant,
-												(SUM ( NULLIF ( toddler_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( toddler_female_cum, '' ) :: INTEGER )) toddler,
-												(SUM ( NULLIF ( preschooler_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( preschooler_female_cum, '' ) :: INTEGER )) preschooler,
-												(SUM ( NULLIF ( schoolage_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( schoolage_female_cum, '' ) :: INTEGER )) schoolage,
-												(SUM ( NULLIF ( teenage_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( teenage_female_cum, '' ) :: INTEGER )) teenage,
-												(SUM ( NULLIF ( adult_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( adult_female_cum, '' ) :: INTEGER )) adult,
-												(SUM ( NULLIF ( senior_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( senior_female_cum, '' ) :: INTEGER )) senior,
-												SUM ( NULLIF ( pregnant_cum, '' ) :: INTEGER ) pregnant_cum,
-												SUM ( NULLIF ( lactating_cum, '' ) :: INTEGER ) lactating_cum,
-												(SUM ( NULLIF ( disable_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( disable_female_cum, '' ) :: INTEGER )) disabled,
-												SUM ( NULLIF ( solo_cum, '' ) :: INTEGER ) solo_cum,
-												SUM ( NULLIF ( ip_cum, '' ) :: INTEGER ) ip_cum 
+			if($user_level_access == "region" || $user_level_access == "national"){
+
+				$query_id = $this->db->query("SELECT * FROM tbl_disaster_title WHERE id = '$id'");
+
+				$arr = $query_id->result_array();
+
+				$dromic_id = $arr[0]["dromic_id"];
+
+				$query = $this->db->query("SELECT
+												* 
 											FROM
-												tbl_sex_gender_data t1 
-											WHERE
-											dromic_id = '$id' 
-											) t1"
-			);
-
-			$arr = $query->result_array();
-
-			$infant 		= $arr[0]['infant'];
-			$toddler 		= $arr[0]['toddler'];
-			$preschooler 	= $arr[0]['preschooler'];
-			$schoolage 		= $arr[0]['schoolage'];
-			$teenage 		= $arr[0]['teenage'];
-			$adult 			= $arr[0]['adult'];
-			$senior 		= $arr[0]['senior'];
-			$pregnant_cum 	= $arr[0]['pregnant_cum'];
-			$lactating_cum 	= $arr[0]['lactating_cum'];
-			$disabled 		= $arr[0]['disabled'];
-			$solo_cum 		= $arr[0]['solo_cum'];
-			$ip_cum 		= $arr[0]['ip_cum'];
-
-			if(!is_null($infant)){
-
-				$data['all'][] = array(
-					'name' 			=> 'Infant',
-					'y' 			=> (int)$infant,
+												(
+												SELECT 
+													(SUM ( NULLIF ( infant_male_cum, '' ) :: INTEGER )) + (SUM ( NULLIF ( infant_female_cum, '' ) :: INTEGER )) infant,
+													(SUM ( NULLIF ( toddler_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( toddler_female_cum, '' ) :: INTEGER )) toddler,
+													(SUM ( NULLIF ( preschooler_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( preschooler_female_cum, '' ) :: INTEGER )) preschooler,
+													(SUM ( NULLIF ( schoolage_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( schoolage_female_cum, '' ) :: INTEGER )) schoolage,
+													(SUM ( NULLIF ( teenage_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( teenage_female_cum, '' ) :: INTEGER )) teenage,
+													(SUM ( NULLIF ( adult_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( adult_female_cum, '' ) :: INTEGER )) adult,
+													(SUM ( NULLIF ( senior_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( senior_female_cum, '' ) :: INTEGER )) senior,
+													SUM ( NULLIF ( pregnant_cum, '' ) :: INTEGER ) pregnant_cum,
+													SUM ( NULLIF ( lactating_cum, '' ) :: INTEGER ) lactating_cum,
+													(SUM ( NULLIF ( disable_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( disable_female_cum, '' ) :: INTEGER )) disabled,
+													SUM ( NULLIF ( solo_cum, '' ) :: INTEGER ) solo_cum,
+													SUM ( NULLIF ( ip_cum, '' ) :: INTEGER ) ip_cum 
+												FROM
+													tbl_sex_gender_data t1 
+												WHERE
+												disaster_title_id = '$id' 
+												) t1"
 				);
 
-			}
+				$arr = $query->result_array();
 
-			if(!is_null($toddler)){
+				$infant 		= $arr[0]['infant'];
+				$toddler 		= $arr[0]['toddler'];
+				$preschooler 	= $arr[0]['preschooler'];
+				$schoolage 		= $arr[0]['schoolage'];
+				$teenage 		= $arr[0]['teenage'];
+				$adult 			= $arr[0]['adult'];
+				$senior 		= $arr[0]['senior'];
+				$pregnant_cum 	= $arr[0]['pregnant_cum'];
+				$lactating_cum 	= $arr[0]['lactating_cum'];
+				$disabled 		= $arr[0]['disabled'];
+				$solo_cum 		= $arr[0]['solo_cum'];
+				$ip_cum 		= $arr[0]['ip_cum'];
 
-				$data['all'][] = array(
-					'name' 			=> 'Toddler',
-					'y' 			=> (int)$toddler,
-				);
+				if(!is_null($infant)){
 
-			}
+					$data['all'][] = array(
+						'name' 			=> 'Infant',
+						'y' 			=> (int)$infant,
+					);
 
-			if(!is_null($preschooler)){
-
-				$data['all'][] = array(
-					'name' 			=> 'Preschooler',
-					'y' 			=> (int)$preschooler,
-				);
-
-			}
-
-			if(!is_null($schoolage)){
-
-				$data['all'][] = array(
-					'name' 			=> 'Schoolage',
-					'y' 			=> (int)$schoolage,
-				);
-
-			}
-
-			if(!is_null($teenage)){
-
-				$data['all'][] = array(
-					'name' 			=> 'Teenage',
-					'y' 			=> (int)$teenage,
-				);
-
-			}
-
-			if(!is_null($adult)){
-
-				$data['all'][] = array(
-					'name' 			=> 'Adult',
-					'y' 			=> (int)$adult,
-				);
-
-			}
-
-			if(!is_null($senior)){
-
-				$data['all'][] = array(
-					'name' 			=> 'Senior Citizen',
-					'y' 			=> (int)$senior,
-				);
-
-			}
-
-			if(!is_null($pregnant_cum)){
-
-				$data['all'][] = array(
-					'name' 			=> 'Pregnant Women',
-					'y' 			=> (int)$pregnant_cum,
-				);
-
-			}
-
-			if(!is_null($lactating_cum)){
-
-				$data['all'][] = array(
-					'name' 			=> 'Lactating Women',
-					'y' 			=> (int)$lactating_cum,
-				);
-
-			}
-
-			if(!is_null($disabled)){
-
-				$data['all'][] = array(
-					'name' 			=> 'Disabled',
-					'y' 			=> (int)$disabled,
-				);
-
-			}
-
-			if(!is_null($solo_cum)){
-
-				$data['all'][] = array(
-					'name' 			=> 'Solo Parents',
-					'y' 			=> (int)$solo_cum,
-				);
-
-			}
-
-			if(!is_null($ip_cum)){
-
-				$data['all'][] = array(
-					'name' 			=> 'Indigenous Persons',
-					'y' 			=> (int)$ip_cum,
-				);
-
-			}
-
-			$query1 = $this->db->query("SELECT
-											* 
-										FROM
-											(
-											SELECT 
-												SUM ( NULLIF ( infant_male_cum, '' ) :: INTEGER ) infant_male_cum,
-												SUM ( NULLIF ( infant_female_cum, '' ) :: INTEGER ) infant_female_cum,
-												SUM ( NULLIF ( toddler_male_cum, '' ) :: INTEGER ) toddler_male_cum,
-												SUM ( NULLIF ( toddler_female_cum, '' ) :: INTEGER ) toddler_female_cum,
-												SUM ( NULLIF ( preschooler_male_cum, '' ) :: INTEGER ) preschooler_male_cum, 
-												SUM ( NULLIF ( preschooler_female_cum, '' ) :: INTEGER ) preschooler_female_cum,
-												SUM ( NULLIF ( schoolage_male_cum, '' ) :: INTEGER ) schoolage_male_cum, 
-												SUM ( NULLIF ( schoolage_female_cum, '' ) :: INTEGER ) schoolage_female_cum,
-												SUM ( NULLIF ( teenage_male_cum, '' ) :: INTEGER ) teenage_male_cum, 
-												SUM ( NULLIF ( teenage_female_cum, '' ) :: INTEGER ) teenage_female_cum,
-												SUM ( NULLIF ( adult_male_cum, '' ) :: INTEGER ) adult_male_cum, 
-												SUM ( NULLIF ( adult_female_cum, '' ) :: INTEGER ) adult_female_cum,
-												SUM ( NULLIF ( senior_male_cum, '' ) :: INTEGER ) senior_male_cum, 
-												SUM ( NULLIF ( senior_female_cum, '' ) :: INTEGER ) senior_female_cum,
-												SUM ( NULLIF ( pregnant_cum, '' ) :: INTEGER ) pregnant_cum,
-												SUM ( NULLIF ( lactating_cum, '' ) :: INTEGER ) lactating_cum,
-												SUM ( NULLIF ( disable_male_cum, '' ) :: INTEGER ) disable_male_cum, 
-												SUM ( NULLIF ( disable_female_cum, '' ) :: INTEGER ) disable_female_cum,
-												SUM ( NULLIF ( solo_cum, '' ) :: INTEGER ) solo_cum,
-												SUM ( NULLIF ( ip_cum, '' ) :: INTEGER ) ip_cum 
-											FROM
-												tbl_sex_gender_data t1 
-											WHERE
-											dromic_id = '1' 
-											) t1"
-			);
-
-			$arr1 = $query1->result_array();
-
-			$data['categories'] = array();
-			$data['male'] = array();
-			$data['female'] = array();
-			$data['solo'] = array();
-			$data['ip'] = array();
-			
-			$infant_male_cum 			= $arr1[0]['infant_male_cum'];
-			$infant_female_cum 			= $arr1[0]['infant_female_cum'];
-			$toddler_male_cum 			= $arr1[0]['toddler_male_cum'];
-			$toddler_female_cum 		= $arr1[0]['toddler_female_cum'];
-			$preschooler_male_cum 		= $arr1[0]['preschooler_male_cum'];
-			$preschooler_female_cum 	= $arr1[0]['preschooler_female_cum'];
-			$schoolage_male_cum 		= $arr1[0]['schoolage_male_cum'];
-			$schoolage_female_cum 		= $arr1[0]['schoolage_female_cum'];
-			$teenage_male_cum 			= $arr1[0]['teenage_male_cum'];
-			$teenage_female_cum 		= $arr1[0]['teenage_female_cum'];
-			$adult_male_cum 			= $arr1[0]['adult_male_cum'];
-			$adult_female_cum 			= $arr1[0]['adult_female_cum'];
-			$senior_male_cum 			= $arr1[0]['senior_male_cum'];
-			$senior_female_cum 			= $arr1[0]['senior_female_cum'];
-			$pregnant_cum 				= $arr1[0]['pregnant_cum'];
-			$lactating_cum 				= $arr1[0]['lactating_cum'];
-			$disable_male_cum 			= $arr1[0]['disable_male_cum'];
-			$disable_female_cum 		= $arr1[0]['disable_female_cum'];
-			$solo_cum 					= $arr1[0]['solo_cum'];
-			$ip_cum 					= $arr1[0]['ip_cum'];
-
-			if(!is_null($infant_male_cum) || !is_null($infant_female_cum)){
-				array_push($data['categories'],"Infant"); 
-
-				if(!is_null($infant_male_cum)){
-					array_push($data['male'],(int)$infant_male_cum); 
-				}else{
-					array_push($data['male'],0);
-				}
-				if(!is_null($infant_female_cum)){
-					array_push($data['female'],(int)$infant_female_cum); 
-				}else{
-					array_push($data['female'],0);
 				}
 
-				array_push($data['solo'],0);
-				array_push($data['ip'],0); 
+				if(!is_null($toddler)){
 
-			}
+					$data['all'][] = array(
+						'name' 			=> 'Toddler',
+						'y' 			=> (int)$toddler,
+					);
 
-			if(!is_null($toddler_male_cum) || !is_null($toddler_female_cum)){
-				array_push($data['categories'],"Toddler"); 
-
-				if(!is_null($toddler_male_cum)){
-					array_push($data['male'],(int)$toddler_male_cum); 
-				}else{
-					array_push($data['male'],0); 
 				}
-				if(!is_null($toddler_female_cum)){
-					array_push($data['female'],(int)$toddler_female_cum); 
-				}else{
-					array_push($data['female'],0); 
+
+				if(!is_null($preschooler)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Preschooler',
+						'y' 			=> (int)$preschooler,
+					);
+
 				}
-				array_push($data['solo'],0);
-				array_push($data['ip'],0); 
-			}
 
-			if(!is_null($preschooler_male_cum) || !is_null($preschooler_female_cum)){
-				array_push($data['categories'],"Preschooler"); 
+				if(!is_null($schoolage)){
 
-				if(!is_null($preschooler_male_cum)){
-					array_push($data['male'],(int)$preschooler_male_cum); 
-				}else{
-					array_push($data['male'],0);
+					$data['all'][] = array(
+						'name' 			=> 'Schoolage',
+						'y' 			=> (int)$schoolage,
+					);
+
 				}
-				if(!is_null($preschooler_female_cum)){
-					array_push($data['female'],(int)$preschooler_female_cum); 
-				}else{
-					array_push($data['female'],0); 
+
+				if(!is_null($teenage)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Teenage',
+						'y' 			=> (int)$teenage,
+					);
+
 				}
-				array_push($data['solo'],0);
-				array_push($data['ip'],0); 
-			}
 
-			if(!is_null($schoolage_male_cum) || !is_null($schoolage_female_cum)){
-				array_push($data['categories'],"Schoolage"); 
+				if(!is_null($adult)){
 
-				if(!is_null($schoolage_male_cum)){
-					array_push($data['male'],(int)$schoolage_male_cum); 
-				}else{
-					array_push($data['male'],0);
+					$data['all'][] = array(
+						'name' 			=> 'Adult',
+						'y' 			=> (int)$adult,
+					);
+
 				}
-				if(!is_null($schoolage_female_cum)){
-					array_push($data['female'],(int)$schoolage_female_cum); 
-				}else{
-					array_push($data['female'],0);
+
+				if(!is_null($senior)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Senior Citizen',
+						'y' 			=> (int)$senior,
+					);
+
 				}
-				array_push($data['solo'],0);
-				array_push($data['ip'],0); 
-			}
-
-			if(!is_null($teenage_male_cum) || !is_null($teenage_female_cum)){
-				array_push($data['categories'],"Teenage"); 
-
-				if(!is_null($teenage_male_cum)){
-					array_push($data['male'],(int)$teenage_male_cum); 
-				}else{
-					array_push($data['male'],0); 
-				}
-				if(!is_null($teenage_female_cum)){
-					array_push($data['female'],(int)$teenage_female_cum); 
-				}else{
-					array_push($data['female'],0); 
-				}
-				array_push($data['solo'],0);
-				array_push($data['ip'],0); 
-			}
-
-			if(!is_null($adult_male_cum) || !is_null($adult_female_cum)){
-				array_push($data['categories'],"Adult");
-
-				if(!is_null($adult_male_cum)){
-					array_push($data['male'],(int)$adult_male_cum); 
-				}else{
-					array_push($data['male'],0); 
-				}
-				if(!is_null($adult_female_cum)){
-					array_push($data['female'],(int)$adult_female_cum); 
-				}else{
-					array_push($data['female'],0);
-				}
-				array_push($data['solo'],0); 
-				array_push($data['ip'],0); 
-			}
-
-			if(!is_null($senior_male_cum) || !is_null($senior_female_cum)){
-				array_push($data['categories'],"Senior Citizen"); 
-
-				if(!is_null($senior_male_cum)){
-					array_push($data['male'],(int)$senior_male_cum); 
-				}else{
-					array_push($data['male'],0);
-				}
-				if(!is_null($senior_female_cum)){
-					array_push($data['female'],(int)$senior_female_cum); 
-				}else{
-					array_push($data['female'],0); 
-				}
-				array_push($data['solo'],0);
-				array_push($data['ip'],0); 
-			}
-
-			if(!is_null($pregnant_cum)){
-				array_push($data['categories'],"Pregnant Women"); 
-
-				array_push($data['male'],0);
 
 				if(!is_null($pregnant_cum)){
-					array_push($data['female'],(int)$pregnant_cum); 
+
+					$data['all'][] = array(
+						'name' 			=> 'Pregnant Women',
+						'y' 			=> (int)$pregnant_cum,
+					);
+
 				}
-				array_push($data['solo'],0);
-				array_push($data['ip'],0); 
-			}
-
-			if(!is_null($lactating_cum)){
-				array_push($data['categories'],"Lactating Women"); 
-
-				array_push($data['male'],0);
 
 				if(!is_null($lactating_cum)){
-					array_push($data['female'],(int)$lactating_cum); 
+
+					$data['all'][] = array(
+						'name' 			=> 'Lactating Women',
+						'y' 			=> (int)$lactating_cum,
+					);
+
 				}
-				array_push($data['solo'],0);
-				array_push($data['ip'],0); 
-			}
 
-			if(!is_null($disable_male_cum) || !is_null($disable_female_cum)){
-				array_push($data['categories'],"Disabled"); 
+				if(!is_null($disabled)){
 
-				if(!is_null($disable_male_cum)){
-					array_push($data['male'],(int)$disable_male_cum); 
-				}else{
+					$data['all'][] = array(
+						'name' 			=> 'Disabled',
+						'y' 			=> (int)$disabled,
+					);
+
+				}
+
+				if(!is_null($solo_cum)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Solo Parents',
+						'y' 			=> (int)$solo_cum,
+					);
+
+				}
+
+				if(!is_null($ip_cum)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Indigenous Persons',
+						'y' 			=> (int)$ip_cum,
+					);
+
+				}
+
+				$query1 = $this->db->query("SELECT
+												* 
+											FROM
+												(
+												SELECT 
+													SUM ( NULLIF ( infant_male_cum, '' ) :: INTEGER ) infant_male_cum,
+													SUM ( NULLIF ( infant_female_cum, '' ) :: INTEGER ) infant_female_cum,
+													SUM ( NULLIF ( toddler_male_cum, '' ) :: INTEGER ) toddler_male_cum,
+													SUM ( NULLIF ( toddler_female_cum, '' ) :: INTEGER ) toddler_female_cum,
+													SUM ( NULLIF ( preschooler_male_cum, '' ) :: INTEGER ) preschooler_male_cum, 
+													SUM ( NULLIF ( preschooler_female_cum, '' ) :: INTEGER ) preschooler_female_cum,
+													SUM ( NULLIF ( schoolage_male_cum, '' ) :: INTEGER ) schoolage_male_cum, 
+													SUM ( NULLIF ( schoolage_female_cum, '' ) :: INTEGER ) schoolage_female_cum,
+													SUM ( NULLIF ( teenage_male_cum, '' ) :: INTEGER ) teenage_male_cum, 
+													SUM ( NULLIF ( teenage_female_cum, '' ) :: INTEGER ) teenage_female_cum,
+													SUM ( NULLIF ( adult_male_cum, '' ) :: INTEGER ) adult_male_cum, 
+													SUM ( NULLIF ( adult_female_cum, '' ) :: INTEGER ) adult_female_cum,
+													SUM ( NULLIF ( senior_male_cum, '' ) :: INTEGER ) senior_male_cum, 
+													SUM ( NULLIF ( senior_female_cum, '' ) :: INTEGER ) senior_female_cum,
+													SUM ( NULLIF ( pregnant_cum, '' ) :: INTEGER ) pregnant_cum,
+													SUM ( NULLIF ( lactating_cum, '' ) :: INTEGER ) lactating_cum,
+													SUM ( NULLIF ( disable_male_cum, '' ) :: INTEGER ) disable_male_cum, 
+													SUM ( NULLIF ( disable_female_cum, '' ) :: INTEGER ) disable_female_cum,
+													SUM ( NULLIF ( solo_cum, '' ) :: INTEGER ) solo_cum,
+													SUM ( NULLIF ( ip_cum, '' ) :: INTEGER ) ip_cum 
+												FROM
+													tbl_sex_gender_data t1 
+												WHERE
+												disaster_title_id = '$id'
+												) t1"
+				);
+
+				$arr1 = $query1->result_array();
+
+				$data['categories'] = array();
+				$data['male'] = array();
+				$data['female'] = array();
+				$data['solo'] = array();
+				$data['ip'] = array();
+				
+				$infant_male_cum 			= $arr1[0]['infant_male_cum'];
+				$infant_female_cum 			= $arr1[0]['infant_female_cum'];
+				$toddler_male_cum 			= $arr1[0]['toddler_male_cum'];
+				$toddler_female_cum 		= $arr1[0]['toddler_female_cum'];
+				$preschooler_male_cum 		= $arr1[0]['preschooler_male_cum'];
+				$preschooler_female_cum 	= $arr1[0]['preschooler_female_cum'];
+				$schoolage_male_cum 		= $arr1[0]['schoolage_male_cum'];
+				$schoolage_female_cum 		= $arr1[0]['schoolage_female_cum'];
+				$teenage_male_cum 			= $arr1[0]['teenage_male_cum'];
+				$teenage_female_cum 		= $arr1[0]['teenage_female_cum'];
+				$adult_male_cum 			= $arr1[0]['adult_male_cum'];
+				$adult_female_cum 			= $arr1[0]['adult_female_cum'];
+				$senior_male_cum 			= $arr1[0]['senior_male_cum'];
+				$senior_female_cum 			= $arr1[0]['senior_female_cum'];
+				$pregnant_cum 				= $arr1[0]['pregnant_cum'];
+				$lactating_cum 				= $arr1[0]['lactating_cum'];
+				$disable_male_cum 			= $arr1[0]['disable_male_cum'];
+				$disable_female_cum 		= $arr1[0]['disable_female_cum'];
+				$solo_cum 					= $arr1[0]['solo_cum'];
+				$ip_cum 					= $arr1[0]['ip_cum'];
+
+				if(!is_null($infant_male_cum) || !is_null($infant_female_cum)){
+					array_push($data['categories'],"Infant"); 
+
+					if(!is_null($infant_male_cum)){
+						array_push($data['male'],(int)$infant_male_cum); 
+					}else{
+						array_push($data['male'],0);
+					}
+					if(!is_null($infant_female_cum)){
+						array_push($data['female'],(int)$infant_female_cum); 
+					}else{
+						array_push($data['female'],0);
+					}
+
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+
+				}
+
+				if(!is_null($toddler_male_cum) || !is_null($toddler_female_cum)){
+					array_push($data['categories'],"Toddler"); 
+
+					if(!is_null($toddler_male_cum)){
+						array_push($data['male'],(int)$toddler_male_cum); 
+					}else{
+						array_push($data['male'],0); 
+					}
+					if(!is_null($toddler_female_cum)){
+						array_push($data['female'],(int)$toddler_female_cum); 
+					}else{
+						array_push($data['female'],0); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($preschooler_male_cum) || !is_null($preschooler_female_cum)){
+					array_push($data['categories'],"Preschooler"); 
+
+					if(!is_null($preschooler_male_cum)){
+						array_push($data['male'],(int)$preschooler_male_cum); 
+					}else{
+						array_push($data['male'],0);
+					}
+					if(!is_null($preschooler_female_cum)){
+						array_push($data['female'],(int)$preschooler_female_cum); 
+					}else{
+						array_push($data['female'],0); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($schoolage_male_cum) || !is_null($schoolage_female_cum)){
+					array_push($data['categories'],"Schoolage"); 
+
+					if(!is_null($schoolage_male_cum)){
+						array_push($data['male'],(int)$schoolage_male_cum); 
+					}else{
+						array_push($data['male'],0);
+					}
+					if(!is_null($schoolage_female_cum)){
+						array_push($data['female'],(int)$schoolage_female_cum); 
+					}else{
+						array_push($data['female'],0);
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($teenage_male_cum) || !is_null($teenage_female_cum)){
+					array_push($data['categories'],"Teenage"); 
+
+					if(!is_null($teenage_male_cum)){
+						array_push($data['male'],(int)$teenage_male_cum); 
+					}else{
+						array_push($data['male'],0); 
+					}
+					if(!is_null($teenage_female_cum)){
+						array_push($data['female'],(int)$teenage_female_cum); 
+					}else{
+						array_push($data['female'],0); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($adult_male_cum) || !is_null($adult_female_cum)){
+					array_push($data['categories'],"Adult");
+
+					if(!is_null($adult_male_cum)){
+						array_push($data['male'],(int)$adult_male_cum); 
+					}else{
+						array_push($data['male'],0); 
+					}
+					if(!is_null($adult_female_cum)){
+						array_push($data['female'],(int)$adult_female_cum); 
+					}else{
+						array_push($data['female'],0);
+					}
+					array_push($data['solo'],0); 
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($senior_male_cum) || !is_null($senior_female_cum)){
+					array_push($data['categories'],"Senior Citizen"); 
+
+					if(!is_null($senior_male_cum)){
+						array_push($data['male'],(int)$senior_male_cum); 
+					}else{
+						array_push($data['male'],0);
+					}
+					if(!is_null($senior_female_cum)){
+						array_push($data['female'],(int)$senior_female_cum); 
+					}else{
+						array_push($data['female'],0); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($pregnant_cum)){
+					array_push($data['categories'],"Pregnant Women"); 
+
 					array_push($data['male'],0);
+
+					if(!is_null($pregnant_cum)){
+						array_push($data['female'],(int)$pregnant_cum); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
 				}
-				if(!is_null($disable_female_cum)){
-					array_push($data['female'],(int)$disable_female_cum); 
-				}else{
-					array_push($data['female'],0); 
+
+				if(!is_null($lactating_cum)){
+					array_push($data['categories'],"Lactating Women"); 
+
+					array_push($data['male'],0);
+
+					if(!is_null($lactating_cum)){
+						array_push($data['female'],(int)$lactating_cum); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
 				}
-				array_push($data['solo'],0);
-				array_push($data['ip'],0); 
+
+				if(!is_null($disable_male_cum) || !is_null($disable_female_cum)){
+					array_push($data['categories'],"Disabled"); 
+
+					if(!is_null($disable_male_cum)){
+						array_push($data['male'],(int)$disable_male_cum); 
+					}else{
+						array_push($data['male'],0);
+					}
+					if(!is_null($disable_female_cum)){
+						array_push($data['female'],(int)$disable_female_cum); 
+					}else{
+						array_push($data['female'],0); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($solo_cum)){
+					array_push($data['categories'],"Solo Parent"); 
+
+					array_push($data['solo'],(int)$solo_cum); 
+				}
+
+				if(!is_null($ip_cum)){
+					array_push($data['categories'],"Indigenous Persons"); 
+
+						array_push($data['ip'],(int)$ip_cum); 
+				}
+
+				return $data;
+
+			}else if($user_level_access == "province"){
+
+				$query_id = $this->db->query("SELECT * FROM tbl_disaster_title WHERE id = '$id'");
+
+				$arr = $query_id->result_array();
+
+				$dromic_id = $arr[0]["dromic_id"];
+
+				$query = $this->db->query("SELECT
+												* 
+											FROM
+												(
+												SELECT 
+													(SUM ( NULLIF ( infant_male_cum, '' ) :: INTEGER )) + (SUM ( NULLIF ( infant_female_cum, '' ) :: INTEGER )) infant,
+													(SUM ( NULLIF ( toddler_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( toddler_female_cum, '' ) :: INTEGER )) toddler,
+													(SUM ( NULLIF ( preschooler_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( preschooler_female_cum, '' ) :: INTEGER )) preschooler,
+													(SUM ( NULLIF ( schoolage_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( schoolage_female_cum, '' ) :: INTEGER )) schoolage,
+													(SUM ( NULLIF ( teenage_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( teenage_female_cum, '' ) :: INTEGER )) teenage,
+													(SUM ( NULLIF ( adult_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( adult_female_cum, '' ) :: INTEGER )) adult,
+													(SUM ( NULLIF ( senior_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( senior_female_cum, '' ) :: INTEGER )) senior,
+													SUM ( NULLIF ( pregnant_cum, '' ) :: INTEGER ) pregnant_cum,
+													SUM ( NULLIF ( lactating_cum, '' ) :: INTEGER ) lactating_cum,
+													(SUM ( NULLIF ( disable_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( disable_female_cum, '' ) :: INTEGER )) disabled,
+													SUM ( NULLIF ( solo_cum, '' ) :: INTEGER ) solo_cum,
+													SUM ( NULLIF ( ip_cum, '' ) :: INTEGER ) ip_cum 
+												FROM
+													tbl_sex_gender_data t1 
+												WHERE
+												disaster_title_id = '$id' 
+												AND t1.province_id = '$provinceid'
+												) t1"
+				);
+
+				$arr = $query->result_array();
+
+				$infant 		= $arr[0]['infant'];
+				$toddler 		= $arr[0]['toddler'];
+				$preschooler 	= $arr[0]['preschooler'];
+				$schoolage 		= $arr[0]['schoolage'];
+				$teenage 		= $arr[0]['teenage'];
+				$adult 			= $arr[0]['adult'];
+				$senior 		= $arr[0]['senior'];
+				$pregnant_cum 	= $arr[0]['pregnant_cum'];
+				$lactating_cum 	= $arr[0]['lactating_cum'];
+				$disabled 		= $arr[0]['disabled'];
+				$solo_cum 		= $arr[0]['solo_cum'];
+				$ip_cum 		= $arr[0]['ip_cum'];
+
+				if(!is_null($infant)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Infant',
+						'y' 			=> (int)$infant,
+					);
+
+				}
+
+				if(!is_null($toddler)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Toddler',
+						'y' 			=> (int)$toddler,
+					);
+
+				}
+
+				if(!is_null($preschooler)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Preschooler',
+						'y' 			=> (int)$preschooler,
+					);
+
+				}
+
+				if(!is_null($schoolage)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Schoolage',
+						'y' 			=> (int)$schoolage,
+					);
+
+				}
+
+				if(!is_null($teenage)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Teenage',
+						'y' 			=> (int)$teenage,
+					);
+
+				}
+
+				if(!is_null($adult)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Adult',
+						'y' 			=> (int)$adult,
+					);
+
+				}
+
+				if(!is_null($senior)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Senior Citizen',
+						'y' 			=> (int)$senior,
+					);
+
+				}
+
+				if(!is_null($pregnant_cum)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Pregnant Women',
+						'y' 			=> (int)$pregnant_cum,
+					);
+
+				}
+
+				if(!is_null($lactating_cum)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Lactating Women',
+						'y' 			=> (int)$lactating_cum,
+					);
+
+				}
+
+				if(!is_null($disabled)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Disabled',
+						'y' 			=> (int)$disabled,
+					);
+
+				}
+
+				if(!is_null($solo_cum)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Solo Parents',
+						'y' 			=> (int)$solo_cum,
+					);
+
+				}
+
+				if(!is_null($ip_cum)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Indigenous Persons',
+						'y' 			=> (int)$ip_cum,
+					);
+
+				}
+
+				$query1 = $this->db->query("SELECT
+												* 
+											FROM
+												(
+												SELECT 
+													SUM ( NULLIF ( infant_male_cum, '' ) :: INTEGER ) infant_male_cum,
+													SUM ( NULLIF ( infant_female_cum, '' ) :: INTEGER ) infant_female_cum,
+													SUM ( NULLIF ( toddler_male_cum, '' ) :: INTEGER ) toddler_male_cum,
+													SUM ( NULLIF ( toddler_female_cum, '' ) :: INTEGER ) toddler_female_cum,
+													SUM ( NULLIF ( preschooler_male_cum, '' ) :: INTEGER ) preschooler_male_cum, 
+													SUM ( NULLIF ( preschooler_female_cum, '' ) :: INTEGER ) preschooler_female_cum,
+													SUM ( NULLIF ( schoolage_male_cum, '' ) :: INTEGER ) schoolage_male_cum, 
+													SUM ( NULLIF ( schoolage_female_cum, '' ) :: INTEGER ) schoolage_female_cum,
+													SUM ( NULLIF ( teenage_male_cum, '' ) :: INTEGER ) teenage_male_cum, 
+													SUM ( NULLIF ( teenage_female_cum, '' ) :: INTEGER ) teenage_female_cum,
+													SUM ( NULLIF ( adult_male_cum, '' ) :: INTEGER ) adult_male_cum, 
+													SUM ( NULLIF ( adult_female_cum, '' ) :: INTEGER ) adult_female_cum,
+													SUM ( NULLIF ( senior_male_cum, '' ) :: INTEGER ) senior_male_cum, 
+													SUM ( NULLIF ( senior_female_cum, '' ) :: INTEGER ) senior_female_cum,
+													SUM ( NULLIF ( pregnant_cum, '' ) :: INTEGER ) pregnant_cum,
+													SUM ( NULLIF ( lactating_cum, '' ) :: INTEGER ) lactating_cum,
+													SUM ( NULLIF ( disable_male_cum, '' ) :: INTEGER ) disable_male_cum, 
+													SUM ( NULLIF ( disable_female_cum, '' ) :: INTEGER ) disable_female_cum,
+													SUM ( NULLIF ( solo_cum, '' ) :: INTEGER ) solo_cum,
+													SUM ( NULLIF ( ip_cum, '' ) :: INTEGER ) ip_cum 
+												FROM
+													tbl_sex_gender_data t1 
+												WHERE
+												disaster_title_id = '$id'
+												AND t1.province_id = '$provinceid'
+												) t1"
+				);
+
+				$arr1 = $query1->result_array();
+
+				$data['categories'] = array();
+				$data['male'] = array();
+				$data['female'] = array();
+				$data['solo'] = array();
+				$data['ip'] = array();
+				
+				$infant_male_cum 			= $arr1[0]['infant_male_cum'];
+				$infant_female_cum 			= $arr1[0]['infant_female_cum'];
+				$toddler_male_cum 			= $arr1[0]['toddler_male_cum'];
+				$toddler_female_cum 		= $arr1[0]['toddler_female_cum'];
+				$preschooler_male_cum 		= $arr1[0]['preschooler_male_cum'];
+				$preschooler_female_cum 	= $arr1[0]['preschooler_female_cum'];
+				$schoolage_male_cum 		= $arr1[0]['schoolage_male_cum'];
+				$schoolage_female_cum 		= $arr1[0]['schoolage_female_cum'];
+				$teenage_male_cum 			= $arr1[0]['teenage_male_cum'];
+				$teenage_female_cum 		= $arr1[0]['teenage_female_cum'];
+				$adult_male_cum 			= $arr1[0]['adult_male_cum'];
+				$adult_female_cum 			= $arr1[0]['adult_female_cum'];
+				$senior_male_cum 			= $arr1[0]['senior_male_cum'];
+				$senior_female_cum 			= $arr1[0]['senior_female_cum'];
+				$pregnant_cum 				= $arr1[0]['pregnant_cum'];
+				$lactating_cum 				= $arr1[0]['lactating_cum'];
+				$disable_male_cum 			= $arr1[0]['disable_male_cum'];
+				$disable_female_cum 		= $arr1[0]['disable_female_cum'];
+				$solo_cum 					= $arr1[0]['solo_cum'];
+				$ip_cum 					= $arr1[0]['ip_cum'];
+
+				if(!is_null($infant_male_cum) || !is_null($infant_female_cum)){
+					array_push($data['categories'],"Infant"); 
+
+					if(!is_null($infant_male_cum)){
+						array_push($data['male'],(int)$infant_male_cum); 
+					}else{
+						array_push($data['male'],0);
+					}
+					if(!is_null($infant_female_cum)){
+						array_push($data['female'],(int)$infant_female_cum); 
+					}else{
+						array_push($data['female'],0);
+					}
+
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+
+				}
+
+				if(!is_null($toddler_male_cum) || !is_null($toddler_female_cum)){
+					array_push($data['categories'],"Toddler"); 
+
+					if(!is_null($toddler_male_cum)){
+						array_push($data['male'],(int)$toddler_male_cum); 
+					}else{
+						array_push($data['male'],0); 
+					}
+					if(!is_null($toddler_female_cum)){
+						array_push($data['female'],(int)$toddler_female_cum); 
+					}else{
+						array_push($data['female'],0); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($preschooler_male_cum) || !is_null($preschooler_female_cum)){
+					array_push($data['categories'],"Preschooler"); 
+
+					if(!is_null($preschooler_male_cum)){
+						array_push($data['male'],(int)$preschooler_male_cum); 
+					}else{
+						array_push($data['male'],0);
+					}
+					if(!is_null($preschooler_female_cum)){
+						array_push($data['female'],(int)$preschooler_female_cum); 
+					}else{
+						array_push($data['female'],0); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($schoolage_male_cum) || !is_null($schoolage_female_cum)){
+					array_push($data['categories'],"Schoolage"); 
+
+					if(!is_null($schoolage_male_cum)){
+						array_push($data['male'],(int)$schoolage_male_cum); 
+					}else{
+						array_push($data['male'],0);
+					}
+					if(!is_null($schoolage_female_cum)){
+						array_push($data['female'],(int)$schoolage_female_cum); 
+					}else{
+						array_push($data['female'],0);
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($teenage_male_cum) || !is_null($teenage_female_cum)){
+					array_push($data['categories'],"Teenage"); 
+
+					if(!is_null($teenage_male_cum)){
+						array_push($data['male'],(int)$teenage_male_cum); 
+					}else{
+						array_push($data['male'],0); 
+					}
+					if(!is_null($teenage_female_cum)){
+						array_push($data['female'],(int)$teenage_female_cum); 
+					}else{
+						array_push($data['female'],0); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($adult_male_cum) || !is_null($adult_female_cum)){
+					array_push($data['categories'],"Adult");
+
+					if(!is_null($adult_male_cum)){
+						array_push($data['male'],(int)$adult_male_cum); 
+					}else{
+						array_push($data['male'],0); 
+					}
+					if(!is_null($adult_female_cum)){
+						array_push($data['female'],(int)$adult_female_cum); 
+					}else{
+						array_push($data['female'],0);
+					}
+					array_push($data['solo'],0); 
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($senior_male_cum) || !is_null($senior_female_cum)){
+					array_push($data['categories'],"Senior Citizen"); 
+
+					if(!is_null($senior_male_cum)){
+						array_push($data['male'],(int)$senior_male_cum); 
+					}else{
+						array_push($data['male'],0);
+					}
+					if(!is_null($senior_female_cum)){
+						array_push($data['female'],(int)$senior_female_cum); 
+					}else{
+						array_push($data['female'],0); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($pregnant_cum)){
+					array_push($data['categories'],"Pregnant Women"); 
+
+					array_push($data['male'],0);
+
+					if(!is_null($pregnant_cum)){
+						array_push($data['female'],(int)$pregnant_cum); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($lactating_cum)){
+					array_push($data['categories'],"Lactating Women"); 
+
+					array_push($data['male'],0);
+
+					if(!is_null($lactating_cum)){
+						array_push($data['female'],(int)$lactating_cum); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($disable_male_cum) || !is_null($disable_female_cum)){
+					array_push($data['categories'],"Disabled"); 
+
+					if(!is_null($disable_male_cum)){
+						array_push($data['male'],(int)$disable_male_cum); 
+					}else{
+						array_push($data['male'],0);
+					}
+					if(!is_null($disable_female_cum)){
+						array_push($data['female'],(int)$disable_female_cum); 
+					}else{
+						array_push($data['female'],0); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($solo_cum)){
+					array_push($data['categories'],"Solo Parent"); 
+
+					array_push($data['solo'],(int)$solo_cum); 
+				}
+
+				if(!is_null($ip_cum)){
+					array_push($data['categories'],"Indigenous Persons"); 
+
+						array_push($data['ip'],(int)$ip_cum); 
+				}
+
+				return $data;
+
+			}else{
+
+				$query_id = $this->db->query("SELECT * FROM tbl_disaster_title WHERE id = '$id'");
+
+				$arr = $query_id->result_array();
+
+				$dromic_id = $arr[0]["dromic_id"];
+
+				$query = $this->db->query("SELECT
+												* 
+											FROM
+												(
+												SELECT 
+													(SUM ( NULLIF ( infant_male_cum, '' ) :: INTEGER )) + (SUM ( NULLIF ( infant_female_cum, '' ) :: INTEGER )) infant,
+													(SUM ( NULLIF ( toddler_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( toddler_female_cum, '' ) :: INTEGER )) toddler,
+													(SUM ( NULLIF ( preschooler_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( preschooler_female_cum, '' ) :: INTEGER )) preschooler,
+													(SUM ( NULLIF ( schoolage_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( schoolage_female_cum, '' ) :: INTEGER )) schoolage,
+													(SUM ( NULLIF ( teenage_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( teenage_female_cum, '' ) :: INTEGER )) teenage,
+													(SUM ( NULLIF ( adult_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( adult_female_cum, '' ) :: INTEGER )) adult,
+													(SUM ( NULLIF ( senior_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( senior_female_cum, '' ) :: INTEGER )) senior,
+													SUM ( NULLIF ( pregnant_cum, '' ) :: INTEGER ) pregnant_cum,
+													SUM ( NULLIF ( lactating_cum, '' ) :: INTEGER ) lactating_cum,
+													(SUM ( NULLIF ( disable_male_cum, '' ) :: INTEGER ) + SUM ( NULLIF ( disable_female_cum, '' ) :: INTEGER )) disabled,
+													SUM ( NULLIF ( solo_cum, '' ) :: INTEGER ) solo_cum,
+													SUM ( NULLIF ( ip_cum, '' ) :: INTEGER ) ip_cum 
+												FROM
+													tbl_sex_gender_data t1 
+												WHERE
+												disaster_title_id = '$id' 
+												AND t1.municipality_id = '$municipality_id'
+												) t1"
+				);
+
+				$arr = $query->result_array();
+
+				$infant 		= $arr[0]['infant'];
+				$toddler 		= $arr[0]['toddler'];
+				$preschooler 	= $arr[0]['preschooler'];
+				$schoolage 		= $arr[0]['schoolage'];
+				$teenage 		= $arr[0]['teenage'];
+				$adult 			= $arr[0]['adult'];
+				$senior 		= $arr[0]['senior'];
+				$pregnant_cum 	= $arr[0]['pregnant_cum'];
+				$lactating_cum 	= $arr[0]['lactating_cum'];
+				$disabled 		= $arr[0]['disabled'];
+				$solo_cum 		= $arr[0]['solo_cum'];
+				$ip_cum 		= $arr[0]['ip_cum'];
+
+				if(!is_null($infant)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Infant',
+						'y' 			=> (int)$infant,
+					);
+
+				}
+
+				if(!is_null($toddler)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Toddler',
+						'y' 			=> (int)$toddler,
+					);
+
+				}
+
+				if(!is_null($preschooler)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Preschooler',
+						'y' 			=> (int)$preschooler,
+					);
+
+				}
+
+				if(!is_null($schoolage)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Schoolage',
+						'y' 			=> (int)$schoolage,
+					);
+
+				}
+
+				if(!is_null($teenage)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Teenage',
+						'y' 			=> (int)$teenage,
+					);
+
+				}
+
+				if(!is_null($adult)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Adult',
+						'y' 			=> (int)$adult,
+					);
+
+				}
+
+				if(!is_null($senior)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Senior Citizen',
+						'y' 			=> (int)$senior,
+					);
+
+				}
+
+				if(!is_null($pregnant_cum)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Pregnant Women',
+						'y' 			=> (int)$pregnant_cum,
+					);
+
+				}
+
+				if(!is_null($lactating_cum)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Lactating Women',
+						'y' 			=> (int)$lactating_cum,
+					);
+
+				}
+
+				if(!is_null($disabled)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Disabled',
+						'y' 			=> (int)$disabled,
+					);
+
+				}
+
+				if(!is_null($solo_cum)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Solo Parents',
+						'y' 			=> (int)$solo_cum,
+					);
+
+				}
+
+				if(!is_null($ip_cum)){
+
+					$data['all'][] = array(
+						'name' 			=> 'Indigenous Persons',
+						'y' 			=> (int)$ip_cum,
+					);
+
+				}
+
+				$query1 = $this->db->query("SELECT
+												* 
+											FROM
+												(
+												SELECT 
+													SUM ( NULLIF ( infant_male_cum, '' ) :: INTEGER ) infant_male_cum,
+													SUM ( NULLIF ( infant_female_cum, '' ) :: INTEGER ) infant_female_cum,
+													SUM ( NULLIF ( toddler_male_cum, '' ) :: INTEGER ) toddler_male_cum,
+													SUM ( NULLIF ( toddler_female_cum, '' ) :: INTEGER ) toddler_female_cum,
+													SUM ( NULLIF ( preschooler_male_cum, '' ) :: INTEGER ) preschooler_male_cum, 
+													SUM ( NULLIF ( preschooler_female_cum, '' ) :: INTEGER ) preschooler_female_cum,
+													SUM ( NULLIF ( schoolage_male_cum, '' ) :: INTEGER ) schoolage_male_cum, 
+													SUM ( NULLIF ( schoolage_female_cum, '' ) :: INTEGER ) schoolage_female_cum,
+													SUM ( NULLIF ( teenage_male_cum, '' ) :: INTEGER ) teenage_male_cum, 
+													SUM ( NULLIF ( teenage_female_cum, '' ) :: INTEGER ) teenage_female_cum,
+													SUM ( NULLIF ( adult_male_cum, '' ) :: INTEGER ) adult_male_cum, 
+													SUM ( NULLIF ( adult_female_cum, '' ) :: INTEGER ) adult_female_cum,
+													SUM ( NULLIF ( senior_male_cum, '' ) :: INTEGER ) senior_male_cum, 
+													SUM ( NULLIF ( senior_female_cum, '' ) :: INTEGER ) senior_female_cum,
+													SUM ( NULLIF ( pregnant_cum, '' ) :: INTEGER ) pregnant_cum,
+													SUM ( NULLIF ( lactating_cum, '' ) :: INTEGER ) lactating_cum,
+													SUM ( NULLIF ( disable_male_cum, '' ) :: INTEGER ) disable_male_cum, 
+													SUM ( NULLIF ( disable_female_cum, '' ) :: INTEGER ) disable_female_cum,
+													SUM ( NULLIF ( solo_cum, '' ) :: INTEGER ) solo_cum,
+													SUM ( NULLIF ( ip_cum, '' ) :: INTEGER ) ip_cum 
+												FROM
+													tbl_sex_gender_data t1 
+												WHERE
+												disaster_title_id = '$id'
+												AND t1.municipality_id = '$municipality_id'
+												) t1"
+				);
+
+				$arr1 = $query1->result_array();
+
+				$data['categories'] = array();
+				$data['male'] = array();
+				$data['female'] = array();
+				$data['solo'] = array();
+				$data['ip'] = array();
+				
+				$infant_male_cum 			= $arr1[0]['infant_male_cum'];
+				$infant_female_cum 			= $arr1[0]['infant_female_cum'];
+				$toddler_male_cum 			= $arr1[0]['toddler_male_cum'];
+				$toddler_female_cum 		= $arr1[0]['toddler_female_cum'];
+				$preschooler_male_cum 		= $arr1[0]['preschooler_male_cum'];
+				$preschooler_female_cum 	= $arr1[0]['preschooler_female_cum'];
+				$schoolage_male_cum 		= $arr1[0]['schoolage_male_cum'];
+				$schoolage_female_cum 		= $arr1[0]['schoolage_female_cum'];
+				$teenage_male_cum 			= $arr1[0]['teenage_male_cum'];
+				$teenage_female_cum 		= $arr1[0]['teenage_female_cum'];
+				$adult_male_cum 			= $arr1[0]['adult_male_cum'];
+				$adult_female_cum 			= $arr1[0]['adult_female_cum'];
+				$senior_male_cum 			= $arr1[0]['senior_male_cum'];
+				$senior_female_cum 			= $arr1[0]['senior_female_cum'];
+				$pregnant_cum 				= $arr1[0]['pregnant_cum'];
+				$lactating_cum 				= $arr1[0]['lactating_cum'];
+				$disable_male_cum 			= $arr1[0]['disable_male_cum'];
+				$disable_female_cum 		= $arr1[0]['disable_female_cum'];
+				$solo_cum 					= $arr1[0]['solo_cum'];
+				$ip_cum 					= $arr1[0]['ip_cum'];
+
+				if(!is_null($infant_male_cum) || !is_null($infant_female_cum)){
+					array_push($data['categories'],"Infant"); 
+
+					if(!is_null($infant_male_cum)){
+						array_push($data['male'],(int)$infant_male_cum); 
+					}else{
+						array_push($data['male'],0);
+					}
+					if(!is_null($infant_female_cum)){
+						array_push($data['female'],(int)$infant_female_cum); 
+					}else{
+						array_push($data['female'],0);
+					}
+
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+
+				}
+
+				if(!is_null($toddler_male_cum) || !is_null($toddler_female_cum)){
+					array_push($data['categories'],"Toddler"); 
+
+					if(!is_null($toddler_male_cum)){
+						array_push($data['male'],(int)$toddler_male_cum); 
+					}else{
+						array_push($data['male'],0); 
+					}
+					if(!is_null($toddler_female_cum)){
+						array_push($data['female'],(int)$toddler_female_cum); 
+					}else{
+						array_push($data['female'],0); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($preschooler_male_cum) || !is_null($preschooler_female_cum)){
+					array_push($data['categories'],"Preschooler"); 
+
+					if(!is_null($preschooler_male_cum)){
+						array_push($data['male'],(int)$preschooler_male_cum); 
+					}else{
+						array_push($data['male'],0);
+					}
+					if(!is_null($preschooler_female_cum)){
+						array_push($data['female'],(int)$preschooler_female_cum); 
+					}else{
+						array_push($data['female'],0); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($schoolage_male_cum) || !is_null($schoolage_female_cum)){
+					array_push($data['categories'],"Schoolage"); 
+
+					if(!is_null($schoolage_male_cum)){
+						array_push($data['male'],(int)$schoolage_male_cum); 
+					}else{
+						array_push($data['male'],0);
+					}
+					if(!is_null($schoolage_female_cum)){
+						array_push($data['female'],(int)$schoolage_female_cum); 
+					}else{
+						array_push($data['female'],0);
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($teenage_male_cum) || !is_null($teenage_female_cum)){
+					array_push($data['categories'],"Teenage"); 
+
+					if(!is_null($teenage_male_cum)){
+						array_push($data['male'],(int)$teenage_male_cum); 
+					}else{
+						array_push($data['male'],0); 
+					}
+					if(!is_null($teenage_female_cum)){
+						array_push($data['female'],(int)$teenage_female_cum); 
+					}else{
+						array_push($data['female'],0); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($adult_male_cum) || !is_null($adult_female_cum)){
+					array_push($data['categories'],"Adult");
+
+					if(!is_null($adult_male_cum)){
+						array_push($data['male'],(int)$adult_male_cum); 
+					}else{
+						array_push($data['male'],0); 
+					}
+					if(!is_null($adult_female_cum)){
+						array_push($data['female'],(int)$adult_female_cum); 
+					}else{
+						array_push($data['female'],0);
+					}
+					array_push($data['solo'],0); 
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($senior_male_cum) || !is_null($senior_female_cum)){
+					array_push($data['categories'],"Senior Citizen"); 
+
+					if(!is_null($senior_male_cum)){
+						array_push($data['male'],(int)$senior_male_cum); 
+					}else{
+						array_push($data['male'],0);
+					}
+					if(!is_null($senior_female_cum)){
+						array_push($data['female'],(int)$senior_female_cum); 
+					}else{
+						array_push($data['female'],0); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($pregnant_cum)){
+					array_push($data['categories'],"Pregnant Women"); 
+
+					array_push($data['male'],0);
+
+					if(!is_null($pregnant_cum)){
+						array_push($data['female'],(int)$pregnant_cum); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($lactating_cum)){
+					array_push($data['categories'],"Lactating Women"); 
+
+					array_push($data['male'],0);
+
+					if(!is_null($lactating_cum)){
+						array_push($data['female'],(int)$lactating_cum); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($disable_male_cum) || !is_null($disable_female_cum)){
+					array_push($data['categories'],"Disabled"); 
+
+					if(!is_null($disable_male_cum)){
+						array_push($data['male'],(int)$disable_male_cum); 
+					}else{
+						array_push($data['male'],0);
+					}
+					if(!is_null($disable_female_cum)){
+						array_push($data['female'],(int)$disable_female_cum); 
+					}else{
+						array_push($data['female'],0); 
+					}
+					array_push($data['solo'],0);
+					array_push($data['ip'],0); 
+				}
+
+				if(!is_null($solo_cum)){
+					array_push($data['categories'],"Solo Parent"); 
+
+					array_push($data['solo'],(int)$solo_cum); 
+				}
+
+				if(!is_null($ip_cum)){
+					array_push($data['categories'],"Indigenous Persons"); 
+
+						array_push($data['ip'],(int)$ip_cum); 
+				}
+
+				return $data;
+
 			}
-
-			if(!is_null($solo_cum)){
-				array_push($data['categories'],"Solo Parent"); 
-
-				array_push($data['solo'],(int)$solo_cum); 
-			}
-
-			if(!is_null($ip_cum)){
-				array_push($data['categories'],"Indigenous Persons"); 
-
-					array_push($data['ip'],(int)$ip_cum); 
-			}
-
-			return $data;
-
 
 		}
 
@@ -7567,6 +10609,7 @@ class disaster_model extends CI_Model{
 			session_start();
 
 			$regionid = $_SESSION['regionid'];
+			$municipality_id = $_SESSION['municipality_id'];
 
 			$user_level_access = $_SESSION['user_level_access'];
 
@@ -7662,7 +10705,7 @@ class disaster_model extends CI_Model{
 
 				return json_decode($str);
 
-			}else{
+			}else if($user_level_access == "region" || $user_level_access == "province"){
 
 				$query = $this->db->query("SELECT
 												row_to_json (fc) AS features
@@ -7754,8 +10797,204 @@ class disaster_model extends CI_Model{
 				$str = $arr[0]['features'];
 
 				return json_decode($str);
+
+			}else if($user_level_access == "municipality"){
+
+				$data = array();
+
+				$query1 = $this->db->query("SELECT
+												 regexp_split_to_table(regexp_replace( st_astext ( st_centroid ( st_union ( geom ))), '[^0-9. ]+', '', 'g' ), E'\\s+') coordinates
+												FROM
+													lib_municipality_boundaries t1 
+												WHERE
+													t1.mun_code = '$municipality_id'"
+										);
+
+				$data["coordinates"] = $query1->result_array();
+
+				$query2 = $this->db->query("SELECT
+												row_to_json ( t1 ) AS features 
+											FROM
+												(
+												SELECT
+													'FeatureCollection' AS TYPE,
+													array_to_json (
+													ARRAY_AGG ( t1 )) AS features 
+												FROM
+													(
+													SELECT
+														t1.TYPE,
+														t1.ID,
+														--row_to_json ( t1 ) AS properties,
+														t1.geometry
+													FROM
+														( SELECT 'Feature' AS TYPE, t1.gid AS ID, st_asgeojson ( t1.geom ) :: json geometry FROM country t1 ) t1 
+													) t1 
+												) t1"
+										);
+
+
+				$arr1 = array();
+
+				$arr1 = $query2->result_array();
+
+				$str1 = "";
+
+				$str1 = $arr1[0]['features'];
+
+				$data["ph"] = json_decode($str1);
+
+				$query = $this->db->query("SELECT
+												row_to_json ( fc ) AS features 
+												FROM
+													(
+													SELECT
+														'FeatureCollection' AS TYPE,
+														array_to_json (
+														ARRAY_AGG ( f )) AS features 
+													FROM
+														(
+														SELECT
+															t1.TYPE,
+															t1.ID,
+															row_to_json ( t2 ) AS properties,
+															t1.geometry 
+														FROM
+															(
+															SELECT
+																'Feature' AS TYPE,
+																t1.bgy_code AS ID,
+																st_asgeojson ( t1.geom ) :: json geometry 
+															FROM
+																tbl_barangay_boundaries t1 
+															WHERE
+																t1.mun_code = '$municipality_id' 
+															) t1
+															LEFT JOIN (
+															SELECT
+																t1.municipality_id,
+																t1.municipality_name,
+																t1.pro_name,
+																t1.bgy_code,
+																t1.brgy_name,
+																COALESCE ( t2.fam_cum, 0 ) density 
+															FROM
+																(
+																SELECT
+																	t1.mun_code municipality_id,
+																	t1.mun_name municipality_name,
+																	t1.pro_name,
+																	t1.bgy_code,
+																	UPPER ( t1.bgy_name ) brgy_name 
+																FROM
+																	tbl_barangay_boundaries t1 
+																WHERE
+																	t1.mun_code = '$municipality_id' 
+																) t1
+																LEFT JOIN (
+																SELECT
+																	* 
+																FROM
+																	(
+																	SELECT
+																		t1.municipality_id,
+																		t1.brgy_id,
+																		SUM ( t1.fam_cum ) fam_cum 
+																	FROM
+																		(
+																		SELECT
+																			* 
+																		FROM
+																			(
+																			SELECT
+																				t2.municipality_id :: INTEGER,
+																				t2.brgy_located_ec :: INTEGER brgy_id,
+																				SUM ( t1.family_cum :: INTEGER ) fam_cum 
+																			FROM
+																				tbl_evacuation_stats t1
+																				LEFT JOIN tbl_activated_ec t2 ON t1.evacuation_name :: INTEGER = t2.ID 
+																			WHERE
+																				t1.disaster_title_id = '$id' 
+																			GROUP BY
+																				t2.municipality_id :: INTEGER,
+																				t2.brgy_located_ec 
+																			) t1 UNION
+																			(
+																			SELECT
+																				t1.municipality_id,
+																				t1.brgy_host :: INTEGER brgy_id,
+																				SUM ( t1.family_cum :: INTEGER ) 
+																			FROM
+																				tbl_evac_outside_stats t1 
+																			WHERE
+																				t1.disaster_title_id = '$id' 
+																			GROUP BY
+																				t1.municipality_id,
+																				t1.brgy_host 
+																			)) t1 
+																	GROUP BY
+																		t1.municipality_id,
+																		t1.brgy_id 
+																	) t1 
+																) t2 ON t1.bgy_code = t2.brgy_id 
+															) t2 ON t1.ID = t2.bgy_code 
+														) f 
+													) fc"
+				);
+
+				$arr = array();
+
+				$arr = $query->result_array();
+
+				$str = "";
+
+				$str = $arr[0]['features'];
+
+				$data["features"] = json_decode($str);
+
+				return $data;
+
 			}
 			
+		}
+
+		public function get_feature_info_brgy($id, $brgy_id){
+
+			$query = $this->db->query("SELECT * FROM tbl_evacuation_stats WHERE disaster_title_id = '$id'");
+
+			$arr = $query->result_array();
+
+			$dromic_id = $arr[0]["dromic_ids"];
+
+			$query1 = $this->db->query("SELECT * FROM tbl_evac_outside_stats WHERE disaster_title_id = '$id' and brgy_host = '$brgy_id'");
+
+			$data["out"] = $query1->result_array();
+
+			$query2 = $this->db->query("SELECT
+											t2.ec_name,
+											t1.family_cum,
+											t1.person_cum,
+											t2.brgy_located_ec
+											FROM
+												tbl_evacuation_stats t1
+												LEFT JOIN tbl_activated_ec t2 ON t1.evacuation_name :: INTEGER = t2.ID
+												WHERE t1.disaster_title_id = '$id'
+												AND t2.brgy_located_ec = '$brgy_id'"
+										);
+
+			$data["inside"] = $query2->result_array();
+
+			$query3 = $this->db->query("SELECT
+												t1.*
+											FROM
+												tbl_damage_per_brgy t1 where t1.disaster_title_id = '$id'
+												AND t1.brgy_id = '$brgy_id'"
+										);
+
+			$data["damages"] = $query3->result_array();
+
+			return $data;
+
 		}
 
 
@@ -7872,7 +11111,7 @@ class disaster_model extends CI_Model{
 										FROM
 											tbl_auth_user t1
 										LEFT JOIN tbl_auth_user_profile t2 ON t1.username = t2.username
-										WHERE t2.issuperadmin != 't'
+										-- WHERE t2.issuperadmin != 't'
 										ORDER BY t1.id DESC
 										");
 
@@ -7891,12 +11130,26 @@ class disaster_model extends CI_Model{
 
 				$data = array(
 					'isactivated' 			=> 'f',
-					'can_create_report' 	=>  'f',
-					'isadmin' 				=> 	'f'
+					'can_create_report' 	=> 'f',
+					'isadmin' 				=> 'f'
 				);
 
 				$query = $this->db->where('id', $id);
 				$query = $this->db->update('tbl_auth_user', $data);
+
+				$query1 = $this->db->where('id', $id);
+				$query1 = $this->db->get('tbl_auth_user');
+
+				$arr = $query1->result_array();
+
+				$username = $arr[0]['username'];
+
+				$datas = array(
+					'issuperadmin' 		=> 'f'
+				);
+
+				$query2 = $this->db->where('username', $username);
+				$query2 = $this->db->update('tbl_auth_user_profile', $datas);
 
 			}
 			
@@ -7905,12 +11158,16 @@ class disaster_model extends CI_Model{
 
 		}
 
-		public function activatewebuser($users,$isadminpriv,$iscancreatepriv,$isdswd){
+		public function activatewebuser($users,$isadminpriv,$iscancreatepriv,$isdswd,$access_level,$issuperadminpriv){
 
 			$data = array();
 
 			$isadmin = "f";
 			$iscancreate = "f";
+
+			$isdswds = ($isdswd == 'true' ? 't' : 'f');
+
+			$issuperadminpriv = ($issuperadminpriv == 'true' ? 't' : 'f');
 
 			if($isadminpriv == "true" && $iscancreatepriv == "true"){
 				$isadmin = "t";
@@ -7947,10 +11204,10 @@ class disaster_model extends CI_Model{
 
 				$username = $arr[0]['username'];
 
-				$isdswds = ($isdswd == 'true' ? 't' : 'f');
-
 				$datas = array(
-					'isdswd' => $isdswds
+					'isdswd' 			=> $isdswds,
+					'user_level_access' => $access_level,
+					'issuperadmin' 		=> $issuperadminpriv
 				);
 
 				$query2 = $this->db->where('username', $username);
@@ -8358,6 +11615,106 @@ class disaster_model extends CI_Model{
 				return 0;
 
 			}
+
+		}
+
+		public function deleteFNDS($id, $municipality_id){
+
+			$this->db->trans_start();
+
+			try{
+
+				$this->db->where('disaster_title_id', $id);
+				$this->db->where('municipality_id', $municipality_id);
+				$this->db->delete('tbl_not_displaced_served');
+
+				$this->db->trans_commit();
+				return 1;
+
+			}catch(Exception $e){
+
+				$this->db->trans_rollback();
+				return 0;
+
+			}
+		}
+
+		public function saveasnewFNDS($id, $data){
+
+			$municipality_id = $data["municipality_id"];
+
+			$query = $this->db->query("SELECT * FROM tbl_not_displaced_served WHERE municipality_id = '$municipality_id' AND disaster_title_id = '$id'");
+
+			$arr = $query->result_array();
+
+			if(count($arr) > 0){
+
+				$this->db->trans_start();
+
+				$datas = array(
+					'families_served_cum' 	=> $data['families_served_cum'],
+					'persons_served_cum' 	=> $data['persons_served_cum'],
+					'families_served_now' 	=> $data['families_served_now'],
+					'persons_served_now' 	=> $data['persons_served_now']
+				);
+
+				try{
+
+					$query_up1 = $this->db->where('disaster_title_id', $id);
+					$query_up1 = $this->db->where('municipality_id', $municipality_id);
+					$query_up1 = $this->db->update("tbl_not_displaced_served", $data);
+
+					$this->db->trans_commit();
+
+					return 1;
+
+				}catch(Exception $e){
+
+					$this->db->trans_rollback();
+
+					return 0;
+
+				}
+
+			}else{
+
+				$this->db->trans_start();
+
+				try{
+
+					$this->db->insert("tbl_not_displaced_served", $data);
+
+					$this->db->trans_commit();
+
+					return 1;
+
+				}catch(Exception $e){
+
+					$this->db->trans_rollback();
+
+					return 0;
+
+				}
+
+			}
+
+		}
+
+		public function getFNDS($id, $municipality_id){
+
+			$mun_id = $municipality_id;
+
+			$query = $this->db->query("SELECT * FROM tbl_not_displaced_served WHERE municipality_id = '$mun_id' AND disaster_title_id = '$id'");
+
+			$data["rs"] = $query->result_array();
+
+			$provinceid = $data["rs"][0]["provinceid"];
+
+			$query1 = $this->db->query("SELECT * FROM lib_municipality WHERE provinceid = '$provinceid'");
+
+			$data["city"] = $query1->result_array();
+
+			return $data;
 
 		}
 

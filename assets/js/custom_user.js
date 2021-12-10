@@ -45,20 +45,20 @@ if(typeof(EventSource) !== "undefined") {
 	source.addEventListener("message", function(e) {
 	   if(e.data != 1){
 
-	   		$.confirm({
-			    title: 'Warning',
-			    content: '<i class="fa fa-info-circle"></i> Session time-out!',
-			    buttons: {
-			    	confirmAction: {
-			    		text: '<i class="fa fa-times-circle-o"></i> Reload',
-			    		btnClass: 'btn-danger',
-			    		keys: ['enter', 'shift'],
-			    		action: function(){
+	   		// $.confirm({
+			   //  title: 'Warning',
+			   //  content: '<i class="fa fa-info-circle"></i> Session time-out!',
+			   //  buttons: {
+			   //  	confirmAction: {
+			   //  		text: '<i class="fa fa-times-circle-o"></i> Reload',
+			   //  		btnClass: 'btn-danger',
+			   //  		keys: ['enter', 'shift'],
+			   //  		action: function(){
 			    			window.location.href = "/drrrou2/logout";
-			            }
-			    	}
-			    }
-			});
+			//             }
+			//     	}
+			//     }
+			// });
 	   }
 	}, false);
 } else {
@@ -123,6 +123,11 @@ if(pageid.length){
 
 		$('#addfamNinsideECprov').empty();
 		$('#addfamNinsideECprov').append(
+		    "<option value=''>-- Select Province --</option>"
+		);
+
+		$('#addFNDSProv').empty();
+		$('#addFNDSProv').append(
 		    "<option value=''>-- Select Province --</option>"
 		);
 
@@ -200,6 +205,10 @@ if(pageid.length){
 		      	  "<option value='"+a.province[i].id+"'>"+a.province[i].province_name+"</option>"
 		      )
 
+		      $('#addFNDSProv').append(
+		      	  "<option value='"+a.province[i].id+"'>"+a.province[i].province_name+"</option>"
+		      )
+
 		    }
 
 		});
@@ -265,6 +274,11 @@ if(pageid.length){
 			"<option value=''>-- Select City/Municipality</option>"
 		);
 
+		$('#addFNDSProv').empty();
+		$('#addFNDSProv').append(
+		    "<option value=''>-- Select Province --</option>"
+		);
+
 		$.getJSON(serverip+"get_province_per_session",function(a){  
 
 		    for(var i in a.province){
@@ -320,6 +334,10 @@ if(pageid.length){
 		      	  "<option value='"+a.province[i].id+"'>"+a.province[i].province_name+"</option>"
 		      )
 
+		      $('#addFNDSProv').append(
+		      	  "<option value='"+a.province[i].id+"'>"+a.province[i].province_name+"</option>"
+		      )
+
 		    }
 
 		});
@@ -337,6 +355,7 @@ if(pageid.length){
 		$('#addfaminsideECprovprofile').empty();
 		$('#addfaminsideECprovfacility').empty();
 		$('#addfamNinsideECprov').empty();
+		$('#addFNDSProv').empty();
  	
 		$('#addfaminsideECcity').empty().append(
 			"<option value=''>-- Select City/Municipality</option>"
@@ -415,6 +434,10 @@ if(pageid.length){
 		      	  "<option value='"+a.province[i].id+"' selected='selected'>"+a.province[i].province_name+"</option>"
 		      )
 
+		      $('#addFNDSProv').append(
+		      	  "<option value='"+a.province[i].id+"' selected='selected'>"+a.province[i].province_name+"</option>"
+		      )
+
 		    }
 
 		    for(var i in a.muni){
@@ -439,6 +462,14 @@ if(pageid.length){
 		          "<option value='"+a.muni[i].id+"'>"+a.muni[i].municipality_name+"</option>"
 		      )
 
+		      $('#cityAssistance').append(
+		          "<option value='"+a.muni[i].id+"'>"+a.muni[i].municipality_name+"</option>"
+		      )
+
+		      $('#addFNDSCity').append(
+		          "<option value='"+a.muni[i].id+"'>"+a.muni[i].municipality_name+"</option>"
+		      )
+
 		    }
 
 		    autocompleteOriginProvince();
@@ -459,6 +490,8 @@ if(pageid.length){
 		$('#addfaminsideECprovfacility').empty();
 		$('#addfamNinsideECprov').empty();
 
+		$('#addFNDSProv').empty();
+
 		$.getJSON(serverip+"get_province_per_session",function(a){ 
 
 			for(var t in a.province_all){
@@ -478,8 +511,6 @@ if(pageid.length){
 		    }
 
 			$('#addfamOECprovO').val($('#provinceid_session').text());
-
-			console.log(a.province);
 
 			for(var i in a.province){
 
@@ -531,6 +562,10 @@ if(pageid.length){
 		      	  "<option value='"+a.province[i].id+"'>"+a.province[i].province_name+"</option>"
 		      )
 
+		      $('#addFNDSProv').append(
+		      	  "<option value='"+a.province[i].id+"'>"+a.province[i].province_name+"</option>"
+		      )
+
 		    }
 
 		    for(var i in a.muni){
@@ -552,6 +587,14 @@ if(pageid.length){
 		      )
 
 		      $('#addfamNinsideECcity').empty().append(
+		          "<option value='"+a.muni[i].id+"' selected>"+a.muni[i].municipality_name+"</option>"
+		      )
+
+		      $('#cityAssistance').empty().append(
+		          "<option value='"+a.muni[i].id+"' selected>"+a.muni[i].municipality_name+"</option>"
+		      )
+
+		      $('#addFNDSCity').empty().append(
 		          "<option value='"+a.muni[i].id+"' selected>"+a.muni[i].municipality_name+"</option>"
 		      )
 
@@ -1117,8 +1160,41 @@ $('#addDamprov').change(function(){
 
 	$.getJSON(serverip+"get_municipality",function(a){  
 	    for(var i in a){
+	    	var c = 0;
 	    	if(pid == a[i].provinceid){
-	    		$('#addDamcity').append(
+	    		for(var b in city_cas){
+	    			if(city_cas[b].municipality_id == a[i].id){
+			    		c += 1;
+			    	}
+		    	}
+		    	if(c < 1){
+			    	$('#addDamcity').append(
+				        "<option value='"+a[i].id+"'>"+a[i].municipality_name+"</option>"
+				    )
+			    }else{
+			    	$('#addDamcity').append(
+				        "<option value='"+a[i].id+"' style='background-color: #000' disabled title='Assistance is already added to this municipality, kindly double click on the table to edit'>"+a[i].municipality_name+"</option>"
+				    )
+			    }
+	    	}
+	    }
+	});
+
+})
+
+$('#addFNDSProv').change(function(){
+
+	var pid = $('#addFNDSProv').val();	
+
+	$('#addFNDSCity').empty();
+	$('#addFNDSCity').append(
+	    "<option value=''>-- Select City/Municipality --</option>"
+	);
+
+	$.getJSON(serverip+"get_municipality",function(a){  
+	    for(var i in a){
+	    	if(pid == a[i].provinceid){
+	    		$('#addFNDSCity').append(
 			        "<option value='"+a[i].id+"'>"+a[i].municipality_name+"</option>"
 			    )
 	    	}
@@ -2085,7 +2161,7 @@ function getDisaster(){
 						"<button type='button' class='btn btn-danger btn-xs' "+disabled+" data-toggle='tooltip' title='Create new DROMIC statistical report' onclick='addnewReport("+a[i].id+")'> <i class='fa fa-plus-circle'></i> Create New Report</button>"+
 						"<button type='button' class='btn btn-primary btn-xs' onclick='viewDetailsPrev("+a[i].maxid+")' "+dis+" data-toggle='tooltip' title='Load latest report to update details and save as new record'><i class='fa fa-cogs'></i> Load Latest Report</button>"+
 						"<button type='button' class='btn btn-success btn-xs' onclick='viewPrevious("+a[i].id+")' "+dis+" data-toggle='tooltip' title='View previously made reports'><i class='fa fa-eye'></i> View Previous Reports</button>"+
-						"<button type='button' class='btn btn-warning btn-xs' onclick='editDromicReport("+a[i].id+")' "+dis+" data-toggle='tooltip' title='View previously made reports'><i class='fa fa-edit'></i> Edit Details</button>"+
+						"<button type='button' class='btn btn-warning btn-xs' onclick='editDromicReport("+a[i].id+")' data-toggle='tooltip' title='View previously made reports'><i class='fa fa-edit'></i> Edit Details</button>"+
 					"</td>"+
 				"<tr>"
 			)
@@ -2122,14 +2198,8 @@ function getDisaster(){
 
 $('#addDromic').click(function(){
 
-	var datas = {
-		disaster_name 		: $('#disaster_name').val(),
-		disaster_date 		: $('#disaster_date').val(),
-		created_by_user 	: $('#usernameid').text()
-	};
+	if($('#disaster_name').val() == "" || $('#disaster_date').val() == ""){
 
-
-	if(datas.disaster_name == "" || datas.disaster_date == ""){
 		$.confirm({
 		    title: 'Warning',
 		    content: '<i class="fa fa-info-circle"></i> Disaster Name and Disaster Date must not be blank!',
@@ -2141,7 +2211,21 @@ $('#addDromic').click(function(){
 		    	}
 		    }
 		});
+
 	}else{
+
+		var d = new Date.parse($('#disaster_date').val());
+
+		var ddd = Number(d.getMonth()) + 1;
+
+		var dd = ddd + "/" + d.getDate() + "/" + d.getFullYear();
+
+		var datas = {
+			disaster_name 		: $('#disaster_name').val(),
+			disaster_date 		: dd,
+			created_by_user 	: $('#usernameid').text()
+		};
+
 		$.getJSON(serverip+"addnew_disaster",datas,function(a){  
 			if(a == 1){
 				alerts();
@@ -2190,6 +2274,7 @@ $('#sendsms').click(function(){
 var chart_affprov = [];
 var chart_affprovdrill = [];
 var chart_affmunisall = [];
+var chart_brgyall = [];
 
 function get_narrative_report(){
 
@@ -2216,7 +2301,40 @@ function get_narrative_report(){
 
 var brgy_locx = [];
 
+
+var _hidebrgyfields = 0;
+
+function hidebrgyfields(){
+
+	if(_hidebrgyfields == 0){
+
+		$('.bhidebrgyfields').hide();
+
+		_hidebrgyfields = 1;
+
+		$('#hidebrgyfields').empty().append("<i class='fa fa-eye'></i> Show Barangay Fields");
+
+	}else{
+
+		$('.bhidebrgyfields').show();
+		_hidebrgyfields = 0;
+
+		$('#hidebrgyfields').empty().append("<i class='fa fa-eye-slash'></i> Hide Barangay Fields")
+
+	}
+
+}
+
+var all_affected_city = [];
+
+var city_cas = [];
+var province_cas = [];
+
 function get_dromic(n){
+
+	all_affected_city = [];
+	city_cas = [];
+	province_cas = [];
 
 	if($('#user_level_access_session').text() == 'national'){
 
@@ -2247,9 +2365,12 @@ function get_dromic(n){
 		$('#addcasualtybtn').hide();
 		//$('#exporttoexcel').hide();
 		$('#savedata_dam_per_brgy').hide();
+		$('#savedata_dam_per_brgy2').hide();
 		$('#updatedata_dam_per_brgy').hide();
 		$('#deldata_dam_per_brgy').hide();
 		$('#saveassistance').hide();
+
+		$('#familyndserved').hide();
 
 		$('#can_edit').text('f');
 
@@ -2290,9 +2411,11 @@ function get_dromic(n){
 						$('#addcasualtybtn').hide();
 						//$('#exporttoexcel').hide();
 						$('#savedata_dam_per_brgy').hide();
+						$('#savedata_dam_per_brgy2').hide();
 						$('#updatedata_dam_per_brgy').hide();
 						$('#deldata_dam_per_brgy').hide();
 						$('#saveassistance').hide();
+						$('#familyndserved').hide();
 
 						$('#can_edit').text('f');
 
@@ -2305,8 +2428,10 @@ function get_dromic(n){
 						$('#addcasualtybtn').show();
 						$('#exporttoexcel').show();
 						$('#savedata_dam_per_brgy').show();
+						$('#savedata_dam_per_brgy2').show();
 						//$('#updatedata_dam_per_brgy').show();
 						$('#saveassistance').show();
+						$('#familyndserved').show();
 
 						$('#can_edit').text('t');
 
@@ -2414,17 +2539,19 @@ function get_dromic(n){
 							"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:left; padding:2px'><b>GRAND-TOTAL</b></th>"+
 							"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:center; padding:2px' id='caraga_tot_c'></th>"+
 							"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:center; padding:2px' id='caraga_part_c'></th>"+
-							"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:center; padding:2px' id='caraga_dead_c'></th>"+
-							"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:center; padding:2px' id='caraga_injured_c'></th>"+
-							"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:center; padding:2px' id='caraga_missing_c'></th>"+
+							// "<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:center; padding:2px' id='caraga_dead_c'></th>"+
+							// "<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:center; padding:2px' id='caraga_injured_c'></th>"+
+							// "<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:center; padding:2px' id='caraga_missing_c'></th>"+
 							"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:right; padding-right: 5px' id='caraga_total_c'></th>"+
 							"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:right; padding-right: 5px' id='caraga_dswd_c'></th>"+
 							"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:right; padding-right: 5px' id='caraga_lgu_c'></th>"+
 							"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:right; padding-right: 5px' id='caraga_ngo_c'></th>"+
+							"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:right; padding-right: 5px' id='caraga_ogo_c'></th>"+
 						"</tr>"
 					);
 
 					for(var qt in rs.query_title){
+
 						$('#asofdate').text("As of " + todate(rs.query_title[qt].ddate));
 						$('#asoftime').text("Time: " + rs.query_title[qt].asoftime);
 						$('#asofdate2').text("As of " + todate(rs.query_title[qt].ddate));
@@ -2439,6 +2566,11 @@ function get_dromic(n){
 						$('#asoftime_IEC').text("Time: " + rs.query_title[qt].asoftime);
 						$('#disastertype_IEC').text('Disaster Type: ' + rs.query_title[qt].disaster_name);
 						$('#disasterdate_IEC').text('Date of Occurence: ' + todate(rs.query_title[qt].disaster_date));
+
+						$('#sum_asofdate_IEC').text("As of " + todate(rs.query_title[qt].ddate));
+						$('#sum_asoftime_IEC').text("Time: " + rs.query_title[qt].asoftime);
+						$('#sum_disastertype_IEC').text('Disaster Type: ' + rs.query_title[qt].disaster_name);
+						$('#sum_disasterdate_IEC').text('Date of Occurence: ' + todate(rs.query_title[qt].disaster_date));
 
 						$('#asofdate_OEC').text("As of " + todate(rs.query_title[qt].ddate));
 						$('#asoftime_OEC').text("Time: " + rs.query_title[qt].asoftime);
@@ -2465,6 +2597,13 @@ function get_dromic(n){
 						$('#spreparedbypos2').text(rs.query_title[qt].preparedbypos);
 						$('#srecommendedbypos2').text(rs.query_title[qt].recommendedbypos);
 						$('#sapprovedbypos2').text(rs.query_title[qt].approvedbypos);
+
+						$('#mainpreparedbyn').text(rs.query_title[qt].preparedby);
+						$('#mainrecommendbyn').text(rs.query_title[qt].recommendedby);
+						$('#mainapprovedbyn').text(rs.query_title[qt].approvedby);
+						$('#mainpreparedbyp').text(rs.query_title[qt].preparedbypos);
+						$('#mainrecommendbyp').text(rs.query_title[qt].recommendedbypos);
+						$('#mainapprovedbyp').text(rs.query_title[qt].approvedbypos);
 
 						$('#spreparedby3').text(rs.query_title[qt].preparedby);
 						$('#srecommendedby3').text(rs.query_title[qt].recommendedby);
@@ -2728,6 +2867,7 @@ function get_dromic(n){
 										)
 
 										for(var m in rs.rs){
+
 											if(rs.city[n].id == rs.rs[m].municipality_id){
 												if(m > 0){
 													if((rs.rs[m].evacuation_name == rs.rs[m-1].evacuation_name) && (rs.rs[m].municipality_id == rs.rs[m-1].municipality_id)){
@@ -2749,7 +2889,7 @@ function get_dromic(n){
 												}
 
 												if(m > 0){
-													if((rs.rs[m].brgy_located_ec== rs.rs[m-1].brgy_located_ec) && (rs.rs[m].municipality_id == rs.rs[m-1].municipality_id) && (rs.rs[m].evacuation_name == rs.rs[m-1].evacuation_name)){
+													if((rs.rs[m].brgy_located_ec == rs.rs[m-1].brgy_located_ec) && (rs.rs[m].municipality_id == rs.rs[m-1].municipality_id) && (rs.rs[m].evacuation_name == rs.rs[m-1].evacuation_name)){
 														var brgy_ec = "";
 													}else{
 														for(var b = 0 ; b < rs.brgy.length ; b++){
@@ -2828,7 +2968,7 @@ function get_dromic(n){
 														"<td style='border: 1px solid #000; color: #000; text-align:center; padding:2px; "+style+"'>"+addComma(isnull(pec_cum))+"</td>"+
 									  					"<td style='border: 1px solid #000; color: #000; text-align:center; padding:2px; "+style+"'>"+addComma(isnull(pec_now))+"</td>"+
 									  					"<td style='border: 1px solid #000; color: #000; text-align:left; padding:2px; "+style+"'>"+isnull(brgy_ec)+"</td>"+
-									  					"<td style='border: 1px solid #000; color: #000; text-align:left; padding:2px; "+style+"'>"+isnulldo(evac.toUpperCase())+"</td>"+
+									  					"<td style='border: 1px solid #000; color: #000; text-align:left; padding:2px; "+style+"'>"+isnulldo(evac).toUpperCase()+"</td>"+
 									  					"<td style='border: 1px solid #000; color: #000; text-align:center; padding:2px; "+style+"'>"+addComma(isnull(rs.rs[m].family_cum))+"</td>"+
 									  					"<td style='border: 1px solid #000; color: #000; text-align:center; padding:2px; "+style+"'>"+addComma(isnull(rs.rs[m].family_now))+"</td>"+
 									  					"<td style='border: 1px solid #000; color: #000; text-align:center; padding:2px; "+style+"'>"+addComma(isnull(rs.rs[m].person_cum))+"</td>"+
@@ -3242,6 +3382,8 @@ function get_dromic(n){
 			// MASTER QUERY REVISION =================================================================================================================================================
 					$("#tbl_masterquery_revss tbody").empty();
 
+					$("#tbl_masterquery_revss_munis tbody").empty();
+
 					var gtfam_cum 		= 0;
 					var gtper_cum 		= 0;
 					var gt4ps 			= 0;
@@ -3312,6 +3454,12 @@ function get_dromic(n){
 					var gtpotable_cost = 0;
 
 					var gtother_cost = 0;
+
+					var gtfndsfam_cum 		= 0;
+					var gtfndsperson_cum 	= 0;
+					var gtfndsfam_now 		= 0;
+					var gtfndsperson_now 	= 0;
+
 
 					for(var ttttt in rs.rs){
 
@@ -3391,14 +3539,57 @@ function get_dromic(n){
 
 						for(var yx in rs.all_affected){
 							if(rs.all_affected[yx].municipality_id == rs.city[gx].id){
-								itf = rs.all_affected[yx].fam_no;
-								itp = rs.all_affected[yx].person_no;
+								//itf = rs.all_affected[yx].fam_no;
+								//itp = rs.all_affected[yx].person_no;
 								itb = rs.all_affected[yx].brgy_affected;
 							}
 						}
 
-						gtfam_cum += (Number(tf) > Number(itf) ? tf : itf);
-						gtper_cum += (Number(tp) > Number(itp) ? tp : itp);
+						var baff_families_s = 0;
+						var baff_persons_s = 0;
+
+						for(var qz in rs.brgys){
+
+							var bf = 0;
+							var bp = 0;
+
+							if(rs.brgys[qz].municipality_id == rs.city[gx].id){
+
+								for(var fg in rs.rs){
+									if(rs.brgys[qz].brgy_located_ec == rs.rs[fg].brgy_located_ec){
+										bf += Number(rs.rs[fg].family_cum);
+										bp += Number(rs.rs[fg].person_cum);
+									}
+								}
+
+								for(var fx in rs.query_outec){
+									if(rs.brgys[qz].brgy_located_ec == rs.query_outec[fx].brgy_host){
+										bf += Number(rs.query_outec[fx].family_cum);
+										bp += Number(rs.query_outec[fx].person_cum);
+									}
+								}
+
+								if(rs.brgys[qz].affected_family > bf){
+									baff_families_s += Number(rs.brgys[qz].affected_family);
+								}else{
+									baff_families_s += Number(bf);
+								}
+
+								if(rs.brgys[qz].affected_persons > bp){
+									baff_persons_s += Number(rs.brgys[qz].affected_persons);
+								}else{
+									baff_persons_s += Number(bp);
+								}
+
+							}
+
+						}
+
+						gtfam_cum += baff_families_s;
+						gtper_cum += baff_persons_s;
+
+						//gtfam_cum += (Number(tf) > Number(itf) ? tf : itf);
+						//gtper_cum += (Number(tp) > Number(itp) ? tp : itp);
 
 
 						for(var qqqq in rs.brgys){
@@ -3416,6 +3607,13 @@ function get_dromic(n){
 					// 	gb_cum += 1;
 
 					// }
+
+					for(var jjj in rs.query_damage_per_brgy){
+
+						gttasst += Number(rs.query_damage_per_brgy[jjj].costasst_brgy);
+						gtasstlgu += Number(rs.query_damage_per_brgy[jjj].costasst_brgy);
+
+					}
 
 					for(var ooooo in rs.query_asst){
 
@@ -3688,10 +3886,41 @@ function get_dromic(n){
 					var all_brgy_in_ec = 0;
 					var region_psgc = $('#region_id_session').text();
 
-					for(var h in rs.brgy_unique_ec){
-						//if(Number(region_psgc) == Number(rs.brgy_unique_ec[h].region_psgc)){
+					// for(var h in rs.brgy_unique_ec){
+					// 	//if(Number(region_psgc) == Number(rs.brgy_unique_ec[h].region_psgc)){
+					// 		all_brgy_in_ec += 1;
+					// 	//}
+
+					// }
+
+					var brgyset = get_brgy_unique(rs.brgy_unique_ec);
+
+					for(var h in brgyset){
+
+						if(Number(region_psgc) == brgyset[h].region_psgc){
 							all_brgy_in_ec += 1;
-						//}
+						}
+
+					}
+
+					function get_brgy_unique(brgy){
+						var unique = {};
+						var distinct = [];
+						for( var i in brgy ){
+					     	if( typeof(unique[brgy[i].brgy_located]) == "undefined"){
+					      		distinct.push(brgy[i]);
+					     	}
+					     	unique[brgy[i].brgy_located] = 0;
+					    }
+					    return distinct;
+					}
+
+					for(var hq in rs.fnds){
+
+						gtfndsfam_cum 		+= Number(rs.fnds[hq].families_served_cum);
+						gtfndsfam_now 		+= Number(rs.fnds[hq].families_served_now);
+						gtfndsperson_cum 	+= Number(rs.fnds[hq].persons_served_cum);
+						gtfndsperson_now 	+= Number(rs.fnds[hq].persons_served_now);
 
 					}
 
@@ -3724,10 +3953,10 @@ function get_dromic(n){
 							"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+tgtfam_now+"</td>"+
 							"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+tgtper_cum+"</td>"+
 							"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+tgtper_now+"</td>"+
-							"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>0</td>"+
-							"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>0</td>"+
-							"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>0</td>"+
-							"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>0</td>"+
+							"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+(Number(tgtfam_cum) + Number(gtfndsfam_cum))+"</td>"+
+							"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+(Number(tgtfam_now) + Number(gtfndsfam_now))+"</td>"+ 
+							"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+(Number(tgtper_cum) + Number(gtfndsperson_cum))+"</td>"+
+							"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+(Number(tgtper_now) + Number(gtfndsperson_now))+"</td>"+
 							"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+tgtfam_cum+"</td>"+
 							"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+tgtfam_now+"</td>"+
 							"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+tgtper_cum+"</td>"+
@@ -3976,6 +4205,13 @@ function get_dromic(n){
 
 						var gtother_cost = 0;
 
+
+						var gtfndsfam_cum 		= 0;
+						var gtfndsfam_now 		= 0;
+						var gtfndsperson_cum 	= 0;
+						var gtfndsperson_now 	= 0;
+
+
 						for(var ttttt in rs.rs){
 
 							if(rs.rs[ttttt].region == regions[t].id){
@@ -4065,14 +4301,57 @@ function get_dromic(n){
 
 								for(var yx in rs.all_affected){
 									if(rs.all_affected[yx].municipality_id == rs.city[gx].id){
-										itf = rs.all_affected[yx].fam_no;
-										itp = rs.all_affected[yx].person_no;
+										//itf = rs.all_affected[yx].fam_no;
+										//itp = rs.all_affected[yx].person_no;
 										itb = rs.all_affected[yx].brgy_affected;
 									}
 								}
 
-								gtfam_cum += (Number(tf) > Number(itf) ? tf : itf);
-								gtper_cum += (Number(tp) > Number(itp) ? tp : itp);
+								var baff_families_s = 0;
+								var baff_persons_s = 0;
+
+								for(var qz in rs.brgys){
+
+									var bf = 0;
+									var bp = 0;
+
+									if(rs.brgys[qz].municipality_id == rs.city[gx].id){
+
+										for(var fg in rs.rs){
+											if(rs.brgys[qz].brgy_located_ec == rs.rs[fg].brgy_located_ec){
+												bf += Number(rs.rs[fg].family_cum);
+												bp += Number(rs.rs[fg].person_cum);
+											}
+										}
+
+										for(var fx in rs.query_outec){
+											if(rs.brgys[qz].brgy_located_ec == rs.query_outec[fx].brgy_host){
+												bf += Number(rs.query_outec[fx].family_cum);
+												bp += Number(rs.query_outec[fx].person_cum);
+											}
+										}
+
+										if(rs.brgys[qz].affected_family > bf){
+											baff_families_s += Number(rs.brgys[qz].affected_family);
+										}else{
+											baff_families_s += Number(bf);
+										}
+
+										if(rs.brgys[qz].affected_persons > bp){
+											baff_persons_s += Number(rs.brgys[qz].affected_persons);
+										}else{
+											baff_persons_s += Number(bp);
+										}
+
+									}
+
+								}
+
+								gtfam_cum += baff_families_s;
+								gtper_cum += baff_persons_s;
+
+								//gtfam_cum += (Number(tf) > Number(itf) ? tf : itf);
+								//gtper_cum += (Number(tp) > Number(itp) ? tp : itp);
 
 
 								for(var qqqq in rs.brgys){
@@ -4093,6 +4372,16 @@ function get_dromic(n){
 						// 	}
 
 						// }
+
+						for(var jjj in rs.query_damage_per_brgy){
+
+							if(rs.query_damage_per_brgy[jjj].region == regions[t].id){
+
+								gttasst += Number(rs.query_damage_per_brgy[jjj].costasst_brgy);
+								gtasstlgu += Number(rs.query_damage_per_brgy[jjj].costasst_brgy);
+							}
+
+						}
 
 						for(var ooooo in rs.query_asst){
 
@@ -4378,9 +4667,44 @@ function get_dromic(n){
 
 						var region_psgc = $('#region_id_session').text();
 
-						for(var h in rs.brgy_unique_ec){
-							if(Number(regions[t].id) == Number(rs.brgy_unique_ec[h].region_psgc)){
+						// for(var h in rs.brgy_unique_ec){
+						// 	if(Number(regions[t].id) == Number(rs.brgy_unique_ec[h].region_psgc)){
+						// 		all_brgy_in_ec += 1;
+						// 	}
+
+						// }
+
+						var brgyset = get_brgy_unique(rs.brgy_unique_ec);
+
+						for(var h in brgyset){
+
+							if(Number(regions[t].id) == brgyset[h].region_psgc){
 								all_brgy_in_ec += 1;
+							}
+
+						}
+
+						function get_brgy_unique(brgy){
+							var unique = {};
+							var distinct = [];
+							for( var i in brgy ){
+						     	if( typeof(unique[brgy[i].brgy_located]) == "undefined"){
+						      		distinct.push(brgy[i]);
+						     	}
+						     	unique[brgy[i].brgy_located] = 0;
+						    }
+						    return distinct;
+						}
+
+						for(var hq in rs.fnds){
+
+							if(Number(regions[t].id) == Number(rs.fnds[hq].region_psgc)){
+
+								gtfndsfam_cum 		+= Number(rs.fnds[hq].families_served_cum);
+								gtfndsfam_now 		+= Number(rs.fnds[hq].families_served_now);
+								gtfndsperson_cum 	+= Number(rs.fnds[hq].persons_served_cum);
+								gtfndsperson_now 	+= Number(rs.fnds[hq].persons_served_now);
+
 							}
 
 						}
@@ -4414,14 +4738,14 @@ function get_dromic(n){
 								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+tgtfam_now+"</td>"+
 								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+tgtper_cum+"</td>"+
 								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+tgtper_now+"</td>"+
-								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>0</td>"+
-								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>0</td>"+
-								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>0</td>"+
-								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>0</td>"+
-								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+tgtfam_cum+"</td>"+
-								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+tgtfam_now+"</td>"+
-								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+tgtper_cum+"</td>"+
-								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+tgtper_now+"</td>"+
+								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+gtfndsfam_cum+"</td>"+
+								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+gtfndsfam_now+"</td>"+
+								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+gtfndsperson_cum+"</td>"+
+								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+gtfndsperson_now+"</td>"+
+								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+(Number(tgtfam_cum) + Number(gtfndsfam_cum))+"</td>"+
+								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+(Number(tgtfam_now) + Number(gtfndsfam_now))+"</td>"+ 
+								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+(Number(tgtper_cum) + Number(gtfndsperson_cum))+"</td>"+
+								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+(Number(tgtper_now) + Number(gtfndsperson_now))+"</td>"+
 								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+gt_infant_male_cum+"</td>"+
 								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+gt_infant_male_now+"</td>"+
 								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#A6A6A6; color: #000;'>"+gt_infant_female_cum+"</td>"+
@@ -4667,6 +4991,11 @@ function get_dromic(n){
 
 								var pother_cost = 0;
 
+								var pfndsfam_cum 		= 0;
+								var pfndsfam_now 		= 0;
+								var pfndsperson_cum 	= 0;
+								var pfndsperson_now 	= 0;
+
 								for(var tttt in rs.rs){
 									if(rs.rs[tttt].provinceid == provinces[p].id){
 
@@ -4756,14 +5085,57 @@ function get_dromic(n){
 
 										for(var yx in rs.all_affected){
 											if(rs.all_affected[yx].municipality_id == rs.city[gx].id){
-												itf = rs.all_affected[yx].fam_no;
-												itp = rs.all_affected[yx].person_no;
+												//itf = rs.all_affected[yx].fam_no;
+												//itp = rs.all_affected[yx].person_no;
 												itb = rs.all_affected[yx].brgy_affected;
 											}
 										}
 
-										ptfam_cum += (Number(tf) > Number(itf) ? tf : itf);
-										ptper_cum += (Number(tp) > Number(itp) ? tp : itp);
+										var baff_families_s = 0;
+										var baff_persons_s = 0;
+
+										for(var qz in rs.brgys){
+
+											var bf = 0;
+											var bp = 0;
+
+											if(rs.brgys[qz].municipality_id == rs.city[gx].id){
+
+												for(var fg in rs.rs){
+													if(rs.brgys[qz].brgy_located_ec == rs.rs[fg].brgy_located_ec){
+														bf += Number(rs.rs[fg].family_cum);
+														bp += Number(rs.rs[fg].person_cum);
+													}
+												}
+
+												for(var fx in rs.query_outec){
+													if(rs.brgys[qz].brgy_located_ec == rs.query_outec[fx].brgy_host){
+														bf += Number(rs.query_outec[fx].family_cum);
+														bp += Number(rs.query_outec[fx].person_cum);
+													}
+												}
+
+												if(rs.brgys[qz].affected_family > bf){
+													baff_families_s += Number(rs.brgys[qz].affected_family);
+												}else{
+													baff_families_s += Number(bf);
+												}
+
+												if(rs.brgys[qz].affected_persons > bp){
+													baff_persons_s += Number(rs.brgys[qz].affected_persons);
+												}else{
+													baff_persons_s += Number(bp);
+												}
+
+											}
+
+										}
+
+										ptfam_cum += baff_families_s;
+										ptper_cum += baff_persons_s;
+
+										//ptfam_cum += (Number(tf) > Number(itf) ? tf : itf);
+										//ptper_cum += (Number(tp) > Number(itp) ? tp : itp);
 
 
 										for(var qqqq in rs.brgys){
@@ -4785,6 +5157,17 @@ function get_dromic(n){
 								// 	}
 
 								// }
+
+								for(var jjj in rs.query_damage_per_brgy){
+
+									if(rs.query_damage_per_brgy[jjj].provinceid == provinces[p].id){
+
+										ptasst += Number(rs.query_damage_per_brgy[jjj].costasst_brgy);
+										passtlgu += Number(rs.query_damage_per_brgy[jjj].costasst_brgy);
+
+									}
+
+								}
 
 								for(var oooo in rs.query_asst){
 
@@ -5071,13 +5454,46 @@ function get_dromic(n){
 
 								var p_all_brgy_in_ec = 0;
 
-								for(var h in rs.brgy_unique_ec){
+								// for(var h in rs.brgy_unique_ec){
 
-									if(rs.brgy_unique_ec[h].province_id == provinces[p].id){
+								// 	if(rs.brgy_unique_ec[h].province_id == provinces[p].id){
+								// 		p_all_brgy_in_ec += 1;
+								// 	}
+									
+								// }
+
+								var brgyset = get_brgy_unique(rs.brgy_unique_ec);
+
+								for(var h in brgyset){
+
+									if(provinces[p].id == brgyset[h].province_id){
 										p_all_brgy_in_ec += 1;
 									}
 
-									
+								}
+
+								function get_brgy_unique(brgy){
+									var unique = {};
+									var distinct = [];
+									for( var i in brgy ){
+								     	if( typeof(unique[brgy[i].brgy_located]) == "undefined"){
+								      		distinct.push(brgy[i]);
+								     	}
+								     	unique[brgy[i].brgy_located] = 0;
+								    }
+								    return distinct;
+								}
+
+								for(var hqx in rs.fnds){
+
+									if(Number(rs.fnds[hqx].provinceid) == Number(provinces[p].id)){
+
+										pfndsfam_cum 		+= Number(rs.fnds[hqx].families_served_cum);
+										pfndsfam_now 		+= Number(rs.fnds[hqx].families_served_now);
+										pfndsperson_cum 	+= Number(rs.fnds[hqx].persons_served_cum);
+										pfndsperson_now 	+= Number(rs.fnds[hqx].persons_served_now);
+
+									}
 
 								}
 
@@ -5109,14 +5525,14 @@ function get_dromic(n){
 										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+ttpfam_now+"</td>"+
 										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+ttpper_cum+"</td>"+
 										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+ttpper_now+"</td>"+
-										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>0</td>"+
-										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>0</td>"+
-										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>0</td>"+
-										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>0</td>"+
-										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+ttpfam_cum+"</td>"+
-										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+ttpfam_now+"</td>"+
-										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+ttpper_cum+"</td>"+
-										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+ttpper_now+"</td>"+
+										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+pfndsfam_cum+"</td>"+
+										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+pfndsfam_now+"</td>"+
+										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+pfndsperson_cum+"</td>"+
+										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+pfndsperson_now+"</td>"+
+										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+(Number(ttpfam_cum) + Number(pfndsfam_cum))+"</td>"+
+										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+(Number(ttpfam_now) + Number(pfndsfam_now))+"</td>"+ 
+										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+(Number(ttpper_cum) + Number(pfndsperson_cum))+"</td>"+
+										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+(Number(ttpper_now) + Number(pfndsperson_now))+"</td>"+
 										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+p_infant_male_cum+"</td>"+
 										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+p_infant_male_now+"</td>"+
 										"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+p_infant_female_cum+"</td>"+
@@ -5400,6 +5816,13 @@ function get_dromic(n){
 								var c_ips_cum 				= 0;
 								var c_ips_now 				= 0;
 
+
+								var cfndsfam_cum 		 = 0;
+								var cfndsfam_now 		 = 0;
+								var cfndsperson_cum 	 = 0;
+								var cfndsperson_now 	 = 0;
+
+
 								if(rs.city[mm].provinceid == provinces[p].id){
 
 									for(var ttt in rs.rs){
@@ -5487,14 +5910,57 @@ function get_dromic(n){
 
 									for(var gyx in rs.all_affected){
 										if(rs.all_affected[gyx].municipality_id == rs.city[mm].id){
-											gitf = rs.all_affected[gyx].fam_no;
-											gitp = rs.all_affected[gyx].person_no;
+											//gitf = rs.all_affected[gyx].fam_no;
+											//gitp = rs.all_affected[gyx].person_no;
 											gitb = rs.all_affected[gyx].brgy_affected;
 										}
 									}
 
-									mtfam_cum += (Number(gtf) > Number(gitf) ? gtf : gitf);
-									mtper_cum += (Number(gtp) > Number(gitp) ? gtp : gitp);
+									var baff_families_s = 0;
+									var baff_persons_s = 0;
+
+									for(var qz in rs.brgys){
+
+										var bf = 0;
+										var bp = 0;
+
+										if(rs.brgys[qz].municipality_id == rs.city[mm].id){
+
+											for(var fg in rs.rs){
+												if(rs.brgys[qz].brgy_located_ec == rs.rs[fg].brgy_located_ec){
+													bf += Number(rs.rs[fg].family_cum);
+													bp += Number(rs.rs[fg].person_cum);
+												}
+											}
+
+											for(var fx in rs.query_outec){
+												if(rs.brgys[qz].brgy_located_ec == rs.query_outec[fx].brgy_host){
+													bf += Number(rs.query_outec[fx].family_cum);
+													bp += Number(rs.query_outec[fx].person_cum);
+												}
+											}
+
+											if(rs.brgys[qz].affected_family > bf){
+												baff_families_s += Number(rs.brgys[qz].affected_family);
+											}else{
+												baff_families_s += Number(bf);
+											}
+
+											if(rs.brgys[qz].affected_persons > bp){
+												baff_persons_s += Number(rs.brgys[qz].affected_persons);
+											}else{
+												baff_persons_s += Number(bp);
+											}
+
+										}
+
+									}
+
+									mtfam_cum += baff_families_s;
+									mtper_cum += baff_persons_s;
+
+									// mtfam_cum += (Number(gtf) > Number(gitf) ? gtf : gitf);
+									// mtper_cum += (Number(gtp) > Number(gitp) ? gtp : gitp);
 
 
 									for(var gqqqq in rs.brgys){
@@ -5512,6 +5978,17 @@ function get_dromic(n){
 									// 	}
 
 									// }
+
+									for(var jjj in rs.query_damage_per_brgy){
+
+										if(rs.query_damage_per_brgy[jjj].municipality_id == rs.city[mm].id){
+
+											ctasst += Number(rs.query_damage_per_brgy[jjj].costasst_brgy);
+											casstlgu += Number(rs.query_damage_per_brgy[jjj].costasst_brgy);
+
+										}
+
+									}
 
 									for(var ooo in rs.query_asst){
 
@@ -5799,13 +6276,46 @@ function get_dromic(n){
 
 									var m_all_brgy_in_ec = 0;
 
-									for(var h in rs.brgy_unique_ec){
+									// for(var h in rs.brgy_unique_ec){
 
-										if(rs.brgy_unique_ec[h].municipality_id == rs.city[mm].id){
+									// 	if(rs.brgy_unique_ec[h].municipality_id == rs.city[mm].id){
+									// 		m_all_brgy_in_ec += 1;
+									// 	}
+
+									// }
+
+									var brgyset = get_brgy_unique(rs.brgy_unique_ec);
+
+									for(var h in brgyset){
+
+										if(rs.city[mm].id == brgyset[h].municipality_id){
 											m_all_brgy_in_ec += 1;
 										}
 
-										
+									}
+
+									function get_brgy_unique(brgy){
+										var unique = {};
+										var distinct = [];
+										for( var i in brgy ){
+									     	if( typeof(unique[brgy[i].brgy_located]) == "undefined"){
+									      		distinct.push(brgy[i]);
+									     	}
+									     	unique[brgy[i].brgy_located] = 0;
+									    }
+									    return distinct;
+									}
+
+									for(var hqz in rs.fnds){
+
+										if(Number(rs.fnds[hqz].municipality_id) == Number(rs.city[mm].id)){
+
+											cfndsfam_cum 		+= Number(rs.fnds[hqz].families_served_cum);
+											cfndsfam_now 		+= Number(rs.fnds[hqz].families_served_now);
+											cfndsperson_cum 	+= Number(rs.fnds[hqz].persons_served_cum);
+											cfndsperson_now 	+= Number(rs.fnds[hqz].persons_served_now);
+
+										}
 
 									}
 
@@ -5837,10 +6347,10 @@ function get_dromic(n){
 											"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcfam_now+"</td>"+
 											"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcper_cum+"</td>"+
 											"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcper_now+"</td>"+
-											"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>0</td>"+
-											"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>0</td>"+
-											"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>0</td>"+
-											"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>0</td>"+
+											"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfndsfam_cum+"</td>"+
+											"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfndsfam_now+"</td>"+
+											"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfndsperson_cum+"</td>"+
+											"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfndsperson_now+"</td>"+
 											"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcfam_cum+"</td>"+
 											"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcfam_now+"</td>"+
 											"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcper_cum+"</td>"+
@@ -6035,8 +6545,8 @@ function get_dromic(n){
 
 									var tfam_cum = 0;
 									var tper_cum = 0;
-									var tfam_now = 0
-									var tper_now = 0
+									var tfam_now = 0;
+									var tper_now = 0;
 
 									var tec_cum = 0;
 									var tec_now = 0;
@@ -6099,6 +6609,19 @@ function get_dromic(n){
 														b0_3 += 1;
 													}
 
+												}
+
+											}
+
+											for(var qz in rs.brgys){
+
+												if(rs.brgys[qz].brgy_located_ec == rs.brgys[k].brgy_located_ec){
+													if(tfam_cum < rs.brgys[qz].affected_family){
+														tfam_cum = rs.brgys[qz].affected_family;
+													}
+													if(tper_cum < rs.brgys[qz].affected_persons){
+														tper_cum = rs.brgys[qz].affected_persons;
+													}
 												}
 
 											}
@@ -6304,6 +6827,10 @@ function get_dromic(n){
 											var btot_damage = 0;
 											var bttot_damage = 0;
 
+											var blgu_cost = 0;
+
+											console.log(rs.query_damage_per_brgy);
+
 											for(var ddd in rs.query_damage_per_brgy){
 
 												if(Number(rs.query_damage_per_brgy[ddd].brgy_id) == Number(rs.brgys[k].brgy_located_ec)){
@@ -6311,6 +6838,8 @@ function get_dromic(n){
 													bpart_damage += Number(rs.query_damage_per_brgy[ddd].partially_damaged);
 													btot_damage += Number(rs.query_damage_per_brgy[ddd].totally_damaged);
 													bttot_damage += Number(bpart_damage) + Number(btot_damage);
+
+													blgu_cost = rs.query_damage_per_brgy[ddd].costasst_brgy;
 
 												}
 
@@ -6328,16 +6857,38 @@ function get_dromic(n){
 
 											var b_all_brgy_in_ec = 0;
 
-											for(var h in rs.brgy_unique_ec){
+											// for(var h in rs.brgy_unique_ec){
 
-												if(rs.brgy_unique_ec[h].brgy_located_ec == rs.brgys[k].brgy_located_ec){
+											// 	if(rs.brgy_unique_ec[h].brgy_located_ec == rs.brgys[k].brgy_located_ec){
+											// 		b_all_brgy_in_ec += 1;
+											// 	}
+
+											// }
+
+											var brgyset = get_brgy_unique(rs.brgy_unique_ec);
+
+											for(var h in brgyset){
+
+												if(rs.brgys[k].brgy_located_ec == brgyset[h].brgy_located_ec){
 													b_all_brgy_in_ec += 1;
 												}
 
 											}
 
+											function get_brgy_unique(brgy){
+												var unique = {};
+												var distinct = [];
+												for( var i in brgy ){
+											     	if( typeof(unique[brgy[i].brgy_located]) == "undefined"){
+											      		distinct.push(brgy[i]);
+											     	}
+											     	unique[brgy[i].brgy_located] = 0;
+											    }
+											    return distinct;
+											}
+
 											$("#tbl_masterquery_revss tbody").append(
-												"<tr class='contextmenu_brgy contextmenu_brgy."+rs.brgys[k].brgy_located_ec+"' style='cursor: pointer'>"+
+												"<tr class='bhidebrgyfields contextmenu_brgy contextmenu_brgy."+rs.brgys[k].brgy_located_ec+"' style='cursor: pointer'>"+
 													"<td style='background-color: #D9D9D9; border:1px solid #000; color: #000;'></td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:left; border:1px solid #000; color: #000;'><b>"+toUppercaseEC(bb)+"</b></td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>1</td>"+
@@ -6360,17 +6911,17 @@ function get_dromic(n){
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+ofam_now+"</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+oper_cum+"</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+oper_now+"</td>"+
-													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tfam_cum+"</td>"+
+													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+(Number(ifam_cum) + Number(ofam_cum))+"</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tfam_now+"</td>"+
-													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tper_cum+"</td>"+
+													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+(Number(iper_cum) + Number(oper_cum))+"</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tper_now+"</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>0</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>0</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>0</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>0</td>"+
-													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tfam_cum+"</td>"+
+													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+(Number(ifam_cum) + Number(ofam_cum))+"</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tfam_now+"</td>"+
-													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tper_cum+"</td>"+
+													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+(Number(iper_cum) + Number(oper_cum))+"</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tper_now+"</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+b_infant_male_cum+"</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+b_infant_male_now+"</td>"+
@@ -6456,7 +7007,7 @@ function get_dromic(n){
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+addCommaMoney(blgu_cost)+"</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 													"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
@@ -6557,6 +7108,8 @@ function get_dromic(n){
 
 											tfam_cum = 0;
 											tper_cum = 0;
+											tfam_now = 0;
+											tper_now = 0;
 
 											tec_cum = 0;
 											tec_now = 0;
@@ -6796,7 +7349,7 @@ function get_dromic(n){
 														}
 
 														$("#tbl_masterquery_revss tbody").append(
-															"<tr class='contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
+															"<tr class='bhidebrgyfields contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
 																"<td style='border:1px solid #000; color: #000;'></td>"+
 																"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'></td>"+
 																"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'></td>"+
@@ -7057,7 +7610,7 @@ function get_dromic(n){
 															}
 
 															$("#tbl_masterquery_revss tbody").append(
-																"<tr>"+
+																"<tr class='bhidebrgyfields contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
 																	"<td style='border:1px solid #000; color: #000;'></td>"+
 																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'></td>"+
 																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'></td>"+
@@ -7337,7 +7890,7 @@ function get_dromic(n){
 
 
 															$("#tbl_masterquery_revss tbody").append(
-																"<tr class='contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
+																"<tr class='bhidebrgyfields contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
 																	"<td style='border:1px solid #000; color: #000;'></td>"+
 																	"<td style='font-weight: bold; vertical-align: middle; text-align:left; border:1px solid #000; color: #000;'></td>"+
 																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'></td>"+
@@ -7683,12 +8236,13 @@ function get_dromic(n){
 						var dswd_ccc 		= 0;
 						var lgu_ccc 		= 0;
 						var ngo_ccc 		= 0;
+						var ogo_ccc 		= 0;
 
 						for(var q in rs.query_asst){
 
 							if(regions[t].id == rs.query_asst[q].region){
 
-								totalcc += (Number(rs.query_asst[q].dswd_asst) + Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst));
+								totalcc += (Number(rs.query_asst[q].dswd_asst) + Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst) + Number(rs.query_asst[q].ogo_asst));
 								tot_ccc += Number(rs.query_asst[q].totally_damaged);
 								part_ccc += Number(rs.query_asst[q].partially_damaged);
 								dead_ccc += Number(rs.query_asst[q].dead);
@@ -7697,6 +8251,7 @@ function get_dromic(n){
 								dswd_ccc += Number(rs.query_asst[q].dswd_asst);
 								lgu_ccc += Number(rs.query_asst[q].lgu_asst);
 								ngo_ccc += Number(rs.query_asst[q].ngo_asst);
+								ogo_ccc += Number(rs.query_asst[q].ogo_asst);
 
 								var lgu_cccc 		= lgu_ccc;
 
@@ -7721,13 +8276,14 @@ function get_dromic(n){
 								"<th style='border: 1px solid #000; text-align:left; background-color: #A6A6A6; color: #000; padding-right: 5px'>"+regions[t].name+"</th>"+
 								"<th style='border: 1px solid #000; text-align:center; background-color: #A6A6A6; color: #000; padding-right: 5px'>"+addComma(tot_ccc)+"</th>"+
 								"<th style='border: 1px solid #000; text-align:center; background-color: #A6A6A6; color: #000; padding-right: 5px'>"+addComma(part_ccc)+"</th>"+
-								"<th style='border: 1px solid #000; text-align:center; background-color: #A6A6A6; color: #000; padding-right: 5px'>"+addComma(dead_ccc)+"</th>"+
-								"<th style='border: 1px solid #000; text-align:center; background-color: #A6A6A6; color: #000; padding-right: 5px'>"+addComma(injured_ccc)+"</th>"+
-								"<th style='border: 1px solid #000; text-align:center; background-color: #A6A6A6; color: #000; padding-right: 5px'>"+addComma(missing_ccc)+"</th>"+
+								// "<th style='border: 1px solid #000; text-align:center; background-color: #A6A6A6; color: #000; padding-right: 5px'>"+addComma(dead_ccc)+"</th>"+
+								// "<th style='border: 1px solid #000; text-align:center; background-color: #A6A6A6; color: #000; padding-right: 5px'>"+addComma(injured_ccc)+"</th>"+
+								// "<th style='border: 1px solid #000; text-align:center; background-color: #A6A6A6; color: #000; padding-right: 5px'>"+addComma(missing_ccc)+"</th>"+
 								"<th style='border: 1px solid #000; text-align:right; background-color: #A6A6A6; color: #000; padding-right: 5px'>"+addCommaMoney(totalcc)+"</th>"+
 								"<th style='border: 1px solid #000; text-align:right; background-color: #A6A6A6; color: #000; padding-right: 5px'>"+addCommaMoney(dswd_ccc)+"</th>"+
 								"<th style='border: 1px solid #000; text-align:right; background-color: #A6A6A6; color: #000; padding-right: 5px'>"+addCommaMoney(lgu_cccc)+"</th>"+
 								"<th style='border: 1px solid #000; text-align:right; background-color: #A6A6A6; color: #000; padding-right: 5px'>"+addCommaMoney(ngo_ccc)+"</th>"+
+								"<th style='border: 1px solid #000; text-align:right; background-color: #A6A6A6; color: #000; padding-right: 5px'>"+addCommaMoney(ogo_ccc)+"</th>"+
 							"</tr>"
 						)
 
@@ -7754,12 +8310,13 @@ function get_dromic(n){
 								var dswd_ccc 		= 0;
 								var lgu_ccc 		= 0;
 								var ngo_ccc 		= 0;
+								var ogo_ccc 		= 0;
 
 								for(var q in rs.query_asst){
 
 									if(provinces[v].id == rs.query_asst[q].provinceid){
 
-										totalcc += (Number(rs.query_asst[q].dswd_asst) + Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst));
+										totalcc += (Number(rs.query_asst[q].dswd_asst) + Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst) + Number(rs.query_asst[q].ogo_asst));
 										tot_ccc += Number(rs.query_asst[q].totally_damaged);
 										part_ccc += Number(rs.query_asst[q].partially_damaged);
 										dead_ccc += Number(rs.query_asst[q].dead);
@@ -7768,6 +8325,7 @@ function get_dromic(n){
 										dswd_ccc += Number(rs.query_asst[q].dswd_asst);
 										lgu_ccc += Number(rs.query_asst[q].lgu_asst);
 										ngo_ccc += Number(rs.query_asst[q].ngo_asst);
+										ogo_ccc += Number(rs.query_asst[q].ogo_asst);
 
 										var lgu_cccc 		= lgu_ccc;
 
@@ -7792,13 +8350,14 @@ function get_dromic(n){
 										"<th style='border: 1px solid #000; text-align:left; background-color: #808080; color: #000; padding-right: 5px'>    "+provinces[v].name+"</th>"+
 										"<th style='border: 1px solid #000; text-align:center; background-color: #808080; color: #000; padding-right: 5px'>"+addComma(tot_ccc)+"</th>"+
 										"<th style='border: 1px solid #000; text-align:center; background-color: #808080; color: #000; padding-right: 5px'>"+addComma(part_ccc)+"</th>"+
-										"<th style='border: 1px solid #000; text-align:center; background-color: #808080; color: #000; padding-right: 5px'>"+addComma(dead_ccc)+"</th>"+
-										"<th style='border: 1px solid #000; text-align:center; background-color: #808080; color: #000; padding-right: 5px'>"+addComma(injured_ccc)+"</th>"+
-										"<th style='border: 1px solid #000; text-align:center; background-color: #808080; color: #000; padding-right: 5px'>"+addComma(missing_ccc)+"</th>"+
+										// "<th style='border: 1px solid #000; text-align:center; background-color: #808080; color: #000; padding-right: 5px'>"+addComma(dead_ccc)+"</th>"+
+										// "<th style='border: 1px solid #000; text-align:center; background-color: #808080; color: #000; padding-right: 5px'>"+addComma(injured_ccc)+"</th>"+
+										// "<th style='border: 1px solid #000; text-align:center; background-color: #808080; color: #000; padding-right: 5px'>"+addComma(missing_ccc)+"</th>"+
 										"<th style='border: 1px solid #000; text-align:right; background-color: #808080; color: #000; padding-right: 5px'>"+addCommaMoney(totalcc)+"</th>"+
 										"<th style='border: 1px solid #000; text-align:right; background-color: #808080; color: #000; padding-right: 5px'>"+addCommaMoney(dswd_ccc)+"</th>"+
 										"<th style='border: 1px solid #000; text-align:right; background-color: #808080; color: #000; padding-right: 5px'>"+addCommaMoney(lgu_cccc)+"</th>"+
 										"<th style='border: 1px solid #000; text-align:right; background-color: #808080; color: #000; padding-right: 5px'>"+addCommaMoney(ngo_ccc)+"</th>"+
+										"<th style='border: 1px solid #000; text-align:right; background-color: #808080; color: #000; padding-right: 5px'>"+addCommaMoney(ogo_ccc)+"</th>"+
 									"</tr>"
 								)
 
@@ -7812,29 +8371,35 @@ function get_dromic(n){
 								lgu_ccc 		= 0;
 								ngo_ccc 		= 0;
 								lgu_cccc 		= 0;
+								ogo_ccc 		= 0;
 
 								for(var q in rs.query_asst){
+
 									var total = 0;
 									if(provinces[v].id == rs.query_asst[q].provinceid){
-										total += (Number(rs.query_asst[q].dswd_asst) + Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst));
-										$('#tbl_casualty_asst tbody').append(
-											"<tr style='color:#000; cursor:pointer; background-color: #DFDFDF' ondblclick='updateDamAss("+rs.query_asst[q].id+")' class='hoveredit'>"+
-												"<th style='border: 1px solid #000; text-align:left'>        "+rs.query_asst[q].municipality_name+"</th>"+
-												"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].totally_damaged)+"</th>"+
-												"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].partially_damaged)+"</th>"+
-												"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].dead)+"</th>"+
-												"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].injured)+"</th>"+
-												"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].missing)+"</th>"+
-												"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(total)+"</th>"+
-												"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].dswd_asst)+"</th>"+
-												"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].lgu_asst)+"</th>"+
-												"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].ngo_asst)+"</th>"+
-											"</tr>"
-										)
+										total += (Number(rs.query_asst[q].dswd_asst) + Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst) + Number(rs.query_asst[q].ogo_asst));
+										if( (Number(total) > 0) || ((Number(rs.query_asst[q].totally_damaged) + Number(rs.query_asst[q].partially_damaged)) > 0)){
+											$('#tbl_casualty_asst tbody').append(
+												"<tr style='color:#000; cursor:pointer; background-color: #DFDFDF' ondblclick='updateDamAss("+rs.query_asst[q].id+")' class='hoveredit'>"+
+													"<th style='border: 1px solid #000; text-align:left'>        "+rs.query_asst[q].municipality_name+"</th>"+
+													"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].totally_damaged)+"</th>"+
+													"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].partially_damaged)+"</th>"+
+													// "<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].dead)+"</th>"+
+													// "<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].injured)+"</th>"+
+													// "<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].missing)+"</th>"+
+													"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(total)+"</th>"+
+													"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].dswd_asst)+"</th>"+
+													"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].lgu_asst)+"</th>"+
+													"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].ngo_asst)+"</th>"+
+													"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].ogo_asst)+"</th>"+
+												"</tr>"
+											)
+										}
 
 										var brgy_ids = "";
 
 										brgy_ids = rs.query_asst[q].brgy_id;
+
 										if(isnull(brgy_ids) != "-"){
 											brgy_ids = brgy_ids.split("|");
 										
@@ -7842,20 +8407,20 @@ function get_dromic(n){
 
 												for(var hh = 0 ; hh < rs.query_damage_per_brgy.length ; hh++){
 													if(brgy_ids[hq] == rs.query_damage_per_brgy[hh].brgy_id){
-														$('#tbl_casualty_asst tbody').append(
-															"<tr style='color:#000; cursor:pointer'>"+
-																"<th style='border: 1px solid #000; text-align:left'>            Brgy. "+rs.query_damage_per_brgy[hh].brgy_name+"</th>"+
-																"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].totally_damaged)+"</th>"+
-																"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].partially_damaged)+"</th>"+
-																"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].dead)+"</th>"+
-																"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].injured)+"</th>"+
-																"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].missing)+"</th>"+
-																"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_damage_per_brgy[hh].costasst_brgy)+"</th>"+
-																"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addComma(0)+"</th>"+
-																"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_damage_per_brgy[hh].costasst_brgy)+"</th>"+
-																"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addComma(0)+"</th>"+
-															"</tr>"
-														)
+														if(Number(rs.query_damage_per_brgy[hh].totally_damaged) > 0 || Number(rs.query_damage_per_brgy[hh].partially_damaged) > 0 || Number(rs.query_damage_per_brgy[hh].costasst_brgy) > 0){
+															$('#tbl_casualty_asst tbody').append(
+																"<tr style='color:#000; cursor:pointer'>"+
+																	"<th style='border: 1px solid #000; text-align:left'>            Brgy. "+rs.query_damage_per_brgy[hh].brgy_name+"</th>"+
+																	"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].totally_damaged)+"</th>"+
+																	"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].partially_damaged)+"</th>"+
+																	"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_damage_per_brgy[hh].costasst_brgy)+"</th>"+
+																	"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addComma(0)+"</th>"+
+																	"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_damage_per_brgy[hh].costasst_brgy)+"</th>"+
+																	"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addComma(0)+"</th>"+
+																	"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addComma(0)+"</th>"+
+																"</tr>"
+															)
+														}
 
 														break;
 
@@ -7881,9 +8446,10 @@ function get_dromic(n){
 					var dswd_c 		= 0;
 					var lgu_c 		= 0;
 					var ngo_c 		= 0;
+					var ogo_c 		= 0;
 
 					for(var q in rs.query_asst){
-						total += (Number(rs.query_asst[q].dswd_asst) + Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst));
+						total += (Number(rs.query_asst[q].dswd_asst) + Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst) + Number(rs.query_asst[q].ogo_asst));
 						tot_c += Number(rs.query_asst[q].totally_damaged);
 						part_c += Number(rs.query_asst[q].partially_damaged);
 						dead_c += Number(rs.query_asst[q].dead);
@@ -7892,6 +8458,18 @@ function get_dromic(n){
 						dswd_c += Number(rs.query_asst[q].dswd_asst);
 						lgu_c += Number(rs.query_asst[q].lgu_asst);
 						ngo_c += Number(rs.query_asst[q].ngo_asst);
+						ogo_c += Number(rs.query_asst[q].ogo_asst);
+
+						if((Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst) + Number(rs.query_asst[q].ogo_asst)) > 0){
+
+							city_cas.push({
+
+								municipality_id : rs.query_asst[q].municipality_id
+
+							})
+
+						}
+
 					}
 
 					$('#caraga_tot_c').text(addComma(tot_c));
@@ -7901,6 +8479,7 @@ function get_dromic(n){
 					$('#caraga_missing_c').text(addComma(missing_c));
 					$('#caraga_dswd_c').text(addCommaMoney(dswd_c));
 					$('#caraga_ngo_c').text(addCommaMoney(ngo_c));
+					$('#caraga_ogo_c').text(addCommaMoney(ogo_c));
 
 					var lgu_cc 		= lgu_c;
 
@@ -7975,11 +8554,11 @@ function get_dromic(n){
 										if(j == 0){
 											$('#lgu_list_assistance tbody').append(
 												"<tr style='cursor:pointer' ondblclick='updateAssistanceList("+a[j].id+")'>"+
-													"<th style='color:#000'>       "+a[j].municipality_name+"</th>"+
-													"<th style='color:#000'>       "+isnull(a[j].fnfi_name)+"</th>"+
-													"<th style='text-align:right; color:#000'>       "+isnull(a[j].quantity)+"</th>"+
-													"<th style='color:#000'>       "+isnull(todate(a[j].date_augmented))+"</th>"+
-													"<th style='text-align:right; color:#000'>       "+addCommaMoney(amt) +"</th>"+
+													"<th style='color:#000'>"+a[j].municipality_name+"</th>"+
+													"<th style='color:#000'>"+isnull(a[j].fnfi_name)+"</th>"+
+													"<th style='text-align:right; color:#000'>"+isnull(a[j].quantity)+"</th>"+
+													"<th style='color:#000'>"+isnull(todate(a[j].date_augmented))+"</th>"+
+													"<th style='text-align:right; color:#000'>"+addCommaMoney(amt)+"</th>"+
 													"<th style='text-align:center; color:#000'><button type='button' class='btn btn-danger btn-xs can_editasst' onclick='deleteAssistanceList("+a[j].id+")'><i class='fa fa-exclamation-circle'></i></button></th>"+
 												"</tr>"
 											)
@@ -7991,10 +8570,10 @@ function get_dromic(n){
 													$('#lgu_list_assistance tbody').append(
 														"<tr style='cursor:pointer' ondblclick='updateAssistanceList("+a[j].id+")'>"+
 															"<th></th>"+
-															"<th style='color:#000'>       "+isnull(a[j].fnfi_name)+"</th>"+
-															"<th style='text-align:right; color:#000'>       "+isnull(a[j].quantity)+"</th>"+
-															"<th style='color:#000'>       "+isnull(todate(a[j].date_augmented))+"</th>"+
-															"<th style='text-align:right; color:#000'>       "+addCommaMoney(amt)  +"</th>"+
+															"<th style='color:#000'>"+isnull(a[j].fnfi_name)+"</th>"+
+															"<th style='text-align:right; color:#000'>"+isnull(a[j].quantity)+"</th>"+
+															"<th style='color:#000'>"+isnull(todate(a[j].date_augmented))+"</th>"+
+															"<th style='text-align:right; color:#000'>"+addCommaMoney(amt)  +"</th>"+
 															"<th style='text-align:center; color:#000'><button type='button' class='btn btn-danger btn-xs can_editasst' onclick='deleteAssistanceList("+a[j].id+")'><i class='fa fa-exclamation-circle'></i></button></th>"+
 														"</tr>"
 													)
@@ -8003,11 +8582,11 @@ function get_dromic(n){
 
 													$('#lgu_list_assistance tbody').append(
 														"<tr style='cursor:pointer' ondblclick='updateAssistanceList("+a[j].id+")'>"+
-															"<th style='color:#000'>       "+a[j].municipality_name+"</th>"+
-															"<th style='color:#000'>       "+isnull(a[j].fnfi_name)+"</th>"+
-															"<th style='text-align:right; color:#000'>       "+isnull(a[j].quantity)+"</th>"+
-															"<th style='color:#000'>       "+isnull(todate(a[j].date_augmented))+"</th>"+
-															"<th style='text-align:right; color:#000'>       "+addCommaMoney(amt) +"</th>"+
+															"<th style='color:#000'>"+a[j].municipality_name+"</th>"+
+															"<th style='color:#000'>"+isnull(a[j].fnfi_name)+"</th>"+
+															"<th style='text-align:right; color:#000'>"+isnull(a[j].quantity)+"</th>"+
+															"<th style='color:#000'>"+isnull(todate(a[j].date_augmented))+"</th>"+
+															"<th style='text-align:right; color:#000'>"+addCommaMoney(amt)+"</th>"+
 															"<th style='text-align:center; color:#000'><button type='button' class='btn btn-danger btn-xs can_editasst' onclick='deleteAssistanceList("+a[j].id+")'><i class='fa fa-exclamation-circle'></i></button></th>"+
 														"</tr>"
 													)
@@ -8018,11 +8597,11 @@ function get_dromic(n){
 
 												$('#lgu_list_assistance tbody').append(
 													"<tr style='cursor:pointer' ondblclick='updateAssistanceList("+a[j].id+")'>"+
-														"<th style='color:#000'>       "+a[j].municipality_name+"</th>"+
-														"<th style='color:#000'>       "+isnull(a[j].fnfi_name)+"</th>"+
-														"<th style='text-align:right; color:#000'>       "+isnull(a[j].quantity)+"</th>"+
-														"<th style='color:#000'>       "+isnull(todate(a[j].date_augmented))+"</th>"+
-														"<th style='text-align:right; color:#000'>       "+addCommaMoney(amt) +"</th>"+
+														"<th style='color:#000'>"+a[j].municipality_name+"</th>"+
+														"<th style='color:#000'>"+isnull(a[j].fnfi_name)+"</th>"+
+														"<th style='text-align:right; color:#000'>"+isnull(a[j].quantity)+"</th>"+
+														"<th style='color:#000'>"+isnull(todate(a[j].date_augmented))+"</th>"+
+														"<th style='text-align:right; color:#000'>"+addCommaMoney(amt)+"</th>"+
 														"<th style='text-align:center; color:#000'><button type='button' class='btn btn-danger btn-xs can_editasst' onclick='deleteAssistanceList("+a[j].id+")'><i class='fa fa-exclamation-circle'></i></button></th>"+
 													"</tr>"
 												)
@@ -8050,10 +8629,10 @@ function get_dromic(n){
 
 					}
 
-					$('#totffps').text(addComma(tot_ffp));
-					$('#amtffps').text("PhP " + addCommaMoney(amt_ffp));
-					$('#amtnfi').text("PhP " + addCommaMoney(amt_nfi));
-
+					$('#totffps').text(addComma(tot_ffp));	
+					$('#amtffps').text("PhP " + addCommaMoney(amt_ffp));	
+					$('#amtnfi').text("PhP " + addCommaMoney(amt_nfi));	
+	
 
 				})
 
@@ -8069,6 +8648,8 @@ function get_dromic(n){
 						var injured 			= 0;
 						var missing 			= 0;
 						var costasst_brgy 		= 0;
+						var baff_families 		= 0;
+						var baff_persons 		= 0;
 
 						for(var p in a){
 							if(regions[t].id == a[p].region){
@@ -8078,6 +8659,8 @@ function get_dromic(n){
 								injured 			= injured + Number(a[p].injured);
 								missing 			= missing + Number(a[p].missing);
 								costasst_brgy 		= Number(costasst_brgy) + Number(a[p].costasst_brgy);
+								baff_families 		= baff_families + Number(a[p].affected_family);
+								baff_persons 		= baff_persons + Number(a[p].affected_persons);
 							}
 						}
 
@@ -8087,9 +8670,9 @@ function get_dromic(n){
 								"<th style='border:1px solid #000; cursor:pointer; padding: 3px; background-color:#808080; color:#000; text-align:right'>"+addCommaMoney(costasst_brgy)+"</th>"+
 								"<th style='background-color: #808080; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(totally_damaged)+"</th>"+
 								"<th style='background-color: #808080; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(partially_damaged)+"</th>"+
-								"<th style='background-color: #808080; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(dead)+"</th>"+
-								"<th style='background-color: #808080; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(injured)+"</th>"+
-								"<th style='background-color: #808080; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(missing)+"</th>"+
+								"<th style='background-color: #808080; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(baff_families)+"</th>"+
+								"<th style='background-color: #808080; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(baff_persons)+"</th>"+
+								// "<th style='background-color: #808080; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(missing)+"</th>"+
 							"</tr>"
 						)
 
@@ -8103,6 +8686,8 @@ function get_dromic(n){
 								var injured 			= 0;
 								var missing 			= 0;
 								var costasst_brgy 		= 0;
+								var baff_families 		= 0;
+								var baff_persons 		= 0;
 
 								for(var p in a){
 									if(provinces[i].id == a[p].provinceid){
@@ -8112,6 +8697,8 @@ function get_dromic(n){
 										injured 			= injured + Number(a[p].injured);
 										missing 			= missing + Number(a[p].missing);
 										costasst_brgy 		= Number(costasst_brgy) + Number(a[p].costasst_brgy);
+										baff_families 		= baff_families + Number(a[p].affected_family);
+										baff_persons 		= baff_persons + Number(a[p].affected_persons);
 									}
 								}
 
@@ -8121,9 +8708,11 @@ function get_dromic(n){
 										"<th style='border:1px solid #000; cursor:pointer; padding: 3px; background-color:#169F85; color:#fff; text-align:right'>"+addCommaMoney(costasst_brgy)+"</th>"+
 										"<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(totally_damaged)+"</th>"+
 										"<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(partially_damaged)+"</th>"+
-										"<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(dead)+"</th>"+
-										"<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(injured)+"</th>"+
-										"<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(missing)+"</th>"+
+										"<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(baff_families)+"</th>"+
+										"<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(baff_persons)+"</th>"+
+										// "<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(dead)+"</th>"+
+										// "<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(injured)+"</th>"+
+										// "<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(missing)+"</th>"+
 									"</tr>"
 								)
 
@@ -8135,6 +8724,8 @@ function get_dromic(n){
 									var injured 			= 0;
 									var missing 			= 0;
 									var costasst_brgy 		= 0;
+									var baff_families 		= 0;
+									var baff_persons 		= 0;
 
 									if(a[j].provinceid == provinces[i].id){
 										if(j == 0){
@@ -8146,6 +8737,8 @@ function get_dromic(n){
 													injured 			= Number(injured) + Number(a[k].injured);
 													missing 			= Number(missing) + Number(a[k].missing);
 													costasst_brgy 		= Number(costasst_brgy) + Number(a[k].costasst_brgy);
+													baff_families 		= baff_families + Number(a[k].affected_family);
+													baff_persons 		= baff_persons + Number(a[k].affected_persons);
 												}
 											}
 											$('#tbl_damages_per_brgy tbody').append(
@@ -8154,9 +8747,11 @@ function get_dromic(n){
 													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(costasst_brgy)+"</th>"+
 													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(totally_damaged)+"</th>"+
 													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(partially_damaged)+"</th>"+
-													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(dead)+"</th>"+
-													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(injured)+"</th>"+
-													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(missing)+"</th>"+
+													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(baff_families)+"</th>"+
+													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(baff_persons)+"</th>"+
+													// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(dead)+"</th>"+
+													// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(injured)+"</th>"+
+													// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(missing)+"</th>"+
 												"</tr>"
 											)
 											$('#tbl_damages_per_brgy tbody').append(
@@ -8165,9 +8760,11 @@ function get_dromic(n){
 													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(a[j].costasst_brgy)+"</th>"+
 													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].totally_damaged)+"</th>"+
 													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].partially_damaged)+"</th>"+
-													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
-													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
-													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
+													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(a[j].affected_family)+"</th>"+
+													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(a[j].affected_persons)+"</th>"+
+													// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
+													// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
+													// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
 												"</tr>"
 											)
 										}else{
@@ -8178,9 +8775,11 @@ function get_dromic(n){
 														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(a[j].costasst_brgy)+"</th>"+
 														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].totally_damaged)+"</th>"+
 														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].partially_damaged)+"</th>"+
-														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
-														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
-														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
+														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(a[j].affected_family)+"</th>"+
+														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(a[j].affected_persons)+"</th>"+
+														// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
+														// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
+														// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
 													"</tr>"
 												)
 											}else{
@@ -8192,6 +8791,8 @@ function get_dromic(n){
 														injured 			= Number(injured) + Number(a[k].injured);
 														missing 			= Number(missing) + Number(a[k].missing);
 														costasst_brgy 		= Number(costasst_brgy) + Number(a[k].costasst_brgy);
+														baff_families 		= baff_families + Number(a[k].affected_family);
+														baff_persons 		= baff_persons + Number(a[k].affected_persons);
 													}
 												}
 												$('#tbl_damages_per_brgy tbody').append(
@@ -8200,9 +8801,11 @@ function get_dromic(n){
 														"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(costasst_brgy)+"</th>"+
 														"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(totally_damaged)+"</th>"+
 														"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(partially_damaged)+"</th>"+
-														"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(dead)+"</th>"+
-														"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(injured)+"</th>"+
-														"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(missing)+"</th>"+
+														"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(baff_families)+"</th>"+
+														"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(baff_persons)+"</th>"+
+														// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(dead)+"</th>"+
+														// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(injured)+"</th>"+
+														// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(missing)+"</th>"+
 													"</tr>"
 												)
 												$('#tbl_damages_per_brgy tbody').append(
@@ -8211,9 +8814,11 @@ function get_dromic(n){
 														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(a[j].costasst_brgy)+"</th>"+
 														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].totally_damaged)+"</th>"+
 														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].partially_damaged)+"</th>"+
-														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
-														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
-														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
+														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_family)+"</th>"+
+														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_persons)+"</th>"+
+														// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
+														// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
+														// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
 													"</tr>"
 												)
 												if(a[j].municipality_id == a[j-1].municipality_id){
@@ -8223,9 +8828,11 @@ function get_dromic(n){
 															"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(a[j].costasst_brgy)+"</th>"+
 															"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].totally_damaged)+"</th>"+
 															"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].partially_damaged)+"</th>"+
-															"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
-															"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
-															"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
+															"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_family)+"</th>"+
+															"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_persons)+"</th>"+
+															// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
+															// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
+															// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
 														"</tr>"
 													)
 												}
@@ -8281,9 +8888,11 @@ function get_dromic(n){
 		$('#addcasualtybtn').hide();
 		//$('#exporttoexcel').hide();
 		$('#savedata_dam_per_brgy').hide();
+		$('#savedata_dam_per_brgy2').hide();
 		$('#deldata_dam_per_brgy').hide();
 		$('#updatedata_dam_per_brgy').hide();
 		$('#saveassistance').hide();
+		$('#familyndserved').hide();
 
 		$('#can_edit').text('f');
 
@@ -8323,9 +8932,11 @@ function get_dromic(n){
 						$('#addfamoec').hide();
 						$('#addcasualtybtn').hide();
 						//$('#exporttoexcel').hide();
+						$('#savedata_dam_per_brgy2').hide();
 						$('#savedata_dam_per_brgy').hide();
 						$('#updatedata_dam_per_brgy').hide();
 						$('#saveassistance').hide();
+						$('#familyndserved').hide();
 
 						$('#can_edit').text('f');
 
@@ -8338,8 +8949,10 @@ function get_dromic(n){
 						$('#addcasualtybtn').show();
 						$('#exporttoexcel').show();
 						$('#savedata_dam_per_brgy').show();
+						$('#savedata_dam_per_brgy2').show();
 						//$('#updatedata_dam_per_brgy').show();
 						$('#saveassistance').show();
+						$('#familyndserved').show();
 
 						$('#can_edit').text('t');
 
@@ -8348,10 +8961,6 @@ function get_dromic(n){
 				});
 
 				get_comments();
-
-				
-
-				// $('#loader').show();
 
 				var datas = {
 					id : n
@@ -8364,7 +8973,7 @@ function get_dromic(n){
 					console.log(a);
 
 					rs = a;	
-					// console.log(rs);
+
 					$('#loader').hide();
 
 
@@ -8454,18 +9063,28 @@ function get_dromic(n){
 								"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:left; padding:2px'><b>"+$('#region_name_session').text().toUpperCase()+"</b></th>"+
 								"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:center; padding:2px' id='caraga_tot_c'></th>"+
 								"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:center; padding:2px' id='caraga_part_c'></th>"+
-								"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:center; padding:2px' id='caraga_dead_c'></th>"+
-								"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:center; padding:2px' id='caraga_injured_c'></th>"+
-								"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:center; padding:2px' id='caraga_missing_c'></th>"+
+								// "<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:center; padding:2px' id='caraga_dead_c'></th>"+
+								// "<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:center; padding:2px' id='caraga_injured_c'></th>"+
+								// "<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:center; padding:2px' id='caraga_missing_c'></th>"+
 								"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:right; padding-right: 5px' id='caraga_total_c'></th>"+
 								"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:right; padding-right: 5px' id='caraga_dswd_c'></th>"+
 								"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:right; padding-right: 5px' id='caraga_lgu_c'></th>"+
 								"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:right; padding-right: 5px' id='caraga_ngo_c'></th>"+
+								"<th style='border: 1px solid #000; background-color: #A6A6A6; color: #000; text-align:right; padding-right: 5px' id='caraga_ogo_c'></th>"+
 							"</tr>"
 						);
 					}
 
 					for(var qt in rs.query_title){
+
+						//Infographic
+
+						$('#info_dname').text(rs.query_title[qt].disaster_name.toUpperCase());
+
+						$('#info_dasof').text(todate(rs.query_title[qt].ddate).toUpperCase() + " | " + rs.query_title[qt].asoftime);
+
+						//
+
 						$('#asofdate').text("As of " + todate(rs.query_title[qt].ddate));
 						$('#asoftime').text("Time: " + rs.query_title[qt].asoftime);
 						$('#asofdate2').text("As of " + todate(rs.query_title[qt].ddate));
@@ -8480,6 +9099,11 @@ function get_dromic(n){
 						$('#asoftime_IEC').text("Time: " + rs.query_title[qt].asoftime);
 						$('#disastertype_IEC').text('Disaster Type: ' + rs.query_title[qt].disaster_name);
 						$('#disasterdate_IEC').text('Date of Occurence: ' + todate(rs.query_title[qt].disaster_date));
+
+						$('#sum_asofdate_IEC').text("As of " + todate(rs.query_title[qt].ddate));
+						$('#sum_asoftime_IEC').text("Time: " + rs.query_title[qt].asoftime);
+						$('#sum_disastertype_IEC').text('Disaster Type: ' + rs.query_title[qt].disaster_name);
+						$('#sum_disasterdate_IEC').text('Date of Occurence: ' + todate(rs.query_title[qt].disaster_date));
 
 						$('#asofdate_OEC').text("As of " + todate(rs.query_title[qt].ddate));
 						$('#asoftime_OEC').text("Time: " + rs.query_title[qt].asoftime);
@@ -8506,6 +9130,13 @@ function get_dromic(n){
 						$('#spreparedbypos2').text(rs.query_title[qt].preparedbypos);
 						$('#srecommendedbypos2').text(rs.query_title[qt].recommendedbypos);
 						$('#sapprovedbypos2').text(rs.query_title[qt].approvedbypos);
+
+						$('#mainpreparedbyn').text(rs.query_title[qt].preparedby);
+						$('#mainrecommendbyn').text(rs.query_title[qt].recommendedby);
+						$('#mainapprovedbyn').text(rs.query_title[qt].approvedby);
+						$('#mainpreparedbyp').text(rs.query_title[qt].preparedbypos);
+						$('#mainrecommendbyp').text(rs.query_title[qt].recommendedbypos);
+						$('#mainapprovedbyp').text(rs.query_title[qt].approvedbypos);
 
 						$('#spreparedby3').text(rs.query_title[qt].preparedby);
 						$('#srecommendedby3').text(rs.query_title[qt].recommendedby);
@@ -8619,9 +9250,15 @@ function get_dromic(n){
 
 							if($('#user_level_access_session').text() == 'municipality'){
 
+								//$('#infolgu').empty().append("LOCAL GOVERNMENT UNIT OF " + rs.city[n].municipality_name);
+
 								if($('#municipality_id_session').text() == rs.city[n].id){
 
 									if(rs.city[n].provinceid == provinces[i].id){
+
+
+										console.log(provinces[i]);
+										$('#infolgu').empty().append("LOCAL GOVERNMENT UNIT OF " + rs.city[n].municipality_name.toUpperCase() + ", " + provinces[i].name.toUpperCase());
 
 										var fam_cum = "";
 										var fam_now = "";
@@ -8697,6 +9334,7 @@ function get_dromic(n){
 										)
 
 										for(var m in rs.rs){
+
 											if(rs.city[n].id == rs.rs[m].municipality_id){
 												if(m > 0){
 													if((rs.rs[m].evacuation_name == rs.rs[m-1].evacuation_name) && (rs.rs[m].municipality_id == rs.rs[m-1].municipality_id)){
@@ -8797,7 +9435,7 @@ function get_dromic(n){
 														"<td style='border: 1px solid #000; color: #000; text-align:center; padding:2px; "+style+"'>"+addComma(isnull(pec_cum))+"</td>"+
 									  					"<td style='border: 1px solid #000; color: #000; text-align:center; padding:2px; "+style+"'>"+addComma(isnull(pec_now))+"</td>"+
 									  					"<td style='border: 1px solid #000; color: #000; text-align:left; padding:2px; "+style+"'>"+isnull(brgy_ec)+"</td>"+
-									  					"<td style='border: 1px solid #000; color: #000; text-align:left; padding:2px; "+style+"'>"+isnulldo(evac.toUpperCase())+"</td>"+
+									  					"<td style='border: 1px solid #000; color: #000; text-align:left; padding:2px; "+style+"'>"+isnulldo(evac).toUpperCase()+"</td>"+
 									  					"<td style='border: 1px solid #000; color: #000; text-align:center; padding:2px; "+style+"'>"+addComma(isnull(rs.rs[m].family_cum))+"</td>"+
 									  					"<td style='border: 1px solid #000; color: #000; text-align:center; padding:2px; "+style+"'>"+addComma(isnull(rs.rs[m].family_now))+"</td>"+
 									  					"<td style='border: 1px solid #000; color: #000; text-align:center; padding:2px; "+style+"'>"+addComma(isnull(rs.rs[m].person_cum))+"</td>"+
@@ -8891,6 +9529,8 @@ function get_dromic(n){
 						  					"<th style='border: 1px solid #000; text-align:center; padding:2px; background-color: #808080; color: #000'></th>"+
 										"</tr>"
 									)
+
+									console.log(rs.rs)
 
 									for(var m in rs.rs){
 										if(rs.city[n].id == rs.rs[m].municipality_id){
@@ -8993,7 +9633,7 @@ function get_dromic(n){
 													"<td style='border: 1px solid #000; color: #000; text-align:center; padding:2px; "+style+"'>"+addComma(isnull(pec_cum))+"</td>"+
 								  					"<td style='border: 1px solid #000; color: #000; text-align:center; padding:2px; "+style+"'>"+addComma(isnull(pec_now))+"</td>"+
 								  					"<td style='border: 1px solid #000; color: #000; text-align:left; padding:2px; "+style+"'>"+isnull(brgy_ec)+"</td>"+
-								  					"<td style='border: 1px solid #000; color: #000; text-align:left; padding:2px; "+style+"'>"+isnulldo(evac.toUpperCase())+"</td>"+
+								  					"<td style='border: 1px solid #000; color: #000; text-align:left; padding:2px; "+style+"'>"+isnulldo(evac).toUpperCase()+"</td>"+
 								  					"<td style='border: 1px solid #000; color: #000; text-align:center; padding:2px; "+style+"'>"+addComma(isnull(rs.rs[m].family_cum))+"</td>"+
 								  					"<td style='border: 1px solid #000; color: #000; text-align:center; padding:2px; "+style+"'>"+addComma(isnull(rs.rs[m].family_now))+"</td>"+
 								  					"<td style='border: 1px solid #000; color: #000; text-align:center; padding:2px; "+style+"'>"+addComma(isnull(rs.rs[m].person_cum))+"</td>"+
@@ -9594,6 +10234,8 @@ function get_dromic(n){
 			// MASTER QUERY REVISION =================================================================================================================================================
 					$("#tbl_masterquery_revss tbody").empty();
 
+					$("#tbl_masterquery_revss_munis tbody").empty();
+
 					var gtfam_cum 		= 0;
 					var gtper_cum 		= 0;
 					var gt4ps 			= 0;
@@ -9664,6 +10306,12 @@ function get_dromic(n){
 					var gtpotable_cost = 0;
 
 					var gtother_cost = 0;
+
+					var gtfndsfam_cum = 0;
+					var gtfndsperson_cum = 0;
+
+					var gtfndsfam_now = 0;
+					var gtfndsperson_now = 0;
 
 					for(var ttttt in rs.rs){
 
@@ -9742,14 +10390,57 @@ function get_dromic(n){
 
 						for(var gyx in rs.all_affected){
 							if(rs.all_affected[gyx].municipality_id == rs.city[ggx].id){
-								gitf = rs.all_affected[gyx].fam_no;
-								gitp = rs.all_affected[gyx].person_no;
+								//gitf = rs.all_affected[gyx].fam_no;
+								//gitp = rs.all_affected[gyx].person_no;
 								gitb = rs.all_affected[gyx].brgy_affected;
 							}
 						}
 
-						gtfam_cum += (Number(gtf) > Number(gitf) ? gtf : gitf);
-						gtper_cum += (Number(gtp) > Number(gitp) ? gtp : gitp);
+						var baff_families_s = 0;
+						var baff_persons_s = 0;
+
+						for(var qz in rs.brgys){
+
+							var bf = 0;
+							var bp = 0;
+
+							if(rs.brgys[qz].municipality_id == rs.city[ggx].id){
+
+								for(var fg in rs.rs){
+									if(rs.brgys[qz].brgy_located_ec == rs.rs[fg].brgy_located_ec){
+										bf += Number(rs.rs[fg].family_cum);
+										bp += Number(rs.rs[fg].person_cum);
+									}
+								}
+
+								for(var fx in rs.query_outec){
+									if(rs.brgys[qz].brgy_located_ec == rs.query_outec[fx].brgy_host){
+										bf += Number(rs.query_outec[fx].family_cum);
+										bp += Number(rs.query_outec[fx].person_cum);
+									}
+								}
+
+								if(rs.brgys[qz].affected_family > bf){
+									baff_families_s += Number(rs.brgys[qz].affected_family);
+								}else{
+									baff_families_s += Number(bf);
+								}
+
+								if(rs.brgys[qz].affected_persons > bp){
+									baff_persons_s += Number(rs.brgys[qz].affected_persons);
+								}else{
+									baff_persons_s += Number(bp);
+								}
+
+							}
+
+						}
+
+						//gtfam_cum += (Number(gtf) > Number(gitf) ? gtf : gitf);
+						//gtper_cum += (Number(gtp) > Number(gitp) ? gtp : gitp);
+
+						gtfam_cum += baff_families_s;
+						gtper_cum += baff_persons_s;
 
 
 						for(var gqqqq in rs.brgys){
@@ -9768,6 +10459,13 @@ function get_dromic(n){
 					// 	gb_cum += 1;
 
 					// }
+
+					for(var jjj in rs.query_damage_per_brgy){
+
+						gttasst += Number(rs.query_damage_per_brgy[jjj].costasst_brgy);
+						gtasstlgu += Number(rs.query_damage_per_brgy[jjj].costasst_brgy);
+
+					}
 
 					for(var ooooo in rs.query_asst){
 
@@ -10041,10 +10739,41 @@ function get_dromic(n){
 
 					var region_psgc = $('#region_id_session').text();
 
-					for(var h in rs.brgy_unique_ec){
-						if(Number(region_psgc) == Number(rs.brgy_unique_ec[h].region_psgc)){
+					// for(var h in rs.brgy_unique_ec){
+					// 	if(Number(region_psgc) == Number(rs.brgy_unique_ec[h].region_psgc)){
+					// 		all_brgy_in_ec += 1;
+					// 	}
+
+					// }
+
+					var brgyset = get_brgy_unique(rs.brgy_unique_ec);
+
+					for(var h in brgyset){
+
+						if(Number(region_psgc) == brgyset[h].region_psgc){
 							all_brgy_in_ec += 1;
 						}
+
+					}
+
+					function get_brgy_unique(brgy){
+						var unique = {};
+						var distinct = [];
+						for( var i in brgy ){
+					     	if( typeof(unique[brgy[i].brgy_located]) == "undefined"){
+					      		distinct.push(brgy[i]);
+					     	}
+					     	unique[brgy[i].brgy_located] = 0;
+					    }
+					    return distinct;
+					}
+
+					for(var hq in rs.fnds){
+
+						gtfndsfam_cum 		+= Number(rs.fnds[hq].families_served_cum);
+						gtfndsperson_cum 	+= Number(rs.fnds[hq].persons_served_cum);
+						gtfndsfam_now 		+= Number(rs.fnds[hq].families_served_now);
+						gtfndsperson_now 	+= Number(rs.fnds[hq].persons_served_now);
 
 					}
 
@@ -10079,14 +10808,14 @@ function get_dromic(n){
 								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+tgtfam_now+"</td>"+
 								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+tgtper_cum+"</td>"+
 								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+tgtper_now+"</td>"+
-								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>0</td>"+
-								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>0</td>"+
-								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>0</td>"+
-								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>0</td>"+
-								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+tgtfam_cum+"</td>"+
-								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+tgtfam_now+"</td>"+
-								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+tgtper_cum+"</td>"+
-								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+tgtper_now+"</td>"+
+								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+gtfndsfam_cum+"</td>"+
+								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+gtfndsfam_now+"</td>"+
+								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+gtfndsperson_cum+"</td>"+
+								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+gtfndsperson_now+"</td>"+
+								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+(Number(tgtfam_cum) + Number(gtfndsfam_cum))+"</td>"+
+								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+(Number(tgtfam_now) + Number(gtfndsfam_now))+"</td>"+ 
+								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+(Number(tgtper_cum) + Number(gtfndsperson_cum))+"</td>"+
+								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+(Number(tgtper_now) + Number(gtfndsperson_now))+"</td>"+
 								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+gt_infant_male_cum+"</td>"+
 								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+gt_infant_male_now+"</td>"+
 								"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+gt_infant_female_cum+"</td>"+
@@ -10337,6 +11066,12 @@ function get_dromic(n){
 
 						var all_affected_f = 0;
 
+						var pfndsfam_cum = 0; 		
+						var pfndsperson_cum = 0; 	
+						var pfndsfam_now = 0; 		
+						var pfndsperson_now = 0; 	
+
+
 						for(var tttt in rs.rs){
 							if(rs.rs[tttt].provinceid == provinces[p].id){
 
@@ -10419,14 +11154,57 @@ function get_dromic(n){
 
 								for(var yx in rs.all_affected){
 									if(rs.all_affected[yx].municipality_id == rs.city[gx].id){
-										itf = rs.all_affected[yx].fam_no;
-										itp = rs.all_affected[yx].person_no;
+										//itf = rs.all_affected[yx].fam_no;
+										//itp = rs.all_affected[yx].person_no;
 										itb = rs.all_affected[yx].brgy_affected;
 									}
 								}
 
-								ptfam_cum += (Number(tf) > Number(itf) ? tf : itf);
-								ptper_cum += (Number(tp) > Number(itp) ? tp : itp);
+								var baff_families_s = 0;
+								var baff_persons_s = 0;
+
+								for(var qz in rs.brgys){
+
+									var bf = 0;
+									var bp = 0;
+
+									if(rs.brgys[qz].municipality_id == rs.city[gx].id){
+
+										for(var fg in rs.rs){
+											if(rs.brgys[qz].brgy_located_ec == rs.rs[fg].brgy_located_ec){
+												bf += Number(rs.rs[fg].family_cum);
+												bp += Number(rs.rs[fg].person_cum);
+											}
+										}
+
+										for(var fx in rs.query_outec){
+											if(rs.brgys[qz].brgy_located_ec == rs.query_outec[fx].brgy_host){
+												bf += Number(rs.query_outec[fx].family_cum);
+												bp += Number(rs.query_outec[fx].person_cum);
+											}
+										}
+
+										if(rs.brgys[qz].affected_family > bf){
+											baff_families_s += Number(rs.brgys[qz].affected_family);
+										}else{
+											baff_families_s += Number(bf);
+										}
+
+										if(rs.brgys[qz].affected_persons > bp){
+											baff_persons_s += Number(rs.brgys[qz].affected_persons);
+										}else{
+											baff_persons_s += Number(bp);
+										}
+
+									}
+
+								}
+
+								//ptfam_cum += (Number(tf) > Number(itf) ? tf : itf);
+								//ptper_cum += (Number(tp) > Number(itp) ? tp : itp);
+
+								ptfam_cum += baff_families_s;
+								ptper_cum += baff_persons_s;
 
 
 								for(var qqqq in rs.brgys){
@@ -10446,6 +11224,17 @@ function get_dromic(n){
 							if(rs.queryecs[wwww].province_id == provinces[p].id){
 								ptec_cum += Number(rs.queryecs[wwww].ec_cum);
 								ptec_now += Number(rs.queryecs[wwww].ec_now);
+							}
+
+						}
+
+						for(var jjj in rs.query_damage_per_brgy){
+
+							if(rs.query_damage_per_brgy[jjj].provinceid == provinces[p].id){
+
+								ptasst += Number(rs.query_damage_per_brgy[jjj].costasst_brgy);
+								passtlgu += Number(rs.query_damage_per_brgy[jjj].costasst_brgy);
+
 							}
 
 						}
@@ -10735,10 +11524,43 @@ function get_dromic(n){
 
 						var p_all_brgy_in_ec = 0;
 
-						for(var h in rs.brgy_unique_ec){
+						// for(var h in rs.brgy_unique_ec){
 
-							if(rs.brgy_unique_ec[h].province_id == provinces[p].id){
+						// 	if(rs.brgy_unique_ec[h].province_id == provinces[p].id){
+						// 		p_all_brgy_in_ec += 1;
+						// 	}
+
+						// }
+
+						var brgyset = get_brgy_unique(rs.brgy_unique_ec);
+
+						for(var h in brgyset){
+
+							if(brgyset[h].province_id == provinces[p].id){
 								p_all_brgy_in_ec += 1;
+							}
+
+						}
+
+						function get_brgy_unique(brgy){
+							var unique = {};
+							var distinct = [];
+							for( var i in brgy ){
+						     	if( typeof(unique[brgy[i].brgy_located]) == "undefined"){
+						      		distinct.push(brgy[i]);
+						     	}
+						     	unique[brgy[i].brgy_located] = 0;
+						    }
+						    return distinct;
+						}
+
+						for(var hqq in rs.fnds){
+
+							if(rs.fnds[hqq].provinceid == provinces[p].id){
+								pfndsfam_cum 		+= Number(rs.fnds[hqq].families_served_cum);
+								pfndsfam_now 		+= Number(rs.fnds[hqq].families_served_now);
+								pfndsperson_cum 	+= Number(rs.fnds[hqq].persons_served_cum);
+								pfndsperson_now 	+= Number(rs.fnds[hqq].persons_served_now);
 							}
 
 						}
@@ -10773,14 +11595,14 @@ function get_dromic(n){
 									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+ttpfam_now+"</td>"+
 									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+ttpper_cum+"</td>"+
 									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+ttpper_now+"</td>"+
-									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>0</td>"+
-									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>0</td>"+
-									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>0</td>"+
-									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>0</td>"+
-									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+ttpfam_cum+"</td>"+
-									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+ttpfam_now+"</td>"+
-									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+ttpper_cum+"</td>"+
-									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+ttpper_now+"</td>"+
+									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+pfndsfam_cum+"</td>"+
+									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+pfndsfam_now+"</td>"+
+									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+pfndsperson_cum+"</td>"+
+									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+pfndsperson_now+"</td>"+
+									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+(Number(ttpfam_cum) + Number(pfndsfam_cum))+"</td>"+
+									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+(Number(ttpfam_now) + Number(pfndsfam_now))+"</td>"+ 
+									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+(Number(ttpper_cum) + Number(pfndsperson_cum))+"</td>"+
+									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+(Number(ttpper_now) + Number(pfndsperson_now))+"</td>"+
 									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+p_infant_male_cum+"</td>"+
 									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+p_infant_male_now+"</td>"+
 									"<td style='text-align:center; font-weight:bold; border:1px solid #000; background-color:#808080; color: #000;'>"+p_infant_female_cum+"</td>"+
@@ -10954,6 +11776,7 @@ function get_dromic(n){
 
 						for(var mm in rs.city){
 							if($('#user_level_access_session').text() == 'municipality'){
+
 								if($('#municipality_id_session').text() == rs.city[mm].id){
 								//==========================
 									var mtfam_cum 		= 0;
@@ -11075,6 +11898,13 @@ function get_dromic(n){
 									var ctp 					= 0;
 									var cpb  					= 0;
 
+									var cfndsfam_cum 			= 0;
+									var cfndsfam_now 			= 0;
+									var cfndsperson_cum 		= 0;
+									var cfndsperson_now 		= 0;
+
+									console.log(provinces[p]);
+
 									if(rs.city[mm].provinceid == provinces[p].id){
 
 										for(var ttt in rs.rs){
@@ -11113,7 +11943,7 @@ function get_dromic(n){
 											if(rs.query_outec[ggg].municipality_id == rs.city[mm].id){
 
 												ctf += Number(rs.query_outec[ggg].family_cum);
-												ctp += Number(rs.rs[ttt].person_cum);
+												ctp += Number(rs.query_outec[ggg].person_cum);
 
 												mtofam_cum += Number(rs.query_outec[ggg].family_cum);
 												mtofam_now += Number(rs.query_outec[ggg].family_now);
@@ -11139,14 +11969,60 @@ function get_dromic(n){
 
 										for(var qx in rs.all_affected){
 											if(rs.all_affected[qx].municipality_id == rs.city[mm].id){
-												citf = rs.all_affected[qx].fam_no;
-												citp = rs.all_affected[qx].person_no;
+												//citf = rs.all_affected[qx].fam_no;
+												//citp = rs.all_affected[qx].person_no;
 												citb = rs.all_affected[qx].brgy_affected;
 											}
 										}
 
-										mtfam_cum += (Number(ctf) > Number(citf) ? ctf : citf);
-										mtper_cum += (Number(ctp) > Number(citp) ? ctp : citp);
+										var baff_families_s = 0;
+										var baff_persons_s = 0;
+
+										for(var qz in rs.brgys){
+
+											var bf = 0;
+											var bp = 0;
+
+											if(rs.brgys[qz].municipality_id == rs.city[mm].id){
+
+												for(var fg in rs.rs){
+													if(rs.brgys[qz].brgy_located_ec == rs.rs[fg].brgy_located_ec){
+														bf += Number(rs.rs[fg].family_cum);
+														bp += Number(rs.rs[fg].person_cum);
+													}
+												}
+
+												for(var fx in rs.query_outec){
+													if(rs.brgys[qz].brgy_located_ec == rs.query_outec[fx].brgy_host){
+														bf += Number(rs.query_outec[fx].family_cum);
+														bp += Number(rs.query_outec[fx].person_cum);
+													}
+												}
+
+												if(rs.brgys[qz].affected_family > bf){
+													baff_families_s += Number(rs.brgys[qz].affected_family);
+												}else{
+													baff_families_s += Number(bf);
+												}
+
+												if(rs.brgys[qz].affected_persons > bp){
+													baff_persons_s += Number(rs.brgys[qz].affected_persons);
+												}else{
+													baff_persons_s += Number(bp);
+												}
+
+											}
+
+										}
+
+										citf = baff_families_s;
+										citp = baff_persons_s;
+
+										// mtfam_cum += (Number(ctf) > Number(citf) ? ctf : citf);
+										// mtper_cum += (Number(ctp) > Number(citp) ? ctp : citp);
+
+										mtfam_cum = baff_families_s;
+										mtper_cum = baff_persons_s;
 
 										mb_cum += (Number(cpb) > Number(citb) ? cpb : citb);
 
@@ -11168,6 +12044,17 @@ function get_dromic(n){
 
 										pb_cum += (Number(pb) > Number(itb) ? pb : itb);
 
+										for(var jjj in rs.query_damage_per_brgy){
+
+											if(rs.query_damage_per_brgy[jjj].municipality_id == rs.city[mm].id){
+
+												ctasst += Number(rs.query_damage_per_brgy[jjj].costasst_brgy);
+												casstlgu += Number(rs.query_damage_per_brgy[jjj].costasst_brgy);
+
+											}
+
+										}
+
 										for(var ooo in rs.query_asst){
 
 											if(rs.query_asst[ooo].municipality_id == rs.city[mm].id){
@@ -11181,7 +12068,9 @@ function get_dromic(n){
 												casstogo += Number(rs.query_asst[ooo].ogo_asst);
 												cdswdasst += Number(rs.query_asst[ooo].dswd_asst);
 
-												ctasst += Number(rs.query_asst[ooo].lgu_asst) + Number(rs.query_asst[ooo].ngo_asst) + Number(rs.query_asst[ooo].ogo_asst) + Number(rs.query_asst[ooo].dswd_asst);
+												//ctasst += Number(rs.query_asst[ooo].lgu_asst) + Number(rs.query_asst[ooo].ngo_asst) + Number(rs.query_asst[ooo].ogo_asst) + Number(rs.query_asst[ooo].dswd_asst);
+
+												ctasst += Number(rs.query_asst[ooo].lgu_asst) + Number(rs.query_asst[ooo].ngo_asst) + Number(rs.query_asst[ooo].ogo_asst);
 
 											}
 
@@ -11452,21 +12341,104 @@ function get_dromic(n){
 
 										}
 
+										// for(var h in rs.brgy_unique_ec){
+
+										// 	if(rs.brgy_unique_ec[h].municipality_id == rs.city[mm].id){
+										// 		m_all_brgy_in_ec += 1;
+										// 	}
+
+										// }
+
 										var m_all_brgy_in_ec = 0;
 
-										for(var h in rs.brgy_unique_ec){
+										var brgyset = get_brgy_unique(rs.brgy_unique_ec);
 
-											if(rs.brgy_unique_ec[h].municipality_id == rs.city[mm].id){
+										for(var h in brgyset){
+
+											if(brgyset[h].municipality_id == rs.city[mm].id){
 												m_all_brgy_in_ec += 1;
 											}
 
-											
+										}
+
+										function get_brgy_unique(brgy){
+											var unique = {};
+											var distinct = [];
+											for( var i in brgy ){
+										     	if( typeof(unique[brgy[i].brgy_located]) == "undefined"){
+										      		distinct.push(brgy[i]);
+										     	}
+										     	unique[brgy[i].brgy_located] = 0;
+										    }
+										    return distinct;
+										}
+
+
+										for(var hqx in rs.fnds){
+											if(rs.fnds[hqx].municipality_id == rs.city[mm].id){
+												cfndsfam_cum 		+= Number(rs.fnds[hqx].families_served_cum);
+												cfndsfam_now 		+= Number(rs.fnds[hqx].families_served_now);
+												cfndsperson_cum 	+= Number(rs.fnds[hqx].persons_served_cum);
+												cfndsperson_now 	+= Number(rs.fnds[hqx].persons_served_now);
+											}
+										}
+
+										$('#infotfam').text(mtfam_cum + " families");
+										$('#infotperson').text(mtper_cum + " persons");
+										$('#infotbrgy').text(mb_cum + " barangays");
+
+										$('#infoifam').text(mtifam_cum + " families");
+										$('#infoiperson').text(mtiper_cum + " persons");
+										$('#infoiec').text(mtec_cum + " evacuation centers");
+
+										if(mtofam_cum > 0){
+											$('#infoofam').text(mtofam_cum + " families");
+											$('#infooperson').text(mtoper_cum + " persons");
+										}else{
+											$('#infoopic').hide();
+											$('#infootext').hide();
+											$('#infoohead').hide();
+										}
+
+										if(ttcttotdamage > 0){
+
+											if(ttctotdamage > 0){
+												$('#infotdam').text(ttctotdamage + " totally damaged");
+											}
+
+											if(ttcpartdamage > 0){
+												$('#infopdam').text(ttcpartdamage + " partially damaged");
+											}
+
+										}else{
+
+											$('#infotdam').empty().append("Zero (0) damaged <br>houses reported");
 
 										}
 
-										$("#tbl_masterquery_revss tbody").append(
-											"<tr class='contextmenu_click contextmenu_click."+rs.city[mm].id+"'>"+
-												"<td style='border:1px solid #000; color: #000; background-color: #A6A6A6;'>  <b>"+rs.city[mm].municipality_name.toUpperCase()+"</b></td>"+
+										var tamt = Number(casstlgu) + Number(casstngo) + Number(casstogo);
+
+										if(tamt > 0){
+
+											$('#adddamass').hide();
+
+											if((casstlgu > 0) && (casstngo < 1) && (casstogo < 1)){
+												$('#infoamount').empty().append("PhP " + addCommaMoney(casstlgu) + " worth of assistance provided by the LGU");
+											}else{
+												$('#infoamount').empty().append("PhP " + addCommaMoney(tamt) + " worth of assistance provided by the LGU, NGOs and other GOs");
+											}
+
+										}else{
+
+											$('#adddamass').show();
+
+											$('#infoamount').empty().append("On-going processing for the <br> provision of relief assistance <br>to the affected families.");
+
+										}
+
+										$("#tbl_masterquery_revss_munis tbody").append(
+											"<tr class='contextmenu_click'>"+
+												"<td style='border:1px solid #000; color: #000; background-color: #A6A6A6;'><b>"+provinces[p].name.toUpperCase()+"</b></td>"+
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'></td>"+
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+mb_cum+"</td>"+
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+mtfam_cum+"</td>"+
@@ -11492,14 +12464,14 @@ function get_dromic(n){
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcfam_now+"</td>"+
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcper_cum+"</td>"+
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcper_now+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>0</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>0</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>0</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>0</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcfam_cum+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcfam_now+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcper_cum+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcper_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfndsfam_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfndsfam_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfndsperson_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfndsperson_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+(Number(ttcfam_cum) + Number(cfndsfam_cum))+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+(Number(ttcfam_now) + Number(cfndsfam_now))+"</td>"+ 
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+(Number(ttcper_cum) + Number(cfndsperson_cum))+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+(Number(ttcper_now) + Number(cfndsperson_now))+"</td>"+
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_infant_male_cum+"</td>"+
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_infant_male_now+"</td>"+
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_infant_female_cum+"</td>"+
@@ -11565,25 +12537,134 @@ function get_dromic(n){
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcttotdamage.toLocaleString()+"</td>"+
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttctotdamage.toLocaleString()+"</td>"+
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcpartdamage.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cffp_q.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cffp_cost.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cheb_q.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cheb_cost.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+crtef_q.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+crtef_cost.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cshelter_q.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cshelter_cost.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+chygiene_q.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+chygiene_cost.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+csleeping_q.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+csleeping_cost.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ckitchen_q.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ckitchen_cost.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfamily_q.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfamily_cost.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cpotable_q.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cpotable_cost.toLocaleString()+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cother_cost.toLocaleString()+"</td>"+
+												"<td style='font-weight: bold; text-align: right; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+addCommaMoney(casstlgu)+"</td>"+
+												"<td style='font-weight: bold; text-align: right; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+addCommaMoney(casstngo)+"</td>"+
+												"<td style='font-weight: bold; text-align: right; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+addCommaMoney(casstogo)+"</td>"+
+												"<td style='font-weight: bold; text-align: right; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+addCommaMoney(ctasst)+"</td>"+
+											"</tr>"
+										)
+
+
+										$("#tbl_masterquery_revss_munis tbody").append(
+											"<tr class='contextmenu_click contextmenu_click."+rs.city[mm].id+"'>"+
+												"<td style='border:1px solid #000; color: #000; background-color: #A6A6A6;'>  <b>"+rs.city[mm].municipality_name.toUpperCase()+"</b></td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'></td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+mb_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+mtfam_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+mtper_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+mt4ps+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+mtec_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+mtec_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'></td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'></td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'></td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_all_brgy_in_ec+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+mtifam_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+mtifam_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_t_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_t_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+mtiper_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+mtiper_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+mtofam_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+mtofam_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+mtoper_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+mtoper_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcfam_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcfam_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcper_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcper_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfndsfam_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfndsfam_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfndsperson_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfndsperson_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color:#A6A6A6'>"+(Number(ttcfam_cum) + Number(cfndsfam_cum))+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color:#A6A6A6'>"+(Number(ttcfam_now) + Number(cfndsfam_now))+"</td>"+ 
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color:#A6A6A6'>"+(Number(ttcper_cum) + Number(cfndsperson_cum))+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color:#A6A6A6'>"+(Number(ttcper_now) + Number(cfndsperson_now))+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_infant_male_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_infant_male_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_infant_female_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_infant_female_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_toddler_male_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_toddler_male_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_toddler_female_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_toddler_female_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_pschool_male_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_pschool_male_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_pschool_female_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_pschool_female_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_schoolage_male_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_schoolage_male_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_schoolage_female_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_schoolage_female_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_teenage_male_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_teenage_male_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_teenage_female_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_teenage_female_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_adult_male_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_adult_male_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_adult_female_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_adult_female_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_senior_male_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_senior_male_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_senior_female_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_senior_female_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_male_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_male_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_female_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_female_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_pregnant_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_pregnant_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_lactating_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_lactating_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_pwd_male_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_pwd_male_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_pwd_female_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_pwd_female_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_solo_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_solo_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_ip_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_ip_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_compost+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_sealed+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_portalet_male+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_portalet_female+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_portalet_common+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_bathing_male+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_bathing_female+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_bathing_common+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_child+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_women+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_couple+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_prayer+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_community+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_wash+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_ramps+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_help+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_capacity+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+c_rooms+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcttotdamage.toLocaleString()+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttctotdamage.toLocaleString()+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcpartdamage.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cffp_q.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cffp_cost.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cheb_q.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cheb_cost.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+crtef_q.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+crtef_cost.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cshelter_q.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cshelter_cost.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+chygiene_q.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+chygiene_cost.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+csleeping_q.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+csleeping_cost.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ckitchen_q.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ckitchen_cost.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfamily_q.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfamily_cost.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cpotable_q.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cpotable_cost.toLocaleString()+"</td>"+
+												// "<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cother_cost.toLocaleString()+"</td>"+
 												"<td style='font-weight: bold; text-align:right; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+addCommaMoney(casstlgu)+"</td>"+
 												"<td style='font-weight: bold; text-align:right; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+addCommaMoney(casstngo)+"</td>"+
 												"<td style='font-weight: bold; text-align:right; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+addCommaMoney(casstogo)+"</td>"+
@@ -11673,6 +12754,12 @@ function get_dromic(n){
 										ec_now = 0;
 										brgynum = 0;
 
+										mtfam_cum = 0;
+										mtper_cum = 0;
+										mt4ps = 0;
+										mtec_cum = 0;
+										mtec_now = 0;
+
 										var b0_2;
 										var b0_3 = 0;
 
@@ -11692,6 +12779,8 @@ function get_dromic(n){
 										var tper_cum = 0;
 										var tfam_now = 0
 										var tper_now = 0
+
+
 
 										var tec_cum = 0;
 										var tec_now = 0;
@@ -11754,6 +12843,19 @@ function get_dromic(n){
 															b0_3 += 1;
 														}
 
+													}
+
+												}
+
+												for(var qz in rs.brgys){
+
+													if(rs.brgys[qz].brgy_located_ec == rs.brgys[k].brgy_located_ec){
+														if(tfam_cum < rs.brgys[qz].affected_family){
+															tfam_cum = rs.brgys[qz].affected_family;
+														}
+														if(tper_cum < rs.brgys[qz].affected_persons){
+															tper_cum = rs.brgys[qz].affected_persons;
+														}
 													}
 
 												}
@@ -11959,6 +13061,10 @@ function get_dromic(n){
 												var btot_damage = 0;
 												var bttot_damage = 0;
 
+												var blgu_cost = 0;
+
+												console.log(rs.query_damage_per_brgy);
+
 												for(var ddd in rs.query_damage_per_brgy){
 
 													if(Number(rs.query_damage_per_brgy[ddd].brgy_id) == Number(rs.brgys[k].brgy_located_ec)){
@@ -11966,6 +13072,8 @@ function get_dromic(n){
 														bpart_damage += Number(rs.query_damage_per_brgy[ddd].partially_damaged);
 														btot_damage += Number(rs.query_damage_per_brgy[ddd].totally_damaged);
 														bttot_damage += Number(bpart_damage) + Number(btot_damage);
+
+														blgu_cost = rs.query_damage_per_brgy[ddd].costasst_brgy
 
 													}
 
@@ -11983,16 +13091,44 @@ function get_dromic(n){
 
 												var b_all_brgy_in_ec = 0;
 
-												for(var h in rs.brgy_unique_ec){
+												// for(var h in rs.brgy_unique_ec){
 
-													if(rs.brgy_unique_ec[h].brgy_located_ec == rs.brgys[k].brgy_located_ec){
+												// 	if(rs.brgy_unique_ec[h].brgy_located_ec == rs.brgys[k].brgy_located_ec){
+												// 		b_all_brgy_in_ec += 1;
+												// 	}
+
+												// }
+
+												var brgyset = get_brgy_unique(rs.brgy_unique_ec);
+
+												for(var h in brgyset){
+
+													if(brgyset[h].brgy_located_ec == rs.brgys[k].brgy_located_ec){
 														b_all_brgy_in_ec += 1;
 													}
 
 												}
 
-												$("#tbl_masterquery_revss tbody").append(
-													"<tr class='contextmenu_brgy contextmenu_brgy."+rs.brgys[k].brgy_located_ec+"' style='cursor: pointer'>"+
+												function get_brgy_unique(brgy){
+													var unique = {};
+													var distinct = [];
+													for( var i in brgy ){
+												     	if( typeof(unique[brgy[i].brgy_located]) == "undefined"){
+												      		distinct.push(brgy[i]);
+												     	}
+												     	unique[brgy[i].brgy_located] = 0;
+												    }
+												    return distinct;
+												}
+
+												function hidebrgyfields(){
+
+													$('.contextmenu_brgy').hide();
+
+												}
+
+												$("#tbl_masterquery_revss_munis tbody").append(
+													"<tr class='bhidebrgyfields contextmenu_brgy contextmenu_brgy."+rs.brgys[k].brgy_located_ec+"' style='cursor: pointer'>"+
 														"<td style='background-color: #D9D9D9; border:1px solid #000; color: #000;'></td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:left; border:1px solid #000; color: #000;'><b>"+toUppercaseEC(bb)+"</b></td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>1</td>"+
@@ -12015,17 +13151,17 @@ function get_dromic(n){
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+ofam_now+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+oper_cum+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+oper_now+"</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tfam_cum+"</td>"+
+														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+(Number(ifam_cum) + Number(ofam_cum))+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tfam_now+"</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tper_cum+"</td>"+
+														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+(Number(iper_cum) + Number(oper_cum))+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tper_now+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>0</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>0</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>0</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>0</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tfam_cum+"</td>"+
+														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+(Number(ifam_cum) + Number(ofam_cum))+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tfam_now+"</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tper_cum+"</td>"+
+														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+(Number(iper_cum) + Number(oper_cum))+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tper_now+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+b_infant_male_cum+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+b_infant_male_now+"</td>"+
@@ -12092,26 +13228,26 @@ function get_dromic(n){
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+bttot_damage+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+btot_damage+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+bpart_damage+"</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														// "<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+addCommaMoney(blgu_cost)+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
@@ -12212,6 +13348,9 @@ function get_dromic(n){
 
 												tfam_cum = 0;
 												tper_cum = 0;
+
+												tfam_now = 0;
+												tper_now = 0;
 
 												tec_cum = 0;
 												tec_now = 0;
@@ -12450,8 +13589,8 @@ function get_dromic(n){
 
 															}
 
-															$("#tbl_masterquery_revss tbody").append(
-																"<tr class='contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
+															$("#tbl_masterquery_revss_munis tbody").append(
+																"<tr class='bhidebrgyfields contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
 																	"<td style='border:1px solid #000; color: #000;'></td>"+
 																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'></td>"+
 																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'></td>"+
@@ -12551,25 +13690,25 @@ function get_dromic(n){
 																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																	// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
@@ -12711,8 +13850,8 @@ function get_dromic(n){
 
 																}
 
-																$("#tbl_masterquery_revss tbody").append(
-																	"<tr class='contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
+																$("#tbl_masterquery_revss_munis tbody").append(
+																	"<tr class='bhidebrgyfields contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
 																		"<td style='border:1px solid #000; color: #000;'></td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'></td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'></td>"+
@@ -12812,25 +13951,25 @@ function get_dromic(n){
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
@@ -12991,8 +14130,8 @@ function get_dromic(n){
 																}
 
 
-																$("#tbl_masterquery_revss tbody").append(
-																	"<tr class='contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
+																$("#tbl_masterquery_revss_munis tbody").append(
+																	"<tr class='bhidebrgyfields contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
 																		"<td style='border:1px solid #000; color: #000;'></td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:left; border:1px solid #000; color: #000;'></td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'></td>"+
@@ -13092,25 +14231,25 @@ function get_dromic(n){
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+																		// "<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
@@ -13335,6 +14474,13 @@ function get_dromic(n){
 									var ctp 					= 0;
 									var cpb  					= 0;
 
+
+									var cfndsfam_cum 		= 0;
+									var cfndsfam_now 		= 0;
+									var cfndsperson_cum 	= 0;
+									var cfndsperson_now 	= 0;
+
+
 									if(rs.city[mm].provinceid == provinces[p].id){
 
 										for(var ttt in rs.rs){
@@ -13399,14 +14545,60 @@ function get_dromic(n){
 
 										for(var qx in rs.all_affected){
 											if(rs.all_affected[qx].municipality_id == rs.city[mm].id){
-												citf = rs.all_affected[qx].fam_no;
-												citp = rs.all_affected[qx].person_no;
+												//citf = rs.all_affected[qx].fam_no;
+												//citp = rs.all_affected[qx].person_no;
 												citb = rs.all_affected[qx].brgy_affected;
 											}
 										}
 
-										mtfam_cum += (Number(ctf) > Number(citf) ? ctf : citf);
-										mtper_cum += (Number(ctp) > Number(citp) ? ctp : citp);
+										var baff_families_s = 0;
+										var baff_persons_s = 0;
+
+										for(var qz in rs.brgys){
+
+											var bf = 0;
+											var bp = 0;
+
+											if(rs.brgys[qz].municipality_id == rs.city[mm].id){
+
+												for(var fg in rs.rs){
+													if(rs.brgys[qz].brgy_located_ec == rs.rs[fg].brgy_located_ec){
+														bf += Number(rs.rs[fg].family_cum);
+														bp += Number(rs.rs[fg].person_cum);
+													}
+												}
+
+												for(var fx in rs.query_outec){
+													if(rs.brgys[qz].brgy_located_ec == rs.query_outec[fx].brgy_host){
+														bf += Number(rs.query_outec[fx].family_cum);
+														bp += Number(rs.query_outec[fx].person_cum);
+													}
+												}
+
+												if(rs.brgys[qz].affected_family > bf){
+													baff_families_s += Number(rs.brgys[qz].affected_family);
+												}else{
+													baff_families_s += Number(bf);
+												}
+
+												if(rs.brgys[qz].affected_persons > bp){
+													baff_persons_s += Number(rs.brgys[qz].affected_persons);
+												}else{
+													baff_persons_s += Number(bp);
+												}
+
+											}
+
+										}
+
+										citf = baff_families_s;
+										citp = baff_persons_s;
+
+										// mtfam_cum += (Number(ctf) > Number(citf) ? ctf : citf);
+										// mtper_cum += (Number(ctp) > Number(citp) ? ctp : citp);
+
+										mtfam_cum = baff_families_s;
+										mtper_cum = baff_persons_s;
 
 										mb_cum += (Number(cpb) > Number(citb) ? cpb : citb);
 
@@ -13419,7 +14611,6 @@ function get_dromic(n){
 			 
 										}
 
-
 										for(var qqqq in rs.brgys){
 											if(rs.brgys[qqqq].municipality_id == rs.city[gx].id){
 												pb += 1;
@@ -13427,6 +14618,17 @@ function get_dromic(n){
 										}
 
 										pb_cum += (Number(pb) > Number(itb) ? pb : itb);
+
+										for(var jjj in rs.query_damage_per_brgy){
+
+											if(rs.query_damage_per_brgy[jjj].municipality_id == rs.city[mm].id){
+
+												ctasst += Number(rs.query_damage_per_brgy[jjj].costasst_brgy);
+												casstlgu += Number(rs.query_damage_per_brgy[jjj].costasst_brgy);
+
+											}
+
+										}
 
 										for(var ooo in rs.query_asst){
 
@@ -13714,15 +14916,44 @@ function get_dromic(n){
 
 										var m_all_brgy_in_ec = 0;
 
-										for(var h in rs.brgy_unique_ec){
+										var brgyset = get_brgy_unique(rs.brgy_unique_ec);
 
-											if(rs.brgy_unique_ec[h].municipality_id == rs.city[mm].id){
+										for(var h in brgyset){
+
+											if(brgyset[h].municipality_id == rs.city[mm].id){
 												m_all_brgy_in_ec += 1;
 											}
 
-											
-
 										}
+
+										function get_brgy_unique(brgy){
+											var unique = {};
+											var distinct = [];
+											for( var i in brgy ){
+										     	if( typeof(unique[brgy[i].brgy_located]) == "undefined"){
+										      		distinct.push(brgy[i]);
+										     	}
+										     	unique[brgy[i].brgy_located] = 0;
+										    }
+										    return distinct;
+										}
+
+										for(var hqx in rs.fnds){
+											if(rs.fnds[hqx].municipality_id == rs.city[mm].id){
+												cfndsfam_cum 		+= Number(rs.fnds[hqx].families_served_cum);
+												cfndsfam_now 		+= Number(rs.fnds[hqx].families_served_now);
+												cfndsperson_cum 	+= Number(rs.fnds[hqx].persons_served_cum);
+												cfndsperson_now 	+= Number(rs.fnds[hqx].persons_served_now);
+											}
+										}
+
+										all_affected_city.push({
+
+											id 				: rs.city[mm].id,
+											fam_cum_t 		: (Number(mtfam_cum) - (Number(mtifam_cum) + Number(mtofam_cum))),
+											person_cum_t 	: (Number(mtper_cum) - (Number(mtiper_cum) + Number(mtoper_cum)))
+
+										})
 
 										$("#tbl_masterquery_revss tbody").append(
 											"<tr class='contextmenu_click contextmenu_click."+rs.city[mm].id+"'>"+
@@ -13752,14 +14983,14 @@ function get_dromic(n){
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcfam_now+"</td>"+
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcper_cum+"</td>"+
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcper_now+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>0</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>0</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>0</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>0</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcfam_cum+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcfam_now+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcper_cum+"</td>"+
-												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+ttcper_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfndsfam_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfndsfam_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfndsperson_cum+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+cfndsperson_now+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color:#A6A6A6'>"+(Number(ttcfam_cum) + Number(cfndsfam_cum))+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color:#A6A6A6'>"+(Number(ttcfam_now) + Number(cfndsfam_now))+"</td>"+ 
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color:#A6A6A6'>"+(Number(ttcper_cum) + Number(cfndsperson_cum))+"</td>"+
+												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color:#A6A6A6'>"+(Number(ttcper_now) + Number(cfndsperson_now))+"</td>"+
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_infant_male_cum+"</td>"+
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_infant_male_now+"</td>"+
 												"<td style='font-weight: bold; text-align:center; border:1px solid #000; color: #000; background-color: #A6A6A6'>"+m_infant_female_cum+"</td>"+
@@ -14018,6 +15249,19 @@ function get_dromic(n){
 
 												}
 
+												for(var qz in rs.brgys){
+
+													if(rs.brgys[qz].brgy_located_ec == rs.brgys[k].brgy_located_ec){
+														if(tfam_cum < rs.brgys[qz].affected_family){
+															tfam_cum = rs.brgys[qz].affected_family;
+														}
+														if(tper_cum < rs.brgys[qz].affected_persons){
+															tper_cum = rs.brgys[qz].affected_persons;
+														}
+													}
+
+												}
+
 												for(var ww in rs.queryecs){
 
 													if(rs.queryecs[ww].brgy_located_ec == rs.brgys[k].brgy_located_ec){
@@ -14231,6 +15475,18 @@ function get_dromic(n){
 
 												}
 
+												var blgu_cost = 0;
+
+												for(var ddd in rs.query_damage_per_brgy){
+
+													if(Number(rs.query_damage_per_brgy[ddd].brgy_id) == Number(rs.brgys[k].brgy_located_ec)){
+
+														blgu_cost = rs.query_damage_per_brgy[ddd].costasst_brgy
+
+													}
+
+												}
+
 												function toUppercaseEC(item){
 
 													if(item == null || item == ""){
@@ -14243,16 +15499,30 @@ function get_dromic(n){
 
 												var b_all_brgy_in_ec = 0;
 
-												for(var h in rs.brgy_unique_ec){
+												var brgyset = get_brgy_unique(rs.brgy_unique_ec);
 
-													if(rs.brgy_unique_ec[h].brgy_located_ec == rs.brgys[k].brgy_located_ec){
+												for(var h in brgyset){
+
+													if(brgyset[h].brgy_located_ec == rs.brgys[k].brgy_located_ec){
 														b_all_brgy_in_ec += 1;
 													}
 
 												}
 
+												function get_brgy_unique(brgy){
+													var unique = {};
+													var distinct = [];
+													for( var i in brgy ){
+												     	if( typeof(unique[brgy[i].brgy_located]) == "undefined"){
+												      		distinct.push(brgy[i]);
+												     	}
+												     	unique[brgy[i].brgy_located] = 0;
+												    }
+												    return distinct;
+												}
+
 												$("#tbl_masterquery_revss tbody").append(
-													"<tr class='contextmenu_brgy contextmenu_brgy."+rs.brgys[k].brgy_located_ec+"' style='cursor: pointer'>"+
+													"<tr class='bhidebrgyfields contextmenu_brgy contextmenu_brgy."+rs.brgys[k].brgy_located_ec+"' style='cursor: pointer'>"+
 														"<td style='background-color: #D9D9D9; border:1px solid #000; color: #000;'></td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:left; border:1px solid #000; color: #000;'><b>"+toUppercaseEC(bb)+"</b></td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>1</td>"+
@@ -14275,17 +15545,17 @@ function get_dromic(n){
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+ofam_now+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+oper_cum+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+oper_now+"</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tfam_cum+"</td>"+
+														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+(Number(ifam_cum) + Number(ofam_cum))+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tfam_now+"</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tper_cum+"</td>"+
+														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+(Number(iper_cum) + Number(oper_cum))+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tper_now+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>0</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>0</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>0</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>0</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tfam_cum+"</td>"+
+														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+(Number(ifam_cum) + Number(ofam_cum))+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tfam_now+"</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tper_cum+"</td>"+
+														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+(Number(iper_cum) + Number(oper_cum))+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+tper_now+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+b_infant_male_cum+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+b_infant_male_now+"</td>"+
@@ -14371,7 +15641,7 @@ function get_dromic(n){
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
-														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
+														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>"+addCommaMoney(blgu_cost)+"</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
 														"<td style='background-color: #D9D9D9; font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'>-</td>"+
@@ -14472,6 +15742,9 @@ function get_dromic(n){
 
 												tfam_cum = 0;
 												tper_cum = 0;
+
+												tfam_now = 0;
+												tper_now = 0;
 
 												tec_cum = 0;
 												tec_now = 0;
@@ -14711,7 +15984,7 @@ function get_dromic(n){
 															}
 
 															$("#tbl_masterquery_revss tbody").append(
-																"<tr class='contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
+																"<tr class='bhidebrgyfields contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
 																	"<td style='border:1px solid #000; color: #000;'></td>"+
 																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'></td>"+
 																	"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'></td>"+
@@ -14972,7 +16245,7 @@ function get_dromic(n){
 																}
 
 																$("#tbl_masterquery_revss tbody").append(
-																	"<tr class='contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
+																	"<tr class='bhidebrgyfields contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
 																		"<td style='border:1px solid #000; color: #000;'></td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'></td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'></td>"+
@@ -15252,7 +16525,7 @@ function get_dromic(n){
 
 
 																$("#tbl_masterquery_revss tbody").append(
-																	"<tr class='contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
+																	"<tr class='bhidebrgyfields contextmenu_click_ec contextmenu_click_ec."+rs.rs[l].id+"'>"+
 																		"<td style='border:1px solid #000; color: #000;'></td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:left; border:1px solid #000; color: #000;'></td>"+
 																		"<td style='font-weight: bold; vertical-align: middle; text-align:center; border:1px solid #000; color: #000;'></td>"+
@@ -15485,7 +16758,13 @@ function get_dromic(n){
 					chart_affprovdrill 	= rs.aff_munis_drill;
 					chart_affmunisall 	= rs.aff_munis_all;
 
-					
+					chart_brgyall 		= [];
+
+					if($('#user_level_access_session').text() == "municipality"){
+						chart_brgyall = rs.aff_brgy;
+					}
+
+					console.log(all_affected_city);
 
 			// END OF MASTER QUERY REVISION =============================================================================================================================================
 
@@ -15584,7 +16863,6 @@ function get_dromic(n){
 					$('#tngo_asst').text(addCommaMoney(isnull(tngo_asst)));
 					$('#ttotal_asst').text(addCommaMoney(isnull(ttotal_asst)));
 
-
 					for(var v in provinces){
 
 						var totalcc 		= 0;
@@ -15596,12 +16874,13 @@ function get_dromic(n){
 						var dswd_ccc 		= 0;
 						var lgu_ccc 		= 0;
 						var ngo_ccc 		= 0;
+						var ogo_ccc 		= 0;
 
 						for(var q in rs.query_asst){
 
 							if(provinces[v].id == rs.query_asst[q].provinceid){
 
-								totalcc += (Number(rs.query_asst[q].dswd_asst) + Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst));
+								totalcc += (Number(rs.query_asst[q].dswd_asst) + Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst) + Number(rs.query_asst[q].ogo_asst));
 								tot_ccc += Number(rs.query_asst[q].totally_damaged);
 								part_ccc += Number(rs.query_asst[q].partially_damaged);
 								dead_ccc += Number(rs.query_asst[q].dead);
@@ -15610,6 +16889,7 @@ function get_dromic(n){
 								dswd_ccc += Number(rs.query_asst[q].dswd_asst);
 								lgu_ccc += Number(rs.query_asst[q].lgu_asst);
 								ngo_ccc += Number(rs.query_asst[q].ngo_asst);
+								ogo_ccc += Number(rs.query_asst[q].ogo_asst);
 
 								var lgu_cccc 		= lgu_ccc;
 
@@ -15636,15 +16916,29 @@ function get_dromic(n){
 									"<th style='border: 1px solid #000; text-align:left; background-color: #808080; color: #000; padding-right: 5px'>    "+provinces[v].name+"</th>"+
 									"<th style='border: 1px solid #000; text-align:center; background-color: #808080; color: #000; padding-right: 5px'>"+addComma(tot_ccc)+"</th>"+
 									"<th style='border: 1px solid #000; text-align:center; background-color: #808080; color: #000; padding-right: 5px'>"+addComma(part_ccc)+"</th>"+
-									"<th style='border: 1px solid #000; text-align:center; background-color: #808080; color: #000; padding-right: 5px'>"+addComma(dead_ccc)+"</th>"+
-									"<th style='border: 1px solid #000; text-align:center; background-color: #808080; color: #000; padding-right: 5px'>"+addComma(injured_ccc)+"</th>"+
-									"<th style='border: 1px solid #000; text-align:center; background-color: #808080; color: #000; padding-right: 5px'>"+addComma(missing_ccc)+"</th>"+
+									// "<th style='border: 1px solid #000; text-align:center; background-color: #808080; color: #000; padding-right: 5px'>"+addComma(dead_ccc)+"</th>"+
+									// "<th style='border: 1px solid #000; text-align:center; background-color: #808080; color: #000; padding-right: 5px'>"+addComma(injured_ccc)+"</th>"+
+									// "<th style='border: 1px solid #000; text-align:center; background-color: #808080; color: #000; padding-right: 5px'>"+addComma(missing_ccc)+"</th>"+
 									"<th style='border: 1px solid #000; text-align:right; background-color: #808080; color: #000; padding-right: 5px'>"+addCommaMoney(totalcc)+"</th>"+
 									"<th style='border: 1px solid #000; text-align:right; background-color: #808080; color: #000; padding-right: 5px'>"+addCommaMoney(dswd_ccc)+"</th>"+
 									"<th style='border: 1px solid #000; text-align:right; background-color: #808080; color: #000; padding-right: 5px'>"+addCommaMoney(lgu_cccc)+"</th>"+
 									"<th style='border: 1px solid #000; text-align:right; background-color: #808080; color: #000; padding-right: 5px'>"+addCommaMoney(ngo_ccc)+"</th>"+
+									"<th style='border: 1px solid #000; text-align:right; background-color: #808080; color: #000; padding-right: 5px'>"+addCommaMoney(ogo_ccc)+"</th>"+
 								"</tr>"
 							)
+
+							for(var q in rs.query_asst){
+								if((Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst) + Number(rs.query_asst[q].ogo_asst)) > 0){
+
+									province_cas.push({
+										municipality_id : rs.query_asst[q].municipality_id
+									})
+
+								}
+							}
+							
+							province_cas_func();
+
 						}
 
 						totalcc 		= 0;
@@ -15656,6 +16950,7 @@ function get_dromic(n){
 						dswd_ccc 		= 0;
 						lgu_ccc 		= 0;
 						ngo_ccc 		= 0;
+						ogo_ccc 		= 0;
 						lgu_cccc 		= 0;
 
 						for(var q in rs.query_asst){
@@ -15664,21 +16959,24 @@ function get_dromic(n){
 								if($('#municipality_id_session').text() == rs.query_asst[q].municipality_id){
 									var total = 0;
 									if(provinces[v].id == rs.query_asst[q].provinceid){
-										total += (Number(rs.query_asst[q].dswd_asst) + Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst));
-										$('#tbl_casualty_asst tbody').append(
-											"<tr style='color:#000; cursor:pointer; background-color: #DFDFDF' ondblclick='updateDamAss("+rs.query_asst[q].id+")' class='hoveredit'>"+
-												"<th style='border: 1px solid #000; text-align:left'>        "+rs.query_asst[q].municipality_name+"</th>"+
-												"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].totally_damaged)+"</th>"+
-												"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].partially_damaged)+"</th>"+
-												"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].dead)+"</th>"+
-												"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].injured)+"</th>"+
-												"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].missing)+"</th>"+
-												"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(total)+"</th>"+
-												"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].dswd_asst)+"</th>"+
-												"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].lgu_asst)+"</th>"+
-												"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].ngo_asst)+"</th>"+
-											"</tr>"
-										)
+										total += (Number(rs.query_asst[q].dswd_asst) + Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst) + Number(rs.query_asst[q].ogo_asst));
+										if( (Number(total) > 0) || ((Number(rs.query_asst[q].totally_damaged) + Number(rs.query_asst[q].partially_damaged)) > 0)){
+											$('#tbl_casualty_asst tbody').append(
+												"<tr style='color:#000; cursor:pointer; background-color: #DFDFDF' ondblclick='updateDamAss("+rs.query_asst[q].id+")' class='hoveredit'>"+
+													"<th style='border: 1px solid #000; text-align:left'>        "+rs.query_asst[q].municipality_name+"</th>"+
+													"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].totally_damaged)+"</th>"+
+													"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].partially_damaged)+"</th>"+
+													// "<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].dead)+"</th>"+
+													// "<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].injured)+"</th>"+
+													// "<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].missing)+"</th>"+
+													"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(total)+"</th>"+
+													"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].dswd_asst)+"</th>"+
+													"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].lgu_asst)+"</th>"+
+													"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].ngo_asst)+"</th>"+
+													"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].ogo_asst)+"</th>"+
+												"</tr>"
+											)
+										}
 
 										var brgy_ids = "";
 
@@ -15690,21 +16988,24 @@ function get_dromic(n){
 
 												for(var hh = 0 ; hh < rs.query_damage_per_brgy.length ; hh++){
 													if(brgy_ids[hq] == rs.query_damage_per_brgy[hh].brgy_id){
-														$('#tbl_casualty_asst tbody').append(
-															"<tr style='color:#000; cursor:pointer'>"+
-																"<th style='border: 1px solid #000; text-align:left'>            Brgy. "+rs.query_damage_per_brgy[hh].brgy_name+"</th>"+
-																"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].totally_damaged)+"</th>"+
-																"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].partially_damaged)+"</th>"+
-																"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].dead)+"</th>"+
-																"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].injured)+"</th>"+
-																"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].missing)+"</th>"+
-																"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_damage_per_brgy[hh].costasst_brgy)+"</th>"+
-																"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addComma(0)+"</th>"+
-																"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_damage_per_brgy[hh].costasst_brgy)+"</th>"+
-																"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addComma(0)+"</th>"+
-															"</tr>"
-														)
 
+														if(Number(rs.query_damage_per_brgy[hh].totally_damaged) > 0 || Number(rs.query_damage_per_brgy[hh].partially_damaged) > 0 || Number(rs.query_damage_per_brgy[hh].costasst_brgy) > 0){
+															$('#tbl_casualty_asst tbody').append(
+																"<tr style='color:#000; cursor:pointer'>"+
+																	"<th style='border: 1px solid #000; text-align:left'>            BRGY. "+rs.query_damage_per_brgy[hh].brgy_name+"</th>"+
+																	"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].totally_damaged)+"</th>"+
+																	"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].partially_damaged)+"</th>"+
+																	// "<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].dead)+"</th>"+
+																	// "<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].injured)+"</th>"+
+																	// "<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].missing)+"</th>"+
+																	"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_damage_per_brgy[hh].costasst_brgy)+"</th>"+
+																	"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addComma(0)+"</th>"+
+																	"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_damage_per_brgy[hh].costasst_brgy)+"</th>"+
+																	"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addComma(0)+"</th>"+
+																	"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addComma(0)+"</th>"+
+																"</tr>"
+															)
+														}
 														break;
 
 													}
@@ -15717,21 +17018,24 @@ function get_dromic(n){
 							}else{
 								var total = 0;
 								if(provinces[v].id == rs.query_asst[q].provinceid){
-									total += (Number(rs.query_asst[q].dswd_asst) + Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst));
-									$('#tbl_casualty_asst tbody').append(
-										"<tr style='color:#000; cursor:pointer; background-color: #DFDFDF' ondblclick='updateDamAss("+rs.query_asst[q].id+")' class='hoveredit'>"+
-											"<th style='border: 1px solid #000; text-align:left'>        "+rs.query_asst[q].municipality_name+"</th>"+
-											"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].totally_damaged)+"</th>"+
-											"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].partially_damaged)+"</th>"+
-											"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].dead)+"</th>"+
-											"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].injured)+"</th>"+
-											"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].missing)+"</th>"+
-											"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(total)+"</th>"+
-											"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].dswd_asst)+"</th>"+
-											"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].lgu_asst)+"</th>"+
-											"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].ngo_asst)+"</th>"+
-										"</tr>"
-									)
+									total += (Number(rs.query_asst[q].dswd_asst) + Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst) + Number(rs.query_asst[q].ogo_asst));
+									if( (Number(total) > 0) || ((Number(rs.query_asst[q].totally_damaged) + Number(rs.query_asst[q].partially_damaged)) > 0)){
+										$('#tbl_casualty_asst tbody').append(
+											"<tr style='color:#000; cursor:pointer; background-color: #DFDFDF' ondblclick='updateDamAss("+rs.query_asst[q].id+")' class='hoveredit'>"+
+												"<th style='border: 1px solid #000; text-align:left'>        "+rs.query_asst[q].municipality_name+"</th>"+
+												"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].totally_damaged)+"</th>"+
+												"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].partially_damaged)+"</th>"+
+												// "<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].dead)+"</th>"+
+												// "<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].injured)+"</th>"+
+												// "<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_asst[q].missing)+"</th>"+
+												"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(total)+"</th>"+
+												"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].dswd_asst)+"</th>"+
+												"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].lgu_asst)+"</th>"+
+												"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].ngo_asst)+"</th>"+
+												"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_asst[q].ogo_asst)+"</th>"+
+											"</tr>"
+										)
+									}
 
 									var brgy_ids = "";
 
@@ -15743,20 +17047,24 @@ function get_dromic(n){
 
 											for(var hh = 0 ; hh < rs.query_damage_per_brgy.length ; hh++){
 												if(brgy_ids[hq] == rs.query_damage_per_brgy[hh].brgy_id){
-													$('#tbl_casualty_asst tbody').append(
-														"<tr style='color:#000; cursor:pointer'>"+
-															"<th style='border: 1px solid #000; text-align:left'>            Brgy. "+rs.query_damage_per_brgy[hh].brgy_name+"</th>"+
-															"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].totally_damaged)+"</th>"+
-															"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].partially_damaged)+"</th>"+
-															"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].dead)+"</th>"+
-															"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].injured)+"</th>"+
-															"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].missing)+"</th>"+
-															"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_damage_per_brgy[hh].costasst_brgy)+"</th>"+
-															"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addComma(0)+"</th>"+
-															"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_damage_per_brgy[hh].costasst_brgy)+"</th>"+
-															"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addComma(0)+"</th>"+
-														"</tr>"
-													)
+													if(Number(rs.query_damage_per_brgy[hh].totally_damaged) > 0 || Number(rs.query_damage_per_brgy[hh].partially_damaged) > 0 || Number(rs.query_damage_per_brgy[hh].costasst_brgy) > 0){
+														$('#tbl_casualty_asst tbody').append(
+															"<tr style='color:#000; cursor:pointer'>"+
+																"<th style='border: 1px solid #000; text-align:left'>            BRGY. "+rs.query_damage_per_brgy[hh].brgy_name+"</th>"+
+																"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].totally_damaged)+"</th>"+
+																"<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].partially_damaged)+"</th>"+
+																// "<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].dead)+"</th>"+
+																// "<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].injured)+"</th>"+
+																// "<th style='border: 1px solid #000; text-align:center; padding-right: 5px'>"+addComma(rs.query_damage_per_brgy[hh].missing)+"</th>"+
+																"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_damage_per_brgy[hh].costasst_brgy)+"</th>"+
+																"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addComma(0)+"</th>"+
+																"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addCommaMoney(rs.query_damage_per_brgy[hh].costasst_brgy)+"</th>"+
+																"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addComma(0)+"</th>"+
+																"<th style='border: 1px solid #000; text-align:right; padding-right: 5px'>"+addComma(0)+"</th>"+
+															"</tr>"
+														)
+
+													}
 
 													break;
 
@@ -15780,17 +17088,27 @@ function get_dromic(n){
 					var dswd_c 		= 0;
 					var lgu_c 		= 0;
 					var ngo_c 		= 0;
+					var ogo_c 		= 0;
 
 					for(var q in rs.query_asst){
-						total += (Number(rs.query_asst[q].dswd_asst) + Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst));
-						tot_c += Number(rs.query_asst[q].totally_damaged);
-						part_c += Number(rs.query_asst[q].partially_damaged);
-						dead_c += Number(rs.query_asst[q].dead);
-						injured_c += Number(rs.query_asst[q].injured);
-						missing_c += Number(rs.query_asst[q].missing);
-						dswd_c += Number(rs.query_asst[q].dswd_asst);
-						lgu_c += Number(rs.query_asst[q].lgu_asst);
-						ngo_c += Number(rs.query_asst[q].ngo_asst);
+
+						total 		+= (Number(rs.query_asst[q].dswd_asst) + Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst)) + Number(rs.query_asst[q].ogo_asst);
+						tot_c 		+= Number(rs.query_asst[q].totally_damaged);
+						part_c 		+= Number(rs.query_asst[q].partially_damaged);
+						dead_c 		+= Number(rs.query_asst[q].dead);
+						injured_c 	+= Number(rs.query_asst[q].injured);
+						missing_c 	+= Number(rs.query_asst[q].missing);
+						dswd_c 		+= Number(rs.query_asst[q].dswd_asst);
+						lgu_c 		+= Number(rs.query_asst[q].lgu_asst);
+						ngo_c 		+= Number(rs.query_asst[q].ngo_asst);
+						ogo_c 		+= Number(rs.query_asst[q].ogo_asst);
+
+						if((Number(rs.query_asst[q].lgu_asst) + Number(rs.query_asst[q].ngo_asst) + Number(rs.query_asst[q].ogo_asst)) > 0){
+							city_cas.push({
+								'municipality_id' : rs.query_asst[q].municipality_id
+							})
+						}
+
 					}
 
 					$('#caraga_tot_c').text(addComma(tot_c));
@@ -15800,6 +17118,7 @@ function get_dromic(n){
 					$('#caraga_missing_c').text(addComma(missing_c));
 					$('#caraga_dswd_c').text(addCommaMoney(dswd_c));
 					$('#caraga_ngo_c').text(addCommaMoney(ngo_c));
+					$('#caraga_ogo_c').text(addCommaMoney(ogo_c));
 
 					var lgu_cc 		= lgu_c;
 
@@ -15854,11 +17173,11 @@ function get_dromic(n){
 									if(j == 0){
 										$('#lgu_list_assistance tbody').append(
 											"<tr style='cursor:pointer' ondblclick='updateAssistanceList("+a[j].id+")'>"+
-												"<th style='color:#000'>       "+a[j].municipality_name+"</th>"+
-												"<th style='color:#000'>       "+isnull(a[j].fnfi_name)+"</th>"+
-												"<th style='text-align:right; color:#000'>       "+isnull(a[j].quantity)+"</th>"+
-												"<th style='color:#000'>       "+isnull(todate(a[j].date_augmented))+"</th>"+
-												"<th style='text-align:right; color:#000'>       "+addCommaMoney(amt) +"</th>"+
+												"<th style='color:#000'>"+a[j].municipality_name+"</th>"+
+												"<th style='color:#000'>"+isnull(a[j].fnfi_name)+"</th>"+
+												"<th style='text-align:right; color:#000'>"+isnull(a[j].quantity)+"</th>"+
+												"<th style='color:#000'>"+isnull(todate(a[j].date_augmented))+"</th>"+
+												"<th style='text-align:right; color:#000'>"+addCommaMoney(amt) +"</th>"+
 												"<th style='text-align:center; color:#000'><button type='button' class='btn btn-danger btn-xs can_editasst' onclick='deleteAssistanceList("+a[j].id+")'><i class='fa fa-exclamation-circle'></i></button></th>"+
 											"</tr>"
 										)
@@ -15870,10 +17189,10 @@ function get_dromic(n){
 												$('#lgu_list_assistance tbody').append(
 													"<tr style='cursor:pointer' ondblclick='updateAssistanceList("+a[j].id+")'>"+
 														"<th></th>"+
-														"<th style='color:#000'>       "+isnull(a[j].fnfi_name)+"</th>"+
-														"<th style='text-align:right; color:#000'>       "+isnull(a[j].quantity)+"</th>"+
-														"<th style='color:#000'>       "+isnull(todate(a[j].date_augmented))+"</th>"+
-														"<th style='text-align:right; color:#000'>       "+addCommaMoney(amt)  +"</th>"+
+														"<th style='color:#000'>"+isnull(a[j].fnfi_name)+"</th>"+
+														"<th style='text-align:right; color:#000'>"+isnull(a[j].quantity)+"</th>"+
+														"<th style='color:#000'>"+isnull(todate(a[j].date_augmented))+"</th>"+
+														"<th style='text-align:right; color:#000'>"+addCommaMoney(amt) +"</th>"+
 														"<th style='text-align:center; color:#000'><button type='button' class='btn btn-danger btn-xs can_editasst' onclick='deleteAssistanceList("+a[j].id+")'><i class='fa fa-exclamation-circle'></i></button></th>"+
 													"</tr>"
 												)
@@ -15882,11 +17201,11 @@ function get_dromic(n){
 
 												$('#lgu_list_assistance tbody').append(
 													"<tr style='cursor:pointer' ondblclick='updateAssistanceList("+a[j].id+")'>"+
-														"<th style='color:#000'>       "+a[j].municipality_name+"</th>"+
-														"<th style='color:#000'>       "+isnull(a[j].fnfi_name)+"</th>"+
-														"<th style='text-align:right; color:#000'>       "+isnull(a[j].quantity)+"</th>"+
-														"<th style='color:#000'>       "+isnull(todate(a[j].date_augmented))+"</th>"+
-														"<th style='text-align:right; color:#000'>       "+addCommaMoney(amt) +"</th>"+
+														"<th style='color:#000'>"+a[j].municipality_name+"</th>"+
+														"<th style='color:#000'>"+isnull(a[j].fnfi_name)+"</th>"+
+														"<th style='text-align:right; color:#000'>"+isnull(a[j].quantity)+"</th>"+
+														"<th style='color:#000'>"+isnull(todate(a[j].date_augmented))+"</th>"+
+														"<th style='text-align:right; color:#000'>"+addCommaMoney(amt)+"</th>"+
 														"<th style='text-align:center; color:#000'><button type='button' class='btn btn-danger btn-xs can_editasst' onclick='deleteAssistanceList("+a[j].id+")'><i class='fa fa-exclamation-circle'></i></button></th>"+
 													"</tr>"
 												)
@@ -15897,11 +17216,11 @@ function get_dromic(n){
 
 											$('#lgu_list_assistance tbody').append(
 												"<tr style='cursor:pointer' ondblclick='updateAssistanceList("+a[j].id+")'>"+
-													"<th style='color:#000'>       "+a[j].municipality_name+"</th>"+
-													"<th style='color:#000'>       "+isnull(a[j].fnfi_name)+"</th>"+
-													"<th style='text-align:right; color:#000'>       "+isnull(a[j].quantity)+"</th>"+
-													"<th style='color:#000'>       "+isnull(todate(a[j].date_augmented))+"</th>"+
-													"<th style='text-align:right; color:#000'>       "+addCommaMoney(amt) +"</th>"+
+													"<th style='color:#000'>"+a[j].municipality_name+"</th>"+
+													"<th style='color:#000'>"+isnull(a[j].fnfi_name)+"</th>"+
+													"<th style='text-align:right; color:#000'>"+isnull(a[j].quantity)+"</th>"+
+													"<th style='color:#000'>"+isnull(todate(a[j].date_augmented))+"</th>"+
+													"<th style='text-align:right; color:#000'>"+addCommaMoney(amt) +"</th>"+
 													"<th style='text-align:center; color:#000'><button type='button' class='btn btn-danger btn-xs can_editasst' onclick='deleteAssistanceList("+a[j].id+")'><i class='fa fa-exclamation-circle'></i></button></th>"+
 												"</tr>"
 											)
@@ -15946,6 +17265,8 @@ function get_dromic(n){
 						var injured 			= 0;
 						var missing 			= 0;
 						var costasst_brgy 		= 0;
+						var baff_families 		= 0;
+						var baff_persons 		= 0;
 
 						for(var p in a){
 							if(provinces[i].id == a[p].provinceid){
@@ -15955,6 +17276,8 @@ function get_dromic(n){
 								injured 			= injured + Number(a[p].injured);
 								missing 			= missing + Number(a[p].missing);
 								costasst_brgy 		= Number(costasst_brgy) + Number(a[p].costasst_brgy);
+								baff_families 		= baff_families + Number(a[p].affected_family);
+								baff_persons 		= baff_persons + Number(a[p].affected_persons);
 							}
 						}
 
@@ -15966,9 +17289,11 @@ function get_dromic(n){
 									"<th style='border:1px solid #000; cursor:pointer; padding: 3px; background-color:#169F85; color:#fff; text-align:right'>"+addCommaMoney(costasst_brgy)+"</th>"+
 									"<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(totally_damaged)+"</th>"+
 									"<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(partially_damaged)+"</th>"+
-									"<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(dead)+"</th>"+
-									"<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(injured)+"</th>"+
-									"<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(missing)+"</th>"+
+									"<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(baff_families)+"</th>"+
+									"<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(baff_persons)+"</th>"+
+									// "<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(dead)+"</th>"+
+									// "<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(injured)+"</th>"+
+									// "<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(missing)+"</th>"+
 								"</tr>"
 							)
 
@@ -15984,6 +17309,8 @@ function get_dromic(n){
 									var injured 			= 0;
 									var missing 			= 0;
 									var costasst_brgy 		= 0;
+									var baff_families 		= 0;
+									var baff_persons 		= 0;
 
 									if(a[j].provinceid == provinces[i].id){
 										if(j == 0){
@@ -15995,6 +17322,8 @@ function get_dromic(n){
 													injured 			= Number(injured) + Number(a[k].injured);
 													missing 			= Number(missing) + Number(a[k].missing);
 													costasst_brgy 		= Number(costasst_brgy) + Number(a[k].costasst_brgy);
+													baff_families 		= baff_families + Number(a[k].affected_family);
+													baff_persons 		= baff_persons + Number(a[k].affected_persons);
 												}
 											}
 											$('#tbl_damages_per_brgy tbody').append(
@@ -16003,9 +17332,11 @@ function get_dromic(n){
 													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(costasst_brgy)+"</th>"+
 													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(totally_damaged)+"</th>"+
 													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(partially_damaged)+"</th>"+
-													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(dead)+"</th>"+
-													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(injured)+"</th>"+
-													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(missing)+"</th>"+
+													"<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(baff_families)+"</th>"+
+													"<th style='background-color: #169F85; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+isnull(baff_persons)+"</th>"+
+													// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(dead)+"</th>"+
+													// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(injured)+"</th>"+
+													// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(missing)+"</th>"+
 												"</tr>"
 											)
 											$('#tbl_damages_per_brgy tbody').append(
@@ -16014,9 +17345,11 @@ function get_dromic(n){
 													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(a[j].costasst_brgy)+"</th>"+
 													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].totally_damaged)+"</th>"+
 													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].partially_damaged)+"</th>"+
-													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
-													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
-													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
+													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_family)+"</th>"+
+													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_persons)+"</th>"+
+													// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
+													// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
+													// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
 												"</tr>"
 											)
 										}else{
@@ -16027,9 +17360,11 @@ function get_dromic(n){
 														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(a[j].costasst_brgy)+"</th>"+
 														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].totally_damaged)+"</th>"+
 														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].partially_damaged)+"</th>"+
-														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
-														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
-														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
+														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_family)+"</th>"+
+														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_persons)+"</th>"+
+														// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
+														// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
+														// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
 													"</tr>"
 												)
 											}else{
@@ -16041,6 +17376,8 @@ function get_dromic(n){
 														injured 			= Number(injured) + Number(a[k].injured);
 														missing 			= Number(missing) + Number(a[k].missing);
 														costasst_brgy 		= Number(costasst_brgy) + Number(a[k].costasst_brgy);
+														baff_families 		= baff_families + Number(a[k].affected_family);
+														baff_persons 		= baff_persons + Number(a[k].affected_persons);
 													}
 												}
 												$('#tbl_damages_per_brgy tbody').append(
@@ -16049,9 +17386,11 @@ function get_dromic(n){
 														"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(costasst_brgy)+"</th>"+
 														"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(totally_damaged)+"</th>"+
 														"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(partially_damaged)+"</th>"+
-														"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(dead)+"</th>"+
-														"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(injured)+"</th>"+
-														"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(missing)+"</th>"+
+														"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(baff_families)+"</th>"+
+														"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(baff_persons)+"</th>"+
+														// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(dead)+"</th>"+
+														// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(injured)+"</th>"+
+														// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(missing)+"</th>"+
 													"</tr>"
 												)
 												$('#tbl_damages_per_brgy tbody').append(
@@ -16060,9 +17399,11 @@ function get_dromic(n){
 														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(a[j].costasst_brgy)+"</th>"+
 														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].totally_damaged)+"</th>"+
 														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].partially_damaged)+"</th>"+
-														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
-														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
-														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
+														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_family)+"</th>"+
+														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_persons)+"</th>"+
+														// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
+														// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
+														// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
 													"</tr>"
 												)
 												if(a[j].municipality_id == a[j-1].municipality_id){
@@ -16072,9 +17413,11 @@ function get_dromic(n){
 															"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(a[j].costasst_brgy)+"</th>"+
 															"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].totally_damaged)+"</th>"+
 															"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].partially_damaged)+"</th>"+
-															"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
-															"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
-															"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
+															"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_family)+"</th>"+
+															"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_persons)+"</th>"+
+															// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
+															// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
+															// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
 														"</tr>"
 													)
 												}
@@ -16090,6 +17433,8 @@ function get_dromic(n){
 								var injured 			= 0;
 								var missing 			= 0;
 								var costasst_brgy 		= 0;
+								var baff_families 		= 0;
+								var baff_persons 		= 0;
 
 								if(a[j].provinceid == provinces[i].id){
 									if(j == 0){
@@ -16101,6 +17446,8 @@ function get_dromic(n){
 												injured 			= Number(injured) + Number(a[k].injured);
 												missing 			= Number(missing) + Number(a[k].missing);
 												costasst_brgy 		= Number(costasst_brgy) + Number(a[k].costasst_brgy);
+												baff_families 		= baff_families + Number(a[k].affected_family);
+												baff_persons 		= baff_persons + Number(a[k].affected_persons);
 											}
 										}
 										$('#tbl_damages_per_brgy tbody').append(
@@ -16109,9 +17456,11 @@ function get_dromic(n){
 												"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(costasst_brgy)+"</th>"+
 												"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(totally_damaged)+"</th>"+
 												"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(partially_damaged)+"</th>"+
-												"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(dead)+"</th>"+
-												"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(injured)+"</th>"+
-												"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(missing)+"</th>"+
+												"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(baff_families)+"</th>"+
+												"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(baff_persons)+"</th>"+
+												// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(dead)+"</th>"+
+												// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(injured)+"</th>"+
+												// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(missing)+"</th>"+
 											"</tr>"
 										)
 										$('#tbl_damages_per_brgy tbody').append(
@@ -16120,9 +17469,11 @@ function get_dromic(n){
 												"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(a[j].costasst_brgy)+"</th>"+
 												"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].totally_damaged)+"</th>"+
 												"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].partially_damaged)+"</th>"+
-												"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
-												"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
-												"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
+												"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_family)+"</th>"+
+												"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_persons)+"</th>"+
+												// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
+												// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
+												// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
 											"</tr>"
 										)
 									}else{
@@ -16133,9 +17484,11 @@ function get_dromic(n){
 													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(a[j].costasst_brgy)+"</th>"+
 													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].totally_damaged)+"</th>"+
 													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].partially_damaged)+"</th>"+
-													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
-													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
-													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
+													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_family)+"</th>"+
+													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_persons)+"</th>"+
+													// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
+													// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
+													// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
 												"</tr>"
 											)
 										}else{
@@ -16147,6 +17500,8 @@ function get_dromic(n){
 													injured 			= Number(injured) + Number(a[k].injured);
 													missing 			= Number(missing) + Number(a[k].missing);
 													costasst_brgy 		= Number(costasst_brgy) + Number(a[k].costasst_brgy);
+													baff_families 		= baff_families + Number(a[k].affected_family);
+													baff_persons 		= baff_persons + Number(a[k].affected_persons);
 												}
 											}
 											$('#tbl_damages_per_brgy tbody').append(
@@ -16155,9 +17510,11 @@ function get_dromic(n){
 													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(costasst_brgy)+"</th>"+
 													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(totally_damaged)+"</th>"+
 													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(partially_damaged)+"</th>"+
-													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(dead)+"</th>"+
-													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(injured)+"</th>"+
-													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(missing)+"</th>"+
+													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(baff_families)+"</th>"+
+													"<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(baff_persons)+"</th>"+
+													// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(dead)+"</th>"+
+													// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(injured)+"</th>"+
+													// "<th style='background-color: #E9C341; border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(missing)+"</th>"+
 												"</tr>"
 											)
 											$('#tbl_damages_per_brgy tbody').append(
@@ -16166,9 +17523,11 @@ function get_dromic(n){
 													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(a[j].costasst_brgy)+"</th>"+
 													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].totally_damaged)+"</th>"+
 													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].partially_damaged)+"</th>"+
-													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
-													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
-													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
+													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_family)+"</th>"+
+													"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_persons)+"</th>"+
+													// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
+													// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
+													// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
 												"</tr>"
 											)
 											if(a[j].municipality_id == a[j-1].municipality_id){
@@ -16178,9 +17537,11 @@ function get_dromic(n){
 														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addCommaMoney(a[j].costasst_brgy)+"</th>"+
 														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].totally_damaged)+"</th>"+
 														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].partially_damaged)+"</th>"+
-														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
-														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
-														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
+														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_family)+"</th>"+
+														"<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].affected_persons)+"</th>"+
+														// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].dead)+"</th>"+
+														// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].injured)+"</th>"+
+														// "<th style='border:1px solid #000; cursor:pointer; padding: 3px; color:#000; text-align:right'>"+addComma(a[j].missing)+"</th>"+
 													"</tr>"
 												)
 											}
@@ -16239,14 +17600,18 @@ function updateOutsideEvacuation(id){
 			$('#addfamOECprov').val(a.rs[0].provinceid);
 			$('#addfamOECprovO').val(a.rs[0].province_origin);
 
-			$('#addfamOECcity').empty().append(
-				"<option value=''>-- Select City/Municipality --</option>"
-			);
 
-			for(var j in a.city){
+			if($('#user_level_access_session').text() == "region" || $('#user_level_access_session').text() == "national"){
+				$('#addfamOECcity').empty();
 				$('#addfamOECcity').append(
-					"<option value='"+a.city[j].id+"'>"+a.city[j].municipality_name+"</option>"
+				    "<option value=''>-- Select City/Municipality --</option>"
 				);
+
+			    for(var i in a.city){
+		    		$('#addfamOECcity').append(
+				        "<option value='"+a.city[i].id+"'>"+a.city[i].municipality_name+"</option>"
+				    )
+			    }
 			}
 
 			$('#addfamOECprovO').empty().append(
@@ -16333,11 +17698,20 @@ $('#viewcharts').click(function(){
 
 	$('#loader').show();
 
-	setTimeout(function(){
+	if($('#user_level_access_session').text() != "municipality"){
+
+		setTimeout(function(){
+			$('#loader').hide();
+			columnchart(chart_affprov,chart_affprovdrill,'dromic_chart','Graph of Affected Families Per Province','','Total Affected Families');
+			columnchart(chart_affmunisall,null,'dromic_chart_2','Graph of Affected Families per Municipality','','Total Affected Families');
+		},1000)
+	}else{
+		setTimeout(function(){
 		$('#loader').hide();
-		columnchart(chart_affprov,chart_affprovdrill,'dromic_chart','Graph of Affected Families Per Province','','Total Affected Families');
-		columnchart(chart_affmunisall,null,'dromic_chart_2','Graph of Affected Families Per Municipality','','Total Affected Families');
-	},1000)
+			columnchart(chart_brgyall,null,'dromic_chart_2','Graph of Affected Families (Inside + Outside EC) per Barangay','','Total Affected Families');
+		},1000)
+
+	}
 	
 })
 
@@ -16566,6 +17940,9 @@ var damage_per_brgy_id = 0;
 
 $('#updatedata_dam_per_brgy').hide();
 
+var temp_affected_fam = 0;
+var temp_affected_person = 0;
+
 function updatedeldamageperbrgy(id){
 
 	var datas = {
@@ -16577,30 +17954,42 @@ function updatedeldamageperbrgy(id){
 	$('#updatedata_dam_per_brgy').show();
 	$('#deldata_dam_per_brgy').show();
 	$('#savedata_dam_per_brgy').hide();
+	$('#savedata_dam_per_brgy2').hide();
 
 	$.getJSON(serverip+"get_damage_per_brgy_details",datas,function(a){
 
 		for(var i in a['details']){
+
 			$('#province_dam_per_brgy').val(a['details'][i].provinceid);
 			$('#damperbrgy_totally').val(a['details'][i].totally_damaged);
 			$('#damperbrgy_partially').val(a['details'][i].partially_damaged);
-			$('#damperbrgy_dead').val(a['details'][i].dead);
-			$('#damperbrgy_injured').val(a['details'][i].injured);
-			$('#damperbrgy_missing').val(a['details'][i].missing);
-			$('#costasst_brgy').val(a['details'][i].costasst_brgy)
+			$('#costasst_brgy').val(a['details'][i].costasst_brgy);
+			$('#damperbrgy_family').val(a['details'][i].affected_family);
+			$('#damperbrgy_persons').val(a['details'][i].affected_persons);
+
+			temp_affected_fam = a['details'][i].affected_family; 
+			temp_affected_person = a['details'][i].affected_persons;
+
+			$('#damperbrgy_totally_f').show();
+			$('#damperbrgy_partially_f').show();
+
 		}
 
-		$('#city_dam_per_brgy').empty().append(
-			"<option value=''>-- Select City/Municipality --</option>"
-		);
+		if($('#user_level_access_session').text() != "municipality"){
 
-		for(var k in a['municipality']){
-			$('#city_dam_per_brgy').append(
-				"<option value='"+a['municipality'][k].id+"'>"+a['municipality'][k].municipality_name+"</option>"
+			$('#city_dam_per_brgy').empty().append(
+				"<option value=''>-- Select City/Municipality --</option>"
 			);
-		}
 
-		$('#city_dam_per_brgy').val(a['details'][i].municipality_id);
+			for(var k in a['municipality']){
+				$('#city_dam_per_brgy').append(
+					"<option value='"+a['municipality'][k].id+"'>"+a['municipality'][k].municipality_name+"</option>"
+				);
+			}
+
+			$('#city_dam_per_brgy').val(a['details'][i].municipality_id);
+
+		}
 
 		$('#brgy_dam_per_brgy').empty().append(
 			"<option value=''>-- Select Barangay -</option>"
@@ -16620,9 +18009,8 @@ function updatedeldamageperbrgy(id){
 
 $('#updatedata_dam_per_brgy').click(function(){
 
-	console.log(damage_per_brgy_id);
-
 	if(damage_per_brgy_id == 0){
+
 		$.confirm({
 		    title: 'Error!',
 		    content: 'No available data to update!',
@@ -16634,46 +18022,128 @@ $('#updatedata_dam_per_brgy').click(function(){
 		    	}
 		    }
 		});
+
 	}else{
 
 		var datas = {
+			provinceid 			: $('#province_dam_per_brgy').val(),
 			totally_damaged 	: $('#damperbrgy_totally').val(),
 			partially_damaged 	: $('#damperbrgy_partially').val(),
-			dead 				: $('#damperbrgy_dead').val(),
-			injured 			: $('#damperbrgy_injured').val(), 
-			missing 			: $('#damperbrgy_missing').val(),
 			municipality_id 	: $('#city_dam_per_brgy').val(),
 			costasst_brgy 		: $('#costasst_brgy').val(),
+			affected_family 	: $('#damperbrgy_family').val(),
+			affected_persons 	: $('#damperbrgy_persons').val(),
 			disaster_title_id 	: URLID(),
+			brgy_dam_per_brgy 	: $('#brgy_dam_per_brgy').val(),
 			id 					: damage_per_brgy_id
 		};
 
-		$.getJSON(serverip+"updatedamageperbrgy",datas,function(a){
-			if(a == 1){
+		if($('#province_dam_per_brgy').val() == "" || $('#city_dam_per_brgy').val() == "" || $('#brgy_dam_per_brgy').val() == ""){
+			msgbox("Kindly Fill in [Province], [Municipality] and [Barangay] to continue!");
+		}else{
 
-				get_dromic(URLID());
+			if($('#damperbrgy_totally').val() == "" && $('#damperbrgy_partially').val() == "" && $('#costasst_brgy').val() == "" && $('#damperbrgy_family').val() == "" && $('#damperbrgy_persons').val() == ""){
 
-				if($('#user_level_access_session').text() == 'national'){
-					$('#province_dam_per_brgy').val('');
-					$('#city_dam_per_brgy').val('');
-				}else if($('#user_level_access_session').text() == 'province'){
-					$('#city_dam_per_brgy').val('');
+				msgbox("Kindly Fill in [Totally Damaged], [Partially Damaged] or [Barangay Cost of Assistance] or [Affected Families and Persons] to continue!");
+
+			}else{
+
+				if((Number($('#damperbrgy_family').val()) == 0 && Number($('#damperbrgy_persons').val()) == 0) && ((Number($('#damperbrgy_totally').val()) + Number($('#damperbrgy_partially').val())) > 0)){
+					msgbox("You cannot add partially and totally damaged houses if there are no affected families/persons");
+				}else if( (Number($('#damperbrgy_family').val())) < (Number($('#damperbrgy_totally').val()) + Number($('#damperbrgy_partially').val()) ) ){
+					msgbox("Totally plus partially damaged houses must not be greater than the total families affected");
+				}else{
+
+					if(Number($('#damperbrgy_family').val()) == 0 && Number($('#damperbrgy_persons').val()) == 0){
+
+						$.getJSON(serverip+"updatedamageperbrgy",datas,function(a){
+							if(a == 1){
+
+								get_dromic(URLID());
+
+								if($('#user_level_access_session').text() == 'national'){
+									$('#province_dam_per_brgy').val('');
+									$('#city_dam_per_brgy').val('');
+								}else if($('#user_level_access_session').text() == 'province'){
+									$('#city_dam_per_brgy').val('');
+								}
+
+
+								$('#damperbrgy_totally').val('');
+								$('#damperbrgy_partially').val('');
+								$('#brgy_dam_per_brgy').val('');
+								$('#costasst_brgy').val('');
+
+								$('#damperbrgy_family').val('');
+								$('#damperbrgy_persons').val('');
+
+								$('#damperbrgy_totally_f').hide();
+								$('#damperbrgy_partially_f').hide();
+
+								damage_per_brgy_id = 0;
+
+							}else if(a == 2){
+								msgbox("Total number of affected families/persons must not be less than the total number of families inside and outside evacuation centers.")
+							} 
+							 
+						});
+
+					}else{
+
+						if(Number($('#damperbrgy_family').val()) > Number($('#damperbrgy_persons').val())){
+
+							$.confirm({
+							    title: '<span class="red">Error!</span>',
+							    content: 'Affected Persons must not be less than or equal to the Affected Families!',
+							    buttons: {
+							    	confirmAction: {
+							    		text: '<i class="fa fa-check"></i> Okay',
+							    		btnClass: 'btn-danger',
+							    		keys: ['enter', 'shift']
+							    	}
+							    }
+							});
+
+						}else{
+
+							$.getJSON(serverip+"updatedamageperbrgy",datas,function(a){
+								if(a == 1){
+
+									get_dromic(URLID());
+
+									if($('#user_level_access_session').text() == 'national'){
+										$('#province_dam_per_brgy').val('');
+										$('#city_dam_per_brgy').val('');
+									}else if($('#user_level_access_session').text() == 'province'){
+										$('#city_dam_per_brgy').val('');
+									}
+
+
+									$('#damperbrgy_totally').val('');
+									$('#damperbrgy_partially').val('');
+									$('#brgy_dam_per_brgy').val('');
+									$('#costasst_brgy').val('');
+
+									$('#damperbrgy_family').val('');
+									$('#damperbrgy_persons').val('');
+
+									$('#damperbrgy_totally_f').hide();
+									$('#damperbrgy_partially_f').hide();
+
+									damage_per_brgy_id = 0;
+
+								}else if(a == 2){
+									msgbox("Total number of affected families/persons must not be less than the total number of families inside and outside evacuation centers.")
+								} 
+
+							});
+						}
+					}
+
 				}
 
-				$('#updatedata_dam_per_brgy').hide();
-				$('#savedata_dam_per_brgy').show();
-
-				$('#damperbrgy_totally').val('');
-				$('#damperbrgy_partially').val('');
-				$('#damperbrgy_dead').val('');
-				$('#damperbrgy_injured').val('');
-				$('#damperbrgy_missing').val('');
-				$('#brgy_dam_per_brgy').val('');
-				$('#costasst_brgy').val('');
-
-				damage_per_brgy_id = 0;
-			}  
-		});
+			}
+		}
 	}
 
 })
@@ -16707,7 +18177,12 @@ $('#deldata_dam_per_brgy').click(function(){
 		    		btnClass: 'btn-red',
 		    		action: function(){
 		    			$.getJSON(serverip+"deletedamageperbrgy",datas,function(a){
-							if(a == 1){
+							if(a == 0){
+
+								msgbox("Cannot delete data, please make sure that there are no dependent data on families/persons Inside and Outside EC")
+								
+							}else{
+
 								get_dromic(uriID);
 
 								if($('#user_level_access_session').text() == 'national'){
@@ -16719,13 +18194,16 @@ $('#deldata_dam_per_brgy').click(function(){
 
 								$('#damperbrgy_totally').val('');
 								$('#damperbrgy_partially').val('');
-								$('#damperbrgy_dead').val('');
-								$('#damperbrgy_injured').val('');
-								$('#damperbrgy_missing').val('');
 								$('#brgy_dam_per_brgy').val('');
+								$('#damperbrgy_family').val('');
+								$('#damperbrgy_persons').val('');
+
+								$('#damperbrgy_totally_f').hide();
+								$('#damperbrgy_partially_f').hide();
 
 								damage_per_brgy_id = 0;
-							}  
+
+							}
 						});
 		            }
 		    	},
@@ -16918,7 +18396,7 @@ function editDromicReport(i){
 
 	$.getJSON(serverip+"get_disasterdetail",datas,function(a){  
 
-		var id = a.rstitle[0].id;
+		//var id = a.rstitle[0].id;
 
 		$('#disaster_name').val(a.rs[0].disaster_name);
 		$('#disaster_date').val(a.rs[0].disaster_date);
@@ -16985,7 +18463,35 @@ function viewDetailsPrev(i){
 		    }
 		});
 	}else{
+
+		if(i == null){
+
+			$.confirm({
+			    title: '',
+			    content: '<span style="font-size:15px"><i class="fa fa-exclamation-circle"></i> No DROMIC Statistical Report has been created with this incident. <br> <br>Would you like to be redirected to create new DROMIC Statistical Report?</span>',
+			    buttons: {
+			    	confirmAction: {
+			    		text: '<i class="fa fa-external-link"></i> Yes, Redirect me!',
+			    		btnClass: 'btn-danger',
+			    		keys: ['enter', 'shift'],
+			    		action: function(){
+
+			    			window.location.href = "dromic_new";
+
+			    		}
+			    	},
+			    	cancelAction: {
+			    		text: '<i class="fa fa-times-circle"></i> Close',
+			    		btnClass: 'btn-default'
+			    	}
+			    }
+			});
+
+		}else{
+
 			var win = window.open(serverip2+"?XCqdPsmLaQwAyt="+i,'Report Details');
+
+		}
 	}
 }
   
@@ -17104,10 +18610,47 @@ function savenewDromic(){
 
 	}else{
 		$.getJSON(serverip+"savenewtitle",datas,function(a){
+
+			$('#addnewReport').modal("hide");
+
 			viewDetailsPrev(a);
 		})
 	}
 }
+
+$('#toexcel7').click(function(){
+
+	if($('#user_level_access_session').text() == 'region' || $('#user_level_access_session').text() == 'national'){
+
+		$('#province_dam_per_brgy').val('');
+		$('#city_dam_per_brgy').val('');
+		$('#brgy_dam_per_brgy').empty().append("<option value=''>-- Select Barangay --</option>");
+
+	}else if($('#user_level_access_session').text() == 'province'){
+
+		$('#city_dam_per_brgy').val('');
+		$('#brgy_dam_per_brgy').empty().append("<option value=''>-- Select Barangay --</option>");
+
+	}else if($('#user_level_access_session').text() == 'municipality'){
+		$('#brgy_dam_per_brgy').val('');
+	}
+
+	$('#costasst_brgy').val('');
+	$('#damperbrgy_totally').val('');
+	$('#damperbrgy_partially').val('');
+	$('#damperbrgy_family').val('');
+	$('#damperbrgy_persons').val('');
+
+	$('#savedata_dam_per_brgy').show();
+	$('#savedata_dam_per_brgy2').show();
+	$('#updatedata_dam_per_brgy').hide();
+	$('#deldata_dam_per_brgy').hide();
+
+	$('#damperbrgy_totally_f').hide();
+	$('#damperbrgy_partially_f').hide();
+
+
+})
 
 $('#addfamiec').click(function(){
 
@@ -17134,10 +18677,20 @@ $('#addfamiec').click(function(){
 		});
 
 	}else if($('#user_level_access_session').text() == 'province'){
-
 		$('#addfaminsideECcity').val('');
 
+		$('#brgylocated_ec').empty();
+
+		$('#brgylocated_ec').select2({
+		        placeholder: "Select Barangay",
+		        allowClear: true
+		});
+
 	}
+
+	$('#ecplaceorigin').select2('val',''); 
+
+	$('#brgylocated_ec').select2('val',''); 
 
 	$('#headertitle').empty().append("Add");
 	$('#updateECS').hide();	
@@ -17221,10 +18774,10 @@ function addFamIEC(){
 
 	}else{
 
-		if($('#ecfamcum').val() < $('#ecfamnow').val()){
+		if(Number($('#ecfamcum').val()) < Number($('#ecfamnow').val())){
 			msgbox("Family NOW must not be greater than Family CUM");
 		}else{
-			if($('#ecpercum').val() < $('#ecpernow').val()){
+			if(Number($('#ecpercum').val()) < Number($('#ecpernow').val())){
 				msgbox("Person NOW must not be greater than Person CUM");
 			}else{
 
@@ -17253,11 +18806,20 @@ function addFamIEC(){
 							$('#ecpercum').val('');
 							$('#ecpernow').val('');
 							$('#ecplaceorigin').val('');
-							$('#brgylocated_ec').val(''),
+							$('#brgylocated_ec').val('');
 							$('#ecistatus').val('');
 							$('#ec4ps').val('');
 
 							$('#addfaminsideEC').dialog("close");
+
+							$('#ecplaceorigin').select2({
+						        placeholder: "Select Barangay",
+						        allowClear: true
+							 }); 
+							$('#brgylocated_ec').select2({
+							        placeholder: "Select Barangay",
+							        allowClear: true
+							 });
 
 							// issuesfound();
 
@@ -17285,10 +18847,19 @@ function addFamIEC(){
 						$('#ecpercum').val('');
 						$('#ecpernow').val('');
 						$('#ecplaceorigin').val('');
-						$('#brgylocated_ec').val(''),
+						$('#brgylocated_ec').val('');
 						$('#ecistatus').val('');
 
 						$('#addfaminsideEC').dialog("close");
+
+						$('#ecplaceorigin').select2({
+						        placeholder: "Select Barangay",
+						        allowClear: true
+						 }); 
+						$('#brgylocated_ec').select2({
+						        placeholder: "Select Barangay",
+						        allowClear: true
+						 });
 
 						// issuesfound();
 
@@ -17477,10 +19048,10 @@ function addFamIECS(){
 
 	}else{
 
-		if($('#ecfamcum').val() < $('#ecfamnow').val()){
+		if(Number($('#ecfamcum').val()) < Number($('#ecfamnow').val())){
 			msgbox("Family NOW must not be greater than Family CUM");
 		}else{
-			if($('#ecpercum').val() < $('#ecpernow').val()){
+			if(Number($('#ecpercum').val()) < Number($('#ecpernow').val())){
 				msgbox("Person NOW must not be greater than Person CUM");
 			}else{
 
@@ -17520,9 +19091,9 @@ function addFamIECS(){
 							        allowClear: true
 							 });
 
-							autocompleteEC();
-							autocompleteOriginProvince();
-							addfaminsideECcitys();
+							// autocompleteEC();
+							// autocompleteOriginProvince();
+							// addfaminsideECcitys();
 							// issuesfound();
 
 						})
@@ -17559,9 +19130,9 @@ function addFamIECS(){
 						        allowClear: true
 						 });
 
-						autocompleteEC();
-						autocompleteOriginProvince();
-						addfaminsideECcitys();
+						// autocompleteEC();
+						// autocompleteOriginProvince();
+						// addfaminsideECcitys();
 						// issuesfound();
 
 					})
@@ -17613,10 +19184,10 @@ function addFamAECS(){
 
 	}else{
 
-		if($('#ecfamcum').val() < $('#ecfamnow').val()){
+		if(Number($('#ecfamcum').val()) < Number($('#ecfamnow').val())){
 			msgbox("Family NOW must not be greater than Family CUM");
 		}else{
-			if($('#ecpercum').val() < $('#ecpernow').val()){
+			if(Number($('#ecpercum').val()) < Number($('#ecpernow').val())){
 				msgbox("Person NOW must not be greater than Person CUM");
 			}else{
 
@@ -17654,9 +19225,6 @@ function addFamAECS(){
 							$('#ecinow').prop("disabled",false);
 							//$('#ecistatus').prop("disabled",false);
 
-							$('#brgylocated_ec').empty();
-							$('#ecplaceorigin').empty();
-
 							$('#ecplaceorigin').select2({
 							        placeholder: "Select Barangay",
 							        allowClear: true
@@ -17666,7 +19234,9 @@ function addFamAECS(){
 							        allowClear: true
 							 }); 
 
-
+							// autocompleteEC();
+							// autocompleteOriginProvince();
+							// addfaminsideECcitys();
 
 							// issuesfound();
 
@@ -17702,9 +19272,6 @@ function addFamAECS(){
 						$('#ecinow').prop("disabled",false);
 						//$('#ecistatus').prop("disabled",false);
 
-						$('#brgylocated_ec').empty();
-						$('#ecplaceorigin').empty();
-
 						$('#ecplaceorigin').select2({
 						        placeholder: "Select Barangay",
 						        allowClear: true
@@ -17713,6 +19280,10 @@ function addFamAECS(){
 						        placeholder: "Select Barangay",
 						        allowClear: true
 						 }); 
+
+						// autocompleteEC();
+						// autocompleteOriginProvince();
+						// addfaminsideECcitys();
 
 						// issuesfound();
 
@@ -17765,10 +19336,10 @@ function addFamCECS(){
 
 	}else{
 
-		if($('#ecfamcum').val() < $('#ecfamnow').val()){
+		if(Number($('#ecfamcum').val()) < Number($('#ecfamnow').val())){
 			msgbox("Family NOW must not be greater than Family CUM");
 		}else{
-			if($('#ecpercum').val() < $('#ecpernow').val()){
+			if(Number($('#ecpercum').val()) < Number($('#ecpernow').val())){
 				msgbox("Person NOW must not be greater than Person CUM");
 			}else{
 
@@ -17806,7 +19377,6 @@ function addFamCECS(){
 							        allowClear: true
 							 });
 
-							autocompleteEC();
 							// issuesfound();
 
 						})	
@@ -17841,7 +19411,6 @@ function addFamCECS(){
 						        allowClear: true
 						 });
 
-						autocompleteEC();
 						// issuesfound();
 
 					})
@@ -18013,8 +19582,6 @@ function autocompleteOriginProvince(){
 
 	$.getJSON(serverip+"getAllOriginProvince",datas,function(a){
 
-		console.log(a);
-
 		$('#brgylocated_ec').append(
 			"<option value=''></option>"
 		);
@@ -18037,9 +19604,9 @@ function autocompleteOriginProvince(){
 							"<option value='"+a.rs[t].id+"'>"+a.rs[t].brgy_name+ ", " + a.city[k].municipality_name + "</option>"
 						);
 
-						$('#brgylocated_ec').append(
-							"<option value='"+a.rs[t].id+"'>"+a.rs[t].brgy_name+ ", " + a.city[k].municipality_name + "</option>"
-						);
+						// $('#brgylocated_ec').append(
+						// 	"<option value='"+a.rs[t].id+"'>"+a.rs[t].brgy_name+ ", " + a.city[k].municipality_name + "</option>"
+						// );
 
 				}
 				
@@ -18072,10 +19639,6 @@ function autocompleteOrigin(){
 		cid 	: cid	
 	};
 
-	// $('#ecplaceorigin').empty().append(
-	// 	"<option value=''>-- Select Barangay --</option>"
-	// );
-
 	$('#brgylocated_ec').empty().append(
 		"<option value=''>-- Select Barangay --</option>"
 	);
@@ -18087,7 +19650,7 @@ function autocompleteOrigin(){
 			if(a[t].municipality_id == $('#addfaminsideECcity').val()){
 					
 				$('#brgylocated_ec').append(
-					"<option value='"+a[t].id+"'>         "+a[t].brgy_name+ ", " + a[t].municipality_name + "</option>"
+					"<option value='"+a[t].id+"'>"+a[t].brgy_name+ ", " + a[t].municipality_name + "</option>"
 				);
 
 			}
@@ -18108,31 +19671,6 @@ $('#addfaminsideECcity').change(function(){
 
 	autocompleteEC();
 	autocompleteOrigin();
-
-	// var aa = "-- Select Barangay in " + $('#addfaminsideECcity option:selected').text() + " --";
-
-
-	// $("#brgylocated_ec > option").each(function() {
-	// 	if(this.text == aa){
-	// 		this.selected = true;
-	// 	}
-	// });
-
-	// $("#ecplaceorigin > option").each(function() {
-	// 	if(this.text == aa){
-	// 		this.selected = true;
-	// 	}
-	// });
-
-	// $('#ecplaceorigin').select2({
-	//         placeholder: "Select Barangay",
-	//         allowClear: true
-	// }); 
-	// $('#brgylocated_ec').select2({
-	//         placeholder: "Select Barangay",
-	//         allowClear: true
-	// }); 
-
 
 })
 
@@ -18252,56 +19790,55 @@ function updateEC(i){
 
 			evacuation_center_id = a.rs[0].evacuation_name;
 
-			$('#addfaminsideECcity').empty();
-			$('#addfaminsideECcity').append(
-			    "<option value=''>-- Select City/Municipality --</option>"
-			);
+			if($('#user_level_access_session').text() == "region" || $('#user_level_access_session').text() == "national"){
+				$('#addfaminsideECcity').empty();
+				$('#addfaminsideECcity').append(
+				    "<option value=''>-- Select City/Municipality --</option>"
+				);
 
-		    for(var i in a.city){
-	    		$('#addfaminsideECcity').append(
-			        "<option value='"+a.city[i].id+"'>"+a.city[i].municipality_name+"</option>"
-			    )
-		    }
+			    for(var i in a.city){
+		    		$('#addfaminsideECcity').append(
+				        "<option value='"+a.city[i].id+"'>"+a.city[i].municipality_name+"</option>"
+				    )
+			    }
+			}
 
 		    $('#addfaminsideECcity').val(a.rs[0].municipality_id);
 
 		    autocompleteEC();
-			//autocompleteOriginProvince();
 
 			$('#brgylocated_ec').empty();
 
 			$('#ecplaceorigin').empty();
 
-			// $('#brgylocated_ec').append(
-			// 	"<option value='' style='font-size:18px; color: red' disabled='disabled'>-- Select Barangay --</option>"
-			// );
-
-			// $('#ecplaceorigin').append(
-			// 	"<option value='' style='font-size:18px; color: red' disabled='disabled'>-- Select Barangay --</option>"
-			// );
-
+			var muni_name = "";;
 
 			for(var k in a.city){
 
 				for(var t in a.brgy){
 
 					if(a.brgy[t].municipality_id == a.city[k].id){
-						// console.log(1);
 
-						
 							$('#ecplaceorigin').append(
 								"<option value='"+a.brgy[t].id+"'>"+a.brgy[t].brgy_name+ ", " +a.city[k].municipality_name+ "</option>"
-							);
-
-
-							$('#brgylocated_ec').append(
-								"<option value='"+a.brgy[t].id+"'>"+a.brgy[t].brgy_name+ ", " +a.city[k].municipality_name+ "</option>"
-							);
+							);	
 
 					}
 					
 				}
 
+				if(Number(a.city[k].id) == Number($('#addfaminsideECcity').val())){
+					var muni_name = a.city[k].municipality_name;
+				}
+
+			}
+
+			for(var t in a.brgy){
+				if(a.brgy[t].municipality_id == $('#addfaminsideECcity').val()){
+					$('#brgylocated_ec').append(
+						"<option value='"+a.brgy[t].id+"'>"+a.brgy[t].brgy_name+ ", " +muni_name+ "</option>"
+					);
+				}
 			}
 
 			var bb = a.rs[0].brgy_located.toString();
@@ -18309,21 +19846,19 @@ function updateEC(i){
 
 			bb = bb.sort();
 
-
 	    	$('#ecplaceorigin').val(bb.sort());
+	    	
 	    	$('#brgylocated_ec').val(a.rs[0].brgy_located_ec);
 
 	    	$('#ecplaceorigin').select2({
 			        placeholder: "Select Barangay",
 			        allowClear: true
 			 }); 
+
 			$('#brgylocated_ec').select2({
 			        placeholder: "Select Barangay",
 			        allowClear: true
 			 });
-		    
-
-			
 
 			$('#ecicum').val(a.rs[0].ec_cum);
 			$('#ecinow').val(a.rs[0].ec_now);
@@ -18344,21 +19879,10 @@ function updateEC(i){
 			$('#ecpercum').val(a.rs[0].person_cum);
 			$('#ecpernow').val(a.rs[0].person_now);
 			$('#ec4ps').val(a.rs[0].fourps);
-			// $('#ecplaceorigin1').val(a.rs[0].place_of_origin);
-
-			// if(a.rs[0].ec_status == ""){
-			// 	$('#ecistatus').prop("disabled",1);
-			// }else{
-			// 	$('#ecistatus').prop("disabled",!1);
-			// }
 			
 			$('#ecistatus').val(a.rs[0].ec_status);
 			ecstatus = a.rs[0].ec_status;
 
-			// $('#addfaminsideECprov').prop("disabled",true);
-			// $('#addfaminsideECcity').prop("disabled",true);
-			// $('#ecname').prop("disabled",true);
-			// $('#ecplaceorigin').prop("disabled",true);
 
 		});
 
@@ -18405,16 +19929,19 @@ function clearECUpdate(i){
 
 			evacuation_center_id = a.rs[0].evacuation_name;
 
-			$('#addfaminsideECcity').empty();
-			$('#addfaminsideECcity').append(
-			    "<option value=''>-- Select City/Municipality --</option>"
-			);
+			if($('#user_level_access_session').text() == "region" || $('#user_level_access_session').text() == "national"){
+				$('#addfaminsideECcity').empty();
+				$('#addfaminsideECcity').append(
+				    "<option value=''>-- Select City/Municipality --</option>"
+				);
 
-		    for(var i in a.city){
-	    		$('#addfaminsideECcity').append(
-			        "<option value='"+a.city[i].id+"'>"+a.city[i].municipality_name+"</option>"
-			    )
-		    }
+			    for(var i in a.city){
+		    		$('#addfaminsideECcity').append(
+				        "<option value='"+a.city[i].id+"'>"+a.city[i].municipality_name+"</option>"
+				    )
+			    }
+			}
+
 
 		    $('#addfaminsideECcity').val(a.rs[0].municipality_id);
 
@@ -18424,27 +19951,34 @@ function clearECUpdate(i){
 
 			$('#ecplaceorigin').empty();
 
+			var muni_name = "";;
+
 			for(var k in a.city){
 
 				for(var t in a.brgy){
 
 					if(a.brgy[t].municipality_id == a.city[k].id){
-						// console.log(1);
 
-						
 							$('#ecplaceorigin').append(
 								"<option value='"+a.brgy[t].id+"'>"+a.brgy[t].brgy_name+ ", " +a.city[k].municipality_name+ "</option>"
-							);
-
-
-							$('#brgylocated_ec').append(
-								"<option value='"+a.brgy[t].id+"'>"+a.brgy[t].brgy_name+ ", " +a.city[k].municipality_name+ "</option>"
-							);
+							);	
 
 					}
 					
 				}
 
+				if(Number(a.city[k].id) == Number($('#addfaminsideECcity').val())){
+					var muni_name = a.city[k].municipality_name;
+				}
+
+			}
+
+			for(var t in a.brgy){
+				if(a.brgy[t].municipality_id == $('#addfaminsideECcity').val()){
+					$('#brgylocated_ec').append(
+						"<option value='"+a.brgy[t].id+"'>"+a.brgy[t].brgy_name+ ", " +muni_name+ "</option>"
+					);
+				}
 			}
 
 			var bb = a.rs[0].brgy_located.toString();
@@ -18594,7 +20128,7 @@ $('#updateECS').click(function(){
 
 	var origin = "";
 
-	if(($('#ecfamnow').val() > $('#ecfamcum').val()) || ($('#ecpernow').val() > $('#ecpercum').val())){
+	if((Number($('#ecfamnow').val()) > Number($('#ecfamcum').val())) || (Number($('#ecpernow').val()) > Number($('#ecpercum').val()))){
 
 		msgbox("Family (NOW) must not be greater than the Family (CUM) or Person (NOW) must not be greater than the Person (CUM)");
 
@@ -18610,7 +20144,7 @@ $('#updateECS').click(function(){
 
 				$.confirm({
 				    title: '<span class="red">Confirm Action!</span>',
-				    content: 'You have marked this evacuation center as closed. Would you like to continue?',
+				    content: 'You have marked this evacuation center as closed. Any changes in current (now) values will be saved as zero. Please change the status to EXISTING first before updating values. Would you like to continue?',
 				    buttons: {
 				    	confirmAction: {
 				    		text: '<i class="fa fa-check"></i> Yes',
@@ -18645,7 +20179,8 @@ $('#updateECS').click(function(){
 									eciplaceorigin 			: origin,
 									ecstatus 				: $('#ecistatus').val(),
 									evacuation_center_id 	: evacuation_center_id,
-									ec4ps 					: $('#ec4ps').val()
+									ec4ps 					: $('#ec4ps').val(),
+									uriID 					: URLID()
 								};
 
 								var uriID = URLID();
@@ -18700,7 +20235,8 @@ $('#updateECS').click(function(){
 					eciplaceorigin 			: origin,
 					ecstatus 				: $('#ecistatus').val(),
 					evacuation_center_id 	: evacuation_center_id,
-					ec4ps 					: $('#ec4ps').val()
+					ec4ps 					: $('#ec4ps').val(),
+					uriID 					: URLID()
 				};
 
 				var uriID = URLID();
@@ -18728,12 +20264,15 @@ $('#updateECS').click(function(){
 
 $('#deleteECS').click(function(){
 
-	var datas = {
-		id 				: evac_id
-	};
-
 	var uriID = URLID();
 
+	var datas = {
+		id 						: evac_id,
+		brgy_located 			: $('#brgylocated_ec').val(),
+		uriID 					: uriID
+	};
+
+	
 	$.confirm({
 	    title: '<span class="red">Confirm Action!</span>',
 	    content: 'Deleting this data may cause discrepancy from previous reporting. Do you wish to continue?',
@@ -18821,9 +20360,22 @@ function savenewDromicEC(){
 	}
 }
 
+$('#familyndserved').click(function(){
+
+	$('#adddfnds').dialog( "open" );
+
+	$('#deletefnds').hide();
+
+	$('#fndsfamcum').val("");
+	$('#fndsfamnow').val("");
+	$('#fndspersoncum').val("");
+	$('#fndspersonnow').val("");
+
+})
+
 $('#adddamass').click(function(){
 
-	$('#adddamageasst').dialog( "open" );
+	$('#adddamageasst').dialog("open");
 
 	$('#upDamAss').hide();
 	$('#deleteDamAss').hide();
@@ -18832,9 +20384,14 @@ $('#adddamass').click(function(){
 	$('#addDamprov').prop("disabled",!1);
 	$('#addDamcity').prop("disabled",!1);
 
-	if($('#user_level_access_session').text() == 'region'){
+	if($('#user_level_access_session').text() == 'region' || $('#user_level_access_session').text() == 'national'){
 		$('#addDamprov').val('');
+		$('#addDamcity').empty().append(
+		    "<option value=''>-- Select Municipality --</option>"
+		);
+	}else if($('#user_level_access_session').text() == 'province'){
 		$('#addDamcity').val('');
+		province_cas_func();
 	}
 
 	$('#nlgu').val('');
@@ -18842,6 +20399,166 @@ $('#adddamass').click(function(){
 	$('#ngo').val('');
 
 })
+
+$('#fndsfamcum').keyup(function(){
+	$('#fndsfamnow').val($(this).val());
+})
+
+$('#fndspersoncum').keyup(function(){
+	$('#fndspersonnow').val($(this).val());
+})
+
+$('#savefnds').click(function(){
+
+	var uriID = URLID();
+
+	if($('#addFNDSProv').val() == "" || $('#addFNDSCity').val() == ""){
+		msgbox("Select Province and Municipality to Continue!");
+	}else{
+
+		if($('#fndsfamcum').val() == "" || $('#fndsfamnow').val() == "" || $('#fndspersoncum').val() == "" || $('#fndspersonnow').val() == ""){
+			msgbox("Kindly fill in families and persons to continue!");
+		}else{
+			if((Number($('#fndsfamcum').val()) < Number($('#fndsfamnow').val())) || (Number($('#fndspersoncum').val()) < Number($('#fndspersonnow').val()))){
+				$.confirm({
+				    title: '<span class="red">Error!</span>',
+				    content: 'Family CUM must not be less than the Family NOW and Person CUM must not be less than the person NOW',
+				    buttons: {
+				    	confirmAction: {
+				    		text: '<i class="fa fa-check"></i> Okay',
+				    		btnClass: 'btn-danger',
+				    		keys: ['enter', 'shift']
+				    	}
+				    }
+				});
+			}else{
+
+				console.log(all_affected_city);
+
+				for(var hqx in all_affected_city){
+
+					if(all_affected_city[hqx].id == $('#addFNDSCity').val()){
+
+						if((all_affected_city[hqx].fam_cum_t < $('#fndsfamcum').val())){
+
+							$.confirm({
+							    title: '<span class="red">Error!</span>',
+							    content: 'Number of family entered is greater than the total number of affected families less than families Inside and Outside EC',
+							    buttons: {
+							    	confirmAction: {
+							    		text: '<i class="fa fa-check"></i> Okay',
+							    		btnClass: 'btn-danger',
+							    		keys: ['enter', 'shift']
+							    	}
+							    }
+							});
+
+						}else{
+
+							if(all_affected_city[hqx].person_cum_t < $('#fndspersoncum').val()){
+								$.confirm({
+								    title: '<span class="red">Error!</span>',
+								    content: 'Number of person entered is greater than the total number of affected persons less than persons Inside and Outside EC',
+								    buttons: {
+								    	confirmAction: {
+								    		text: '<i class="fa fa-check"></i> Okay',
+								    		btnClass: 'btn-danger',
+								    		keys: ['enter', 'shift']
+								    	}
+								    }
+								});
+							}else{
+								var datas = {
+									disaster_title_id 		: uriID,
+									provinceid 				: $('#addFNDSProv').val(),
+									municipality_id 		: $('#addFNDSCity').val(),
+									families_served_cum 	: $('#fndsfamcum').val(),
+									persons_served_cum 		: $('#fndspersoncum').val(),
+									families_served_now 	: $('#fndsfamnow').val(),
+									persons_served_now 		: $('#fndspersonnow').val()
+								};
+
+								$.getJSON(serverip+"saveasnewFNDS",datas,function(a){
+
+									if(a == 1){
+										$('#adddfnds').dialog("close");
+										alerts();
+
+										$('#fndsfamcum').val("");
+										$('#fndspersoncum').val("");
+										$('#fndsfamnow').val("");
+										$('#fndspersonnow').val("");
+
+										get_dromic(uriID);
+									}else{
+										alertError();
+									}
+
+								});
+							}
+						
+						}
+
+					}
+
+				}
+			}
+		}
+	}
+
+})
+
+
+$('#deletefnds').click(function(){
+
+	var uriID = URLID();
+
+	$.confirm({
+	    title: '<span class="red">Confirm Action!</span>',
+	    content: 'Are you sure you want to delete this data? This may cause discrepancy to previously created report.',
+	    buttons: {
+	    	confirmAction: {
+	    		text: '<i class="fa fa-check"></i> Proceed',
+	    		btnClass: 'btn-red',
+	    		keys: ['enter', 'shift'],
+	    		action: function(){
+
+	    			var datas = {
+						disaster_title_id 		: uriID,
+						municipality_id 		: $('#addFNDSCity').val()
+					};
+
+    				$.getJSON(serverip+"deleteFNDS",datas,function(a){
+
+						if(a == 1){
+
+							$('#adddfnds').dialog("close");
+							alerts();
+
+							$('#fndsfamcum').val("");
+							$('#fndspersoncum').val("");
+							$('#fndsfamnow').val("");
+							$('#fndspersonnow').val("");
+
+							get_dromic(uriID);
+
+						}else{
+							alertError();
+						}
+
+					});
+
+	            }
+	    	},
+	    	cancelAction: {
+	    		text: '<i class="fa fa-times-circle"></i> Cancel',
+	    		btnClass: 'btn-blue'
+	    	}
+	    }
+	});
+
+})
+	
 
 function savenewDamAss(){
 
@@ -18859,12 +20576,6 @@ function savenewDamAss(){
 				disaster_title_id 	: uriID,
 				municipality_id 	: $('#addDamcity').val(),
 				provinceid 			: $('#addDamprov').val(),
-				totally_damaged 	: $('#ntotally').val(),
-				partially_damaged 	: $('#npartially').val(),
-				dead 				: $('#ndead').val(),
-				injured 			: $('#ninjured').val(),
-				missing 			: $('#nmising').val(),
-				dswd_asst 			: $('#ndswd').val(),
 				lgu_asst 			: $('#nlgu').val(),
 				ngo_asst 			: $('#nngo').val(),
 				ogo_asst 			: $('#ngo').val()
@@ -18918,13 +20629,17 @@ function updateDamAss(o){
 
 			$('#addDamprov').val(a.rs[0].provinceid);
 
-			$('#addDamcity').empty().append(
-				"<option value=''>-- Select City/Municipality --</option>"
-			);
-			for(var j in a.city){
-				$('#addDamcity').append(
-					"<option value='"+a.city[j].id+"'>"+a.city[j].municipality_name+"</option>"
+			if($('#user_level_access_session').text() != 'municipality'){
+
+				$('#addDamcity').empty().append(
+					"<option value=''>-- Select City/Municipality --</option>"
 				);
+				for(var j in a.city){
+					$('#addDamcity').append(
+						"<option value='"+a.city[j].id+"'>"+a.city[j].municipality_name+"</option>"
+					);
+				}
+				
 			}
 
 			$('#addDamcity').val(a.rs[0].municipality_id);			
@@ -18950,7 +20665,7 @@ $('#upDamAss').click(function(){
 
 	var uriID = URLID();
 
-	if($('#nlgu').val() == "" && $('#nngo').val() == ""){
+	if($('#nlgu').val() == "" && $('#nngo').val() == "" && $('#ngo').val() == ""){
 
 		msgbox("Kindly input cost of assistance from LGU or from NGO/NGA/Other GOs to continue!");
 
@@ -18970,11 +20685,6 @@ $('#upDamAss').click(function(){
 							id 					: upDamAssid[0],
 							municipality_id 	: $('#addDamcity').val(),
 							provinceid 			: $('#addDamprov').val(),
-							totally_damaged 	: $('#ntotally').val(),
-							partially_damaged 	: $('#npartially').val(),
-							dead 				: $('#ndead').val(),
-							injured 			: $('#ninjured').val(),
-							missing 			: $('#nmising').val(),
 							dswd_asst 			: $('#ndswd').val(),
 							lgu_asst 			: $('#nlgu').val(),
 							ngo_asst 			: $('#nngo').val(),
@@ -19086,6 +20796,7 @@ $('#addfamoec').click(function(){
 })
 
 $('#upFamOEC').hide();
+
 function savenewfamOEC(){
 
 	var uriID = URLID();
@@ -19223,7 +20934,8 @@ function updateFamOEC(){
 		brgy_host 				: $('#addfamOECbrgy').val(),
 		province_origin 		: $('#addfamOECprovO').val(),	
 		municipality_origin 	: $('#addfamOECcityO').val(),
-		brgy_origin 			: brgy_origin
+		brgy_origin 			: brgy_origin,
+		disaster_title_id 		: uriID
 
 	};
 
@@ -20202,8 +21914,17 @@ $('#savetodisasterreport').click(function(){
 
 $('#exporttoexcel').click(function(){
 	if(toexcel == 1){
-		tbl = "tbl_masterquery_revss";
-		name = "DROMIC Master Excel";
+
+		if($('#user_level_access_session').text() != "municipality"){
+
+			tbl = "tbl_masterquery_revss";
+			name = "DROMIC Master Excel";
+
+		}else{
+
+			tbl = "tbl_masterquery_revss_munis";
+			name = "DROMIC Master Excel";
+		}
 	}else if(toexcel == 2){
 		tbl = "tbl_damage_assistances";
 		name = "Damages and Assistance";
@@ -20319,8 +22040,16 @@ var toExcelTable = function(tbl,name){
 $('#newreporttime').mask('00:00 AA');
 $('#newreportdate').mask('0000-00-00')
 
-$('#ecicum').mask('0');
+// $('#ecicum').mask('1');
 $('#ecinow').mask('0');
+
+$('#ecinow').keyup(function(){
+
+	if($(this).val() > 1){
+		$(this).val("");
+	}
+
+})
 
 function getquake(){
 
@@ -21564,11 +23293,16 @@ $('#saveassistance').click(function(){
 			if(response == 1){
 				alerts();
 				get_dromic(urlid);
-				$('#provinceAssistance').val('');
-				$('#cityAssistance').val('');
 				$('#families_served').val('');
 				$('#fnfi_remarks').val('');
-				$('#single_cal3').val('');
+				
+				if($('#user_level_access_session').text() == "region" || $('#user_level_access_session').text() == "national"){
+					$('#provinceAssistance').val('');
+					$('#cityAssistance').val('');
+				}else if($('#user_level_access_session').text() == "province"){
+					$('#cityAssistance').val('');
+				}
+
 				fnfi_list = [];
 				fnfi_list_item();
 			}
@@ -23300,14 +25034,89 @@ $('#city_dam_per_brgy').change(function(){
 
 $('#savedata_dam_per_brgy').click(function(){
 
-	// $('#province_dam_per_brgy').val();
-	// $('#city_dam_per_brgy').val();
-	// $('#brgy_dam_per_brgy').val();
-	// $('#damperbrgy_totally').val();
-	// $('#damperbrgy_partially').val();
-	// $('#damperbrgy_dead').val();
-	// $('#damperbrgy_injured').val();
-	// $('#damperbrgy_missing').val();
+	var uriID = URLID();
+
+	var datas = {
+
+		disaster_title_id 			: uriID,
+		provinceid 					: $('#province_dam_per_brgy').val(), 
+		municipality_id 	 		: $('#city_dam_per_brgy').val(), 		
+		brgy_id 					: $('#brgy_dam_per_brgy').val(), 
+		totally_damaged 			: $('#damperbrgy_totally').val(), 
+		partially_damaged 			: $('#damperbrgy_partially').val(), 
+		dead 						: '',
+		injured 					: '', 
+		missing 					: '',
+		affected_family 			: $('#damperbrgy_family').val(), 
+		affected_persons 			: $('#damperbrgy_persons').val(), 
+		costasst_brgy 				: $('#costasst_brgy').val() 
+
+	};
+
+	if($('#province_dam_per_brgy').val() == "" || $('#city_dam_per_brgy').val() == "" || $('#brgy_dam_per_brgy').val() == ""){
+		msgbox("Kindly Fill in [Province], [Municipality] and [Barangay] to continue!");
+	}else{
+
+		if($('#damperbrgy_totally').val() == "" && $('#damperbrgy_partially').val() == "" && $('#costasst_brgy').val() == "" && $('#damperbrgy_family').val() == "" && $('#damperbrgy_persons').val() == ""){
+
+			msgbox("Kindly Fill in [Totally Damaged], [Partially Damaged] or [Barangay Cost of Assistance] or [Affected Families and Persons] to continue!");
+
+		}else{
+
+			if(Number($('#damperbrgy_family').val()) > Number($('#damperbrgy_persons').val())){
+				$.confirm({
+				    title: '<span class="red">Error!</span>',
+				    content: 'Affected Persons must not be less than or equal to the Affected Families!',
+				    buttons: {
+				    	confirmAction: {
+				    		text: '<i class="fa fa-check"></i> Okay',
+				    		btnClass: 'btn-danger',
+				    		keys: ['enter', 'shift']
+				    	}
+				    }
+				});
+			}else{
+				$.getJSON(serverip+"saveDamageperBrgy",datas,function(a){
+
+					if(a == 1){
+						if($('#user_level_access_session').text() == 'national'){
+							$('#province_dam_per_brgy').val('');
+							$('#city_dam_per_brgy').val('');
+						}else if($('#user_level_access_session').text() == 'province'){
+							$('#city_dam_per_brgy').val('');
+						}
+						
+						$('#damperbrgy_totally').val('');
+						$('#damperbrgy_partially').val('');
+						$('#damperbrgy_dead').val('');
+						$('#damperbrgy_injured').val('');
+						$('#damperbrgy_missing').val('');
+						$('#damperbrgy_family').val('');
+						$('#damperbrgy_persons').val('');
+						
+						$('#brgy_dam_per_brgy').val('');
+						$('#costasst_brgy').val('');
+
+						alerts();
+						get_dromic(uriID);
+
+					}else if(a == 2){
+						msgbox("Total number of affected families/persons must not be less than the total number of families inside and outside evacuation centers.");
+					}else if(a == 3){
+						msgbox("You cannot add barangay cost of assistance, partially and totally damaged houses to this barangay. No IDPs or affected families/persons have been added. Kindly add affected families/persons/IDPs before adding damaged houses.")
+					}else{
+						msgbox("Ooops!!! Something went wrong while saving your data. Municipality or Barangay may already exist! Kindly doubl-click on the barangay in the table shown to update data.")
+					}
+				});
+			}
+
+		}
+
+	}
+
+})
+
+$('#savedata_dam_per_brgy2').click(function(){
 
 	var uriID = URLID();
 
@@ -23322,6 +25131,8 @@ $('#savedata_dam_per_brgy').click(function(){
 		dead 						: '',
 		injured 					: '', 
 		missing 					: '',
+		affected_family 			: $('#damperbrgy_family').val(), 
+		affected_persons 			: $('#damperbrgy_persons').val(),
 		costasst_brgy 				: $('#costasst_brgy').val() 
 
 	};
@@ -23330,39 +25141,53 @@ $('#savedata_dam_per_brgy').click(function(){
 		msgbox("Kindly Fill in [Province], [Municipality] and [Barangay] to continue!");
 	}else{
 
-		if($('#damperbrgy_totally').val() == "" && $('#damperbrgy_partially').val() == "" && $('#costasst_brgy').val() == ""){
+		if($('#damperbrgy_totally').val() == "" && $('#damperbrgy_partially').val() == "" && $('#costasst_brgy').val() == "" && $('#damperbrgy_family').val() == "" && $('#damperbrgy_persons').val() == ""){
 
-			msgbox("Kindly Fill in [Totally Damaged], [Partially Damaged] or [Barangay Cost of Assistance to continue!]");
+			msgbox("Kindly Fill in [Totally Damaged], [Partially Damaged] or [Barangay Cost of Assistance] or [Affected Families and Persons] to continue!");
 
 		}else{
 
-			$.getJSON(serverip+"saveDamageperBrgy",datas,function(a){
+			if(Number($('#damperbrgy_family').val()) > Number($('#damperbrgy_persons').val())){
+				$.confirm({
+				    title: '<span class="red">Error!</span>',
+				    content: 'Affected Persons must not be less than or equal to the Affected Families!',
+				    buttons: {
+				    	confirmAction: {
+				    		text: '<i class="fa fa-check"></i> Okay',	
+				    		btnClass: 'btn-danger',
+				    		keys: ['enter', 'shift']
+				    	}
+				    }
+				});
+			}else{
+				$.getJSON(serverip+"saveDamageperBrgy",datas,function(a){
 
-				if(a == 1){
-					if($('#user_level_access_session').text() == 'national'){
-						$('#province_dam_per_brgy').val('');
-						$('#city_dam_per_brgy').val('');
-					}else if($('#user_level_access_session').text() == 'province'){
-						$('#city_dam_per_brgy').val('');
+					if(a == 1){
+						
+						$('#damperbrgy_totally').val('');
+						$('#damperbrgy_partially').val('');
+						$('#damperbrgy_dead').val('');
+						$('#damperbrgy_injured').val('');
+						$('#damperbrgy_missing').val('');
+						$('#damperbrgy_family').val('');
+						$('#damperbrgy_persons').val('');
+						
+						$('#brgy_dam_per_brgy').val('');
+						$('#costasst_brgy').val('');
+						alerts();
+						get_dromic(uriID);
+
+					}else if(a == 2){
+
+						msgbox("Total number of affected families/persons must not be less than the total number of families inside and outside evacuation centers.")
+
+					}else{
+
+						msgbox("Ooops!!! Something went wrong while saving your data. Municipality or Barangay may already exist!")
+
 					}
-					
-					$('#damperbrgy_totally').val('');
-					$('#damperbrgy_partially').val('');
-					$('#damperbrgy_dead').val('');
-					$('#damperbrgy_injured').val('');
-					$('#damperbrgy_missing').val('');
-					
-					$('#brgy_dam_per_brgy').val('');
-					$('#costasst_brgy').val('');
-					alerts();
-					get_dromic(uriID);
-
-				}else{
-
-					msgbox("Ooops!!! Something went wrong while saving your data. Municipality or Barangay may already exist!")
-
-				}
-			});
+				});
+			}
 
 		}
 
@@ -24897,6 +26722,8 @@ function continueWebActivation(){
 						isadminpriv 		: $('#isadminpriv').is(":checked"),
 						iscancreatepriv		: $('#iscancreatepriv').is(":checked"),
 						isdswd				: $('#isdswd').is(":checked"),
+						access_level 		: $('#sel_user_level_access').val(),
+						issuperadminpriv	: $('#issuperadminpriv').is(":checked"),
 						cwebuserslist
 					}
 
@@ -25289,6 +27116,12 @@ $('#btn_reportassignment').click(function(){
 $('#addCommentsbtn').click(function(){
 
 	$('#addCommentsModal').dialog("open");
+
+})
+
+$('#viewinfographic').click(function(){
+
+	$('#infographic').dialog("open");
 
 })
 
@@ -25729,11 +27562,21 @@ function getColor(d) {
 function style(feature) {
     return {
         fillColor: getColor(feature.properties.density),
-        weight: 2,
+        weight: 1,
+        opacity: 1,
+        color: '#000',
+        fillOpacity: 0.7
+    };
+}
+
+function styleph(feature) {
+    return {
+        fillColor: '#363636',
+        weight: 1,
         opacity: 1,
         color: 'white',
-        dashArray: '3',
-        fillOpacity: 0.7
+        dashArray: '0',
+        fillOpacity: 0.5
     };
 }
 
@@ -25933,7 +27776,7 @@ $('#disaster_map').click(function(){
 
 		}
 
-	}else{
+	}else if($('#user_level_access_session').text() == 'province' || $('#user_level_access_session').text() == 'region'){
 
 		$('#loader').show();
 
@@ -25966,15 +27809,16 @@ $('#disaster_map').click(function(){
 			//     accessToken: 'pk.eyJ1IjoiamxvbXBhZCIsImEiOiJjamV0ZG40N2YwNm40MzJxb3RxMnN5b2g4In0.q_GNXWnzRFMuPrZvHacgqA'
 			// }).addTo(map);
 
-			L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-			    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
-			    maxZoom: 18
-			}).addTo(map);
+			// L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+			//     attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+			//     maxZoom: 18
+			// }).addTo(map);
 
 			geojson = L.geoJson(states, {
 			    style: style,
 			    onEachFeature: onEachFeature
 			}).addTo(map);
+
 
 			var popup = L.popup();
 
@@ -25983,9 +27827,8 @@ $('#disaster_map').click(function(){
 
 			    layer.setStyle({
 			        weight: 3,
-			        color: '#666',
-			        dashArray: '',
-			        fillOpacity: 0.7
+			        color: '#000',
+			        fillOpacity: 0.9
 			    });
 
 			    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
@@ -26105,6 +27948,232 @@ $('#disaster_map').click(function(){
 			info.addTo(map);
 
 		});
+
+	}else if($('#user_level_access_session').text() == 'municipality'){
+
+		$('#loader').show();
+
+		var uriID = URLID();
+
+		var datas = {
+
+			id : uriID
+
+		}
+
+		$.getJSON(serverip+"get_map",datas,function(response){
+
+			var str1 = response.coordinates[0]["coordinates"];
+
+			var center = str1.split(" ");
+
+			var states = response.features;
+
+			var ph = response.ph;
+
+			const options = {
+				key : 'vJfnjvxXOQ7XdNkjcIWk1q1pTAqVgDtd'
+			}
+
+			if(map){
+				map.remove();
+			}
+
+			$('#loader').hide();
+
+			//map = new L.map('mapid').setView([center[1], center[0]], 12);
+
+			map = L.map('mapid', {
+			     center: [center[1], center[0]],
+			     zoom: 12
+			});
+
+			// L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoiamxvbXBhZCIsImEiOiJjamV0ZG40N2YwNm40MzJxb3RxMnN5b2g4In0.q_GNXWnzRFMuPrZvHacgqA', {
+			//     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+			//     maxZoom: 18,
+			//     id: 'mapbox.light',
+			//     accessToken: 'pk.eyJ1IjoiamxvbXBhZCIsImEiOiJjamV0ZG40N2YwNm40MzJxb3RxMnN5b2g4In0.q_GNXWnzRFMuPrZvHacgqA'
+			// }).addTo(map);
+
+			var phmap = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+			    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+			    maxZoom: 18
+			}).addTo(map);
+
+			
+
+			geojsons = L.geoJson(ph, {
+			    style: styleph,
+			}).addTo(map);
+
+			geojson = L.geoJson(states, {
+			    style: style,
+			    onEachFeature: onEachFeature
+			}).addTo(map);
+
+			// var baseMaps = {
+			//     "Philippines": phmap,
+			// };
+
+			// var overlayMaps = {
+			// 	"Philippine Boundary": geojsons,
+			//     "City/Municipality": geojson
+			// };
+
+			// L.control.layers(null, overlayMaps,{
+			// 	position: 'topleft'
+			// }).addTo(map);
+
+			var popup = L.popup();
+
+			function highlightFeature(e) {
+			    var layer = e.target;
+
+			    layer.setStyle({
+			        weight: 3,
+			        color: '#666',
+			        dashArray: '',
+			        fillOpacity: 0.7
+			    });
+
+			    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+			        layer.bringToFront();
+			    }
+			    info.update(layer.feature.properties);
+			}
+
+			function resetHighlight(e) {
+			    geojson.resetStyle(e.target);
+			    info.update();
+			}
+
+			function zoomToFeature(e) {
+				map.fitBounds(e.target.getBounds());
+			    console.log(e.target.feature);
+			}
+
+			function onEachFeature(feature, layer) {
+			    layer.on({
+			        mouseover: highlightFeature,
+			        mouseout: resetHighlight,
+			        click: onMapClick
+			    });
+			}
+
+			function onMapClick(e) {
+
+			    var datas = {
+
+			    	id 					: URLID(),
+			    	brgy_id 			: e.target.feature.properties.bgy_code
+
+			    };
+
+			    $.getJSON(serverip+"get_feature_info_brgy",datas,function(a){
+
+			    	var out = 0;
+			    	var inside = 0;
+			    	var outp = 0;
+			    	var insidep = 0;
+
+			    	var ecs = "";
+
+			    	var totd = 0;
+			    	var partd = 0;
+
+			    	for(var i = 0 ; i < a.out.length ; i++){
+
+			    		out += a.out[i].family_cum;
+			    		outp += a.out[i].person_cum;
+
+			    	}
+
+			    	for(var j = 0 ; j < a.inside.length ; j++){
+
+			    		inside += a.inside[j].family_cum;
+			    		insidep += a.inside[j].person_cum;
+
+			    		ecs += "<li>"+a.inside[j].ec_name;+"</li>";
+
+			    	}
+
+			    	var tot = Number(out) + Number(inside);
+			    	var totp = Number(outp) + Number(insidep);
+
+			    	var html = "<div style='text-align: left'><strong><span class='red'>BRGY. " + e.target.feature.properties.brgy_name + ", " +  e.target.feature.properties.municipality_name.toUpperCase() + "</span></strong> <hr class='line'>";
+
+			    	html += "<strong><span>List of Activated Evacuation Center/s</span></strong><br>";
+			    	html += "<ul>"+ecs+"</ul> <hr class='line'>";
+			    	html += "<span>Total Number of Families Inside ECs: "+inside+"</span><br>";
+			    	html += "<span>Total Number of Families Outside ECs: "+out+"</span><br>";
+			    	html += "<span>Total Number of Families: "+tot+"</span><br><br>";
+			    	html += "<span>Total Number of Persons Inside ECs: "+insidep+"</span><br>";
+			    	html += "<span>Total Number of Persons Outside ECs: "+outp+"</span><br>";
+			    	html += "<span>Total Number of Persons: "+totp+"</span><hr class='line'>";
+
+			    	for(var k = 0 ; k < a.damages.length ; k++){
+
+			    		totd += a.damages[k]["totally_damaged"];
+			    		partd += a.damages[k]["partially_damaged"];
+
+			    	}
+
+			    	html += "<span>Totally Damaged Houses: "+totd+"</span><br>";
+			    	html += "<span>Partially Damaged Houses: "+partd+"</span><br>";
+
+			    	html += "<span>Total Damaged Houses: "+(Number(totd) + Number(partd))+"</span><br>";
+
+			    	popup
+			        	.setLatLng(e.latlng)
+			        	.setContent(html.toString())
+			        	.openOn(map);
+
+			    });
+
+
+			}
+
+			var legend = L.control({position: 'bottomright'});
+
+			legend.onAdd = function (map) {
+
+			    var div = L.DomUtil.create('div', 'info legend'),
+			        grades = [0, 10],
+			        labels = [];
+
+		           	div.innerHTML += '<i style="background-color: #ff0000"></i> > 1000 families <br>';
+		           	div.innerHTML += '<i style="background-color: #ff4000"></i> > 500 but less than 1001 families <br>';
+		           	div.innerHTML += '<i style="background-color: #ff8000"></i> > 200 but less than 501 families <br>';
+		           	div.innerHTML += '<i style="background-color: #ffbf00"></i> > 100 but less than 201 families <br>';
+		           	div.innerHTML += '<i style="background-color: #ffff00"></i> > 50 but less than 101 families <br>';
+		           	div.innerHTML += '<i style="background-color: #bfff00"></i> > 20 but less than 51 families <br>';
+				    div.innerHTML += '<i style="background-color: #80ff00"></i> > 0 but less than 21 families <br>';
+				    div.innerHTML += '<i style="background-color: #FFEFD5"></i>No Reported Displacement<br>';
+
+			    return div;
+			};
+
+			legend.addTo(map);
+
+			var info = L.control();
+
+			info.onAdd = function (map) {
+			    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+			    this.update();
+			    return this._div;
+			};
+
+			// method that we will use to update the control based on feature properties passed
+			info.update = function (props) {
+			    this._div.innerHTML = '<h4>Number of Displaced Families (Inside EC + Outside EC)</h4>' +  (props ?
+			        '<span style="color: #FAEDB8"><b>' + props.brgy_name + ', ' + props.municipality_name + '</b> - ' + addCommaMap(props.density) + ' ' + family(props.density) + '</span> <h5>Click for more info.</h5> ' + ''
+			        : 'Hover over a municipality');
+			};
+
+			info.addTo(map);
+
+		});
+
 	}
 
 })
@@ -26668,6 +28737,12 @@ $( function() {
       dialogClass 	: 'alert'
     });
 
+    $('#adddfnds').dialog({
+      autoOpen 		: false,
+      width 		: 750,
+      dialogClass 	: 'alert'
+    });
+
     $('#adddamageasst').dialog({
       autoOpen 		: false,
       width 		: 750,
@@ -26715,6 +28790,13 @@ $( function() {
       width 		: 1100,
       dialogClass 	: 'alert'
     });
+
+    $('#infographic').dialog({
+      autoOpen 		: false,
+      width 		: 1000,
+      resizable		: false,
+      dialogClass 	: 'alert'
+    });
  
     $( "#saveasnewrecord" ).on( "click", function() {
       $( "#dialog" ).dialog( "open" );
@@ -26723,17 +28805,35 @@ $( function() {
 } );
 
 
+if($('#user_level_access_session').text() == "region"){
+	var menu = {
+		"cost": {name: "Add/Update Cost of Assistance Data (LGU)", icon: "fa-money"},
+        "sep": "------------------",
+        "all_fnds": {name: "Add/Update Families not Displaced Served", icon: "fa-users"},
+        "sep1": "------------------",
+        "dswd_assistance": {name: "Add/Update DSWD Assistance Data", icon: "fa-heart"},
+        "sep2": "------------------",
+        "house_damage": {name: "Add/Update House Damages and Affected Families Data", icon: "fa-home"}
+	}
+}else{
+	var menu = {
+		"cost": {name: "Add/Update Cost of Assistance Data (LGU)", icon: "fa-money"},
+        "sep1": "------------------",
+        "house_damage": {name: "Add/Update House Damages and Affected Families Data", icon: "fa-home"}
+	}
+}
+
 $(function() {
 
 	$.contextMenu({
         selector: '.contextmenu_click', 
         callback: function(key, options) {
 
-        	if(key == "cost"){
+        	var str = options.$trigger[0].classList[1];
+            str = str.split(".");
+            str = str[1];
 
-	            var str = options.$trigger[0].classList[1];
-	            str = str.split(".");
-	            str = str[1];
+        	if(key == "cost"){
 
 	            if($('#can_edit').text() == 'f'){
 
@@ -26761,13 +28861,17 @@ $(function() {
 
 						$('#addDamprov').val(a.city[0].provinceid);
 
-						$('#addDamcity').empty().append(
-							"<option value=''>-- Select City/Municipality --</option>"
-						);
-						for(var j in a.city){
-							$('#addDamcity').append(
-								"<option value='"+a.city[j].id+"'>"+a.city[j].municipality_name+"</option>"
+						if($('#user_level_access_session').text() != 'municipality'){
+
+							$('#addDamcity').empty().append(
+								"<option value=''>-- Select City/Municipality --</option>"
 							);
+							for(var j in a.city){
+								$('#addDamcity').append(
+									"<option value='"+a.city[j].id+"'>"+a.city[j].municipality_name+"</option>"
+								);
+							}
+
 						}
 
 						$('#addDamcity').val(a.rs[0].municipality_id);			
@@ -26796,10 +28900,6 @@ $(function() {
 
 	        }else if(key == "all_affected"){
 
-	        	var str = options.$trigger[0].classList[1];
-	            str = str.split(".");
-	            str = str[1];
-
 				if($('#can_edit').text() == 'f'){
 
 					msgbox("You're not allowed to edit this entry. Kindly contact the administrator.");
@@ -26816,32 +28916,88 @@ $(function() {
 		            }
 
 					$.getJSON(serverip+"getAllAffected",datas,function(a){
+						
+						if($('#user_level_access_session').text() != "municipality"){
 
-						$('#addfamNinsideECprov').val(a.city[0].provinceid);
+							$('#addfamNinsideECprov').val(a.city[0].provinceid);
 
-						$('#addfamNinsideECcity').empty().append(
-							"<option value=''>-- Select City/Municipality --</option>"
-						);
-
-						for(var j in a.city){
-							$('#addfamNinsideECcity').append(
-								"<option value='"+a.city[j].id+"'>"+a.city[j].municipality_name+"</option>"
+							$('#addfamNinsideECcity').empty().append(
+								"<option value=''>-- Select City/Municipality --</option>"
 							);
+
+							for(var j in a.city){
+								$('#addfamNinsideECcity').append(
+									"<option value='"+a.city[j].id+"'>"+a.city[j].municipality_name+"</option>"
+								);
+							}
+
+							$('#addfamNinsideECcity').val(a.rs[0].municipality_id);
 						}
 
-						$('#addfamNinsideECcity').val(a.rs[0].municipality_id);
 						$('#ecnbrgy').val(a.rs[0].brgy_affected);
 						$('#ecnfamcum').val(a.rs[0].fam_no);
 						$('#ecnpercum').val(a.rs[0].person_no);
+
+						$('#delnAECS').show();
+
+					});
+				}
+
+	        }else if(key == "all_fnds"){
+
+				if($('#can_edit').text() == 'f'){
+
+					msgbox("You're not allowed to edit this entry. Kindly contact the administrator.");
+
+				}else{
+
+					$('#adddfnds').dialog("open");
+
+					$('#deletefnds').show();
+
+					var datas = {
+
+		            	municipality_id : str,
+		            	URLID 			: URLID()
+
+		            }
+
+		            $('#fndsfamcum').val("");
+					$('#fndsfamnow').val("");
+					$('#fndspersoncum').val("");
+					$('#fndspersonnow').val("");
+
+					$.getJSON(serverip+"getFNDS",datas,function(a){
+						
+						$('#addFNDSProv').val(a.rs[0].provinceid);
+
+						if($('#user_level_access_session').text() != "municipality"){
+
+							$('#addFNDSCity').empty().append(
+								"<option value=''>-- Select City/Municipality --</option>"
+							);
+
+							for(var j in a.city){
+								$('#addFNDSCity').append(
+									"<option value='"+a.city[j].id+"'>"+a.city[j].municipality_name+"</option>"
+								);
+							}
+
+						}
+
+						$('#addFNDSCity').val(a.rs[0].municipality_id);
+
+						$('#fndsfamcum').val(a.rs[0].families_served_cum);
+						$('#fndsfamnow').val(a.rs[0].families_served_now);
+						$('#fndspersoncum').val(a.rs[0].persons_served_cum);
+						$('#fndspersonnow').val(a.rs[0].persons_served_now);
+
+						$('#deletefnds').show();
 
 					});
 				}
 
 	        }else if(key == "dswd_assistance"){
-
-	        	var str = options.$trigger[0].classList[1];
-	            str = str.split(".");
-	            str = str[1];
 
 	            if($('#can_edit').text() == 'f'){
 
@@ -26859,14 +29015,17 @@ $(function() {
 
 						$('#provinceAssistance').val(a[0].provinceid);
 
-						$('#cityAssistance').empty().append(
-							"<option value=''>-- Select City/Municipality --</option>"
-						);
+						if($('#user_level_access_session').text() == "national" || $('#user_level_access_session').text() == "region"){
 
-						for(var j in a){
-							$('#cityAssistance').append(
-								"<option value='"+a[j].id+"'>"+a[j].municipality_name+"</option>"
+							$('#cityAssistance').empty().append(
+								"<option value=''>-- Select City/Municipality --</option>"
 							);
+
+							for(var j in a){
+								$('#cityAssistance').append(
+									"<option value='"+a[j].id+"'>"+a[j].municipality_name+"</option>"
+								);
+							}
 						}
 
 						$('#cityAssistance').val(str);
@@ -26876,10 +29035,6 @@ $(function() {
 					});
 				}
 	        }else if(key == "house_damage"){
-
-	        	var str = options.$trigger[0].classList[1];
-	            str = str.split(".");
-	            str = str[1];
 
 	            if($('#can_edit').text() == 'f'){
 
@@ -26897,17 +29052,41 @@ $(function() {
 
 						$('#province_dam_per_brgy').val(a[0].provinceid);
 
-						$('#city_dam_per_brgy').empty().append(
-							"<option value=''>-- Select City/Municipality --</option>"
-						);
+						if($('#user_level_access_session').text() == "national" || $('#user_level_access_session').text() == "region"){
 
-						for(var j in a){
-							$('#city_dam_per_brgy').append(
-								"<option value='"+a[j].id+"'>"+a[j].municipality_name+"</option>"
+							$('#city_dam_per_brgy').empty().append(
+								"<option value=''>-- Select City/Municipality --</option>"
 							);
+
+							for(var j in a){
+								$('#city_dam_per_brgy').append(
+									"<option value='"+a[j].id+"'>"+a[j].municipality_name+"</option>"
+								);
+							}
 						}
 
+						$('#brgy_dam_per_brgy').val("");
+
+						$('#costasst_brgy').val("");
+						$('#damperbrgy_family').val("");
+						$('#damperbrgy_persons').val("");
+						$('#damperbrgy_totally').val("");
+						$('#damperbrgy_partially').val("");
+
 						$('#city_dam_per_brgy').val(str);
+
+						$('#savedata_dam_per_brgy').show();
+						$('#savedata_dam_per_brgy2').show();
+						$('#updatedata_dam_per_brgy').hide();
+						$('#deldata_dam_per_brgy').hide();
+
+						for(var o in a.brgy){
+							if(a.brgy[o].municipality_id == str){
+								$('#brgy_dam_per_brgy').append(
+									"<option value='"+a.brgy[o].id+"'>"+a.brgy[o].brgy_name+"</option>"
+								);
+							}
+						}
 
 						activaTab('damagesperbrgy');
 
@@ -26917,15 +29096,7 @@ $(function() {
 	        }
 
         },
-        items: {
-            "cost": {name: "Update Cost of Assistance Data (LGU)", icon: "fa-money"},
-            "sep": "------------------",
-            "all_affected": {name: "Update Total Affected Families and Persons", icon: "fa-users"},
-            "sep1": "------------------",
-            "dswd_assistance": {name: "Add/Update DSWD Assistance Data", icon: "fa-heart"},
-            "sep2": "------------------",
-            "house_damage": {name: "Add/Update House Damages Data", icon: "fa-home"},
-        }
+        items: menu
     });
 
     $('.contextmenu_click').on('click', function(e){
@@ -26936,11 +29107,11 @@ $(function() {
         selector: '.contextmenu_click_ec', 
         callback: function(key, options) {
 
-        	if(key == "ec"){
+        	var str = options.$trigger[0].classList[2];
+            str = str.split(".");
+            str = str[1];
 
-	            var str = options.$trigger[0].classList[1];
-	            str = str.split(".");
-	            str = str[1];
+        	if(key == "ec"){
 
 	            if($('#can_edit').text() == 'f'){
 
@@ -26952,10 +29123,6 @@ $(function() {
 
 	        }else if(key == "ec_sex"){
 
-	        	var str = options.$trigger[0].classList[1];
-	            str = str.split(".");
-	            str = str[1];
-
 	        	if($('#can_edit').text() == 'f'){
 
 					msgbox("You're not allowed to edit this entry. Kindly contact the administrator.");
@@ -26966,10 +29133,6 @@ $(function() {
 
 	        }else if(key == "ec_facilities"){
 
-	        	var str = options.$trigger[0].classList[1];
-	            str = str.split(".");
-	            str = str[1];
-
 	        	if($('#can_edit').text() == 'f'){
 
 					msgbox("You're not allowed to edit this entry. Kindly contact the administrator.");
@@ -26979,10 +29142,6 @@ $(function() {
 				}
 
 	        }else if(key == "ec_clear"){
-
-	        	var str = options.$trigger[0].classList[1];
-	            str = str.split(".");
-	            str = str[1];
 
 	        	if($('#can_edit').text() == 'f'){
 
@@ -27017,6 +29176,7 @@ function activaTab(tab){
     $('.nav-tabs a[href="#' + tab + '"]').tab('show');
 };
 
+$('#delnAECS').hide();
 
 $('#addfamaffected').click(function(){
 
@@ -27032,6 +29192,8 @@ $('#addfamaffected').click(function(){
 		$('#addfamNinsideECcity').val("");
 
 	}
+
+	$('#delnAECS').hide();
 
 	$('#ecnfamcum').val("");
 	$('#ecnpercum').val("");
@@ -27484,12 +29646,12 @@ $(function() {
         selector: '.contextmenu_brgy', 
         callback: function(key, options) {
 
+        	var str = options.$trigger[0].classList[2];
+
+            str = str.split(".");
+            str = str[1];
+
         	if(key == "updatebrgy_damage"){
-
-	            var str = options.$trigger[0].classList[1];
-
-	            str = str.split(".");
-	            str = str[1];
 
 	            if($('#can_edit').text() == 'f'){
 
@@ -27519,14 +29681,19 @@ $(function() {
 
 								$('#province_dam_per_brgy').val(a.municipality[0].provinceid);
 
-								$('#city_dam_per_brgy').empty().append(
-									"<option value=''>-- Select City/Municipality --</option>"
-								);
 
-								for(var j in a.municipality){
-									$('#city_dam_per_brgy').append(
-										"<option value='"+a.municipality[j].id+"'>"+a.municipality[j].municipality_name+"</option>"
+								if($('#user_level_access_session').text() == "region" || $('#user_level_access_session').text() == "national"){
+
+									$('#city_dam_per_brgy').empty().append(
+										"<option value=''>-- Select City/Municipality --</option>"
 									);
+
+									for(var j in a.municipality){
+										$('#city_dam_per_brgy').append(
+											"<option value='"+a.municipality[j].id+"'>"+a.municipality[j].municipality_name+"</option>"
+										);
+									}
+
 								}
 
 								$('#city_dam_per_brgy').val(a.rs[0].municipality_id);
@@ -27543,9 +29710,13 @@ $(function() {
 								$('#damperbrgy_totally').val(a.rs[0].totally_damaged);
 								$('#damperbrgy_partially').val(a.rs[0].partially_damaged);
 
+								$('#damperbrgy_family').val(a.rs[0].affected_family);
+								$('#damperbrgy_persons').val(a.rs[0].affected_persons);
+
 								activaTab('damagesperbrgy');
 
 								$('#savedata_dam_per_brgy').hide();
+								$('#savedata_dam_per_brgy2').hide();
 								$('#updatedata_dam_per_brgy').show();
 								$('#deldata_dam_per_brgy').show();
 
@@ -27553,14 +29724,20 @@ $(function() {
 
 								$('#province_dam_per_brgy').val(a.municipality[0].provinceid);
 
-								$('#city_dam_per_brgy').empty().append(
-									"<option value=''>-- Select City/Municipality --</option>"
-								);
+								
 
-								for(var j in a.municipality){
-									$('#city_dam_per_brgy').append(
-										"<option value='"+a.municipality[j].id+"'>"+a.municipality[j].municipality_name+"</option>"
+								if($('#user_level_access_session').text() == "region" || $('#user_level_access_session').text() == "national"){
+
+									$('#city_dam_per_brgy').empty().append(
+										"<option value=''>-- Select City/Municipality --</option>"
 									);
+
+									for(var j in a.municipality){
+										$('#city_dam_per_brgy').append(
+											"<option value='"+a.municipality[j].id+"'>"+a.municipality[j].municipality_name+"</option>"
+										);
+									}
+
 								}
 
 								$('#city_dam_per_brgy').val(a.ismunicipal[0]);
@@ -27577,8 +29754,12 @@ $(function() {
 								$('#damperbrgy_totally').val("");
 								$('#damperbrgy_partially').val("");
 
+								$('#damperbrgy_family').val("");
+								$('#damperbrgy_persons').val("");
+
 								activaTab('damagesperbrgy');
 
+								$('#savedata_dam_per_brgy2').show();
 								$('#savedata_dam_per_brgy').show();
 								$('#updatedata_dam_per_brgy').hide();
 								$('#deldata_dam_per_brgy').hide();
@@ -27594,7 +29775,7 @@ $(function() {
 	        }
         },
         items: {
-            "updatebrgy_damage": {name: "Add/Update Damaged Houses in this Barangay", icon: "fa-home"},
+            "updatebrgy_damage": {name: "Add/Update Damaged Houses and Affected Families in this Barangay", icon: "fa-home"},
         }
     });
 
@@ -27610,27 +29791,37 @@ function startIntro(){
 	var saveasnewrecord = $('#saveasnewrecord');
 
 	if(stepsix.length){
-
 		var step6 = {
 			element : '#toexcel6',
 			intro 	: "To add DSWD Assistance, click on this button, then fill the details to continue saving. <b> See image</b> <br/> <image style='width: 100%; height: 500px; margin-top: 15px' src='../assets/images/dswd.png'>"
 		}
-	}
-
-	if(saveasnewrecord.length){
-
-		var step7 = {
+	}else{
+		var step6 = {
 			element : '#saveasnewrecord',
 			intro 	: "To save the report into new reporting period, click on this button, then fill the details to continue saving. <b> See image</b> <br/> <image style='width: 100%; height: 500px; margin-top: 15px' src='../assets/images/new.png'>"
 		}
 	}
+
+	if(saveasnewrecord.length){
+		var step7 = {
+			element : '#saveasnewrecord',
+			intro 	: "To save the report into new reporting period, click on this button, then fill the details to continue saving. <b> See image</b> <br/> <image style='width: 100%; height: 500px; margin-top: 15px' src='../assets/images/new.png'>"
+		}
+	}else{
+		var step7 = {
+			element : '#exporttoexcel',
+			intro 	: "To export the report into Excel File, click on this button, and then click save. <b>See image</b> <br/> <image style='width: 100%; height: 500px; margin-top: 15px' src='../assets/images/export.png'>"
+		}
+	}
+
+
 
 	var intro = introJs();
 
 	intro.setOptions({
 	  steps : [
 	    { 
-	      intro: "Welcome to the <b>Caraga Disaster Response Reporting and Information Management System (CDRRIMS)</b>. This system enables you to consolidate disaster related information for the creation of DROMIC Statistical Report, which is a vital tool for DSWD's augmentation assistance. I hope you enjoy as I tour you around to the functionalities of the system."
+	      	intro: "Welcome to the <b>Caraga Disaster Response Reporting and Information Management System (CDRRIMS)</b>. This system enables you to consolidate disaster related information for the creation of DROMIC Statistical Report, which is a vital tool for DSWD's augmentation assistance. I hope you enjoy as I tour you around to the functionalities of the system."
 	    },
 	    {
 			element: '#step1',
@@ -27692,8 +29883,6 @@ $('#viewchartsexs').click(function(){
 
 	$.getJSON(serverip+"getsexdata",datas,function(a){
 
-		console.log(a);
-
 		Highcharts.chart('dromic_chartsex', {
 		    chart: {
 		        type: 'pie',
@@ -27717,8 +29906,8 @@ $('#viewchartsexs').click(function(){
 		            allowPointSelect: true,
 		            cursor: 'pointer',
 		            dataLabels: {
-		                enabled: false,
-		                format: '{point.name}'
+		                enabled: true,
+		                format: '<b>{point.name} </b>: {point.y}'
 		            },
 		            innerSize: 0,
 		            depth: 30,
@@ -27898,8 +30087,8 @@ $('#viewchartsexs').click(function(){
 			            allowPointSelect: true,
 			            cursor: 'pointer',
 			            dataLabels: {
-			                enabled: false,
-			                format: '{point.name}'
+			                enabled: true,
+			                format: '<b>{point.name} </b>: {point.y}'
 			            },
 			            innerSize: 0,
 			            depth: 30,
@@ -28059,6 +30248,106 @@ $('#viewchartsexs').click(function(){
 
 })
 
+function screenshot(){
+	html2canvas(document.getElementById('captureinfographic')).then(function(canvas) {
+
+		var base64URL = canvas.toDataURL('image/jpeg').replace('image/jpeg', 'image/octet-stream');
+
+		//setTimeout(function(){
+
+			var link = document.createElement('a');
+			link.innerHTML = 'download image';
+			link.addEventListener('click', function(ev) {
+			link.href = base64URL
+			   link.download = "capture.png";
+			}, false);
+			document.body.appendChild(link);
+
+			link.click();
+
+		//},600)
+			
+
+	});
+
+	// html2canvas($('#captureinfographic'), 
+ //    {
+ //      onrendered: function (canvas) {
+ //        var a = document.createElement('a');
+ //        // toDataURL defaults to png, so we need to request a jpeg, then convert for file download.
+ //        a.href = canvas.toDataURL("image/jpeg").replace("image/jpeg", "image/octet-stream");
+ //        a.download = 'somefilename.jpg';
+ //        a.click();
+ //      }
+ //    });
+
+}
+
+$('#info_overview_txt').click(function(){
+
+	var string = $(this).text().replace(/\s/, '').replace(/<br>/, '\n');
+
+	$('#info_overview_edit').empty().append(string);
+
+	$(this).hide();
+
+	$('#info_overview_edit').show();
+	$('#info_overview_edit').focus();
+
+})
+
+$('#info_overview_edit').blur(function(){
+
+	if($(this).val() != ""){
+
+		$('#info_overview_txt').empty().append($(this).val().replace(/\r?\n/g, '<br />'));
+
+		$(this).hide();
+		$('#info_overview_txt').show();
+
+	}
+
+})
+
+function province_cas_func(){
+
+	$('#addDamcity').empty().append(
+	    "<option value=''>-- Select City/Municipality --</option>"
+	);
+
+	$.getJSON(serverip+"get_province_per_session",function(a){ 
+
+	    for(var i in a.muni){
+	       var c = 0;
+    		for(var b in province_cas){
+    			if(province_cas[b].municipality_id == a.muni[i].id){
+		    		c += 1;
+		    	}
+	    	}
+	    	if(c < 1){
+		    	$('#addDamcity').append(
+			        "<option value='"+a.muni[i].id+"'>"+a.muni[i].municipality_name+"</option>"
+			    )
+		    }else{
+		    	$('#addDamcity').append(
+			        "<option value='"+a.muni[i].id+"' style='background-color: #000' disabled title='Assistance is already added to this municipality, kindly double click on the table to edit'>"+a.muni[i].municipality_name+"</option>"
+			    )
+		    }
+		}
+
+	});
+
+}
+
+
+$.ajax({
+    url:'http://www.corsproxy.com/' +
+        'http://bagong.pagasa.dost.gov.ph/',
+        type:'GET',
+        success: function(data){
+           $('#content').html($(data).find('#map-canvas').html());
+        }
+});
 // contextmenu_brgy
 
 

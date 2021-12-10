@@ -9,7 +9,7 @@
 	  		<ul class="dropdown-menu">
 	            	 <li style="background-color: #7AB900; color: #000 !important"><a data-toggle="tab" class="tabpill2" href="#home2" id="toexcel2" style="font-size: 15px; color: #000">
 	            	 Form 1.2 (Damages and Assistance per P/C/MLGU and NGOs - F2)</a></li>
-	            	 <li style="background-color: #7AB900; color: #000 !important"><a data-toggle="tab" class="tabpill2" href="#damagesperbrgy" id="toexcel7" style="font-size: 15px; color: #000">Damages and Assistance per Barangay - F7</a></li>
+	            	 <li style="background-color: #7AB900; color: #000 !important"><a data-toggle="tab" class="tabpill2" href="#damagesperbrgy" id="toexcel7" style="font-size: 15px; color: #000">Damages and Affected Families per Barangay - F7</a></li>
 	        </ul>
 	  </li>
 	  <li class="dropdown">
@@ -35,11 +35,12 @@
 	  <li class="dropdown">
 	  		<a class="dropdown-toggle btn btn-sm btn-danger tabpill" data-toggle="dropdown" href="#" style="border-radius:0px; border-radius: 5px 5px 0px 0px; padding: 5px; font-size: 15px"> <span class="fa fa-wrench"></span> Chart and Tools <b class="caret"></b></a>
 	  		<ul class="dropdown-menu">
-	            <?php if($_SESSION['can_create_report'] == 't'){ ?> <li ><a id="addnarrativebtn" style="font-size: 15px"> <span class="fa fa-file-word-o"></span> Attach Narrative Report</a></li> <?php } ?>
+	            <!-- <?php if($_SESSION['can_create_report'] == 't'){ ?> <li ><a id="addnarrativebtn" style="font-size: 15px"> <span class="fa fa-file-word-o"></span> Attach Narrative Report</a></li> <?php } ?> -->
 	            	 <li><a id="viewchartsexs" data-toggle="tab" href="#viewchartsex" style="font-size: 15px"> <span class="fa fa-bar-chart"></span> Chart of Sex Disaggregated Data </a></li>
 				     <li><a id="viewcharts" data-toggle="tab" href="#viewchart" style="font-size: 15px"> <span class="fa fa-bar-chart"></span> Chart of Affected LGUs </a></li>
-				     <li><a data-toggle="tab" href="#narrative" style="font-size: 15px"> <span class="fa fa-newspaper-o"></span> View Narrative Report </a></li>
+				     <!-- <li><a data-toggle="tab" href="#narrative" style="font-size: 15px"> <span class="fa fa-newspaper-o"></span> View Narrative Report </a></li> -->
 				     <li><a id="disaster_map" data-toggle="tab" href="#disastermap" style="font-size: 15px"> <span class="fa fa-map"></span> Disaster Map</a></li>
+				     <?php if($_SESSION['user_level_access'] == 'municipality'){ ?><li><a id="viewinfographic" data-toggle="tab" style="font-size: 15px"> <i class="fa fa-picture-o"></i> View Infographics</a></li> <?php } ?>
 				     <li><a id="addCommentsbtn" data-toggle="tab" style="font-size: 15px"> <i class="fa fa-sticky-note"></i> Discussions <span class="badge badge-primary" id="commentcounter"></span></a></li>
 	        </ul>
 	  </li>
@@ -80,13 +81,27 @@
 	  <div id="home" class="tab-pane fade in active">
 		  	<div class="form-group col-md-12" id="step2" style="margin-left: -10px">
 				<div class="btn-group" style="border-radius: 5px">
-				  	<button style="border-radius: 5px; margin-right: 5px; font-size: 15px; border-radius: 5px" type="button" class="btn btn-success btn-sm" id="saveasnewrecord"><i class="fa fa-plus-circle"></i> 
-				  	Save as new Record and Update Data (Ctrl+S)</button>
+				  	<button style="border-radius: 5px; margin-right: 5px; font-size: 15px; border-radius: 5px" type="button" class="btn btn-success btn-sm" id="saveasnewrecord">
+				  		<i class="fa fa-plus-circle"></i> 
+				  		Save as new Record and Update Data (Ctrl+S)
+				    </button>
+				    <?php if($_SESSION["user_level_access"] == "region" || $_SESSION["user_level_access"] == "national"){ ?>
+					    <button style="border-radius: 5px; margin-right: 5px; font-size: 15px; border-radius: 5px; background-color: #FFD965" type="button" class="btn btn-default btn-sm" id="familyndserved">
+					  		<i class="fa fa-plus-circle"></i> 
+					  		Add Families not Displaced Served
+					    </button>
+					<?php } ?>
+				    <?php if($_SESSION['user_level_access'] != "municipality"){ ?>
+					    <button style="border-radius: 5px; margin-right: 5px; font-size: 15px; border-radius: 5px;" type="button" class="btn btn-dark btn-sm" id="hidebrgyfields" onclick="hidebrgyfields();">
+					  		<i class="fa fa-eye-slash"></i> 
+					  		Hide Barangay Fields
+					    </button>
+					<?php } ?>
 				</div>
-				<div class="btn-group" style="border-radius: 5px" id="step3">
+				<!-- <div class="btn-group" style="border-radius: 5px" id="step3">
 				  	<button style="border-radius: 5px; margin-right: 5px; font-size: 15px; border-radius: 5px; background-color: #006400" type="button" class="btn btn-success btn-sm" id="addfamaffected"><i class="fa fa-users"></i> 
 				  	Add Total Affected Families and Persons</button>
-				</div>
+				</div> -->
 			</div>
 			<div class="col-sm-12">
 				<label class="red">
@@ -100,260 +115,635 @@
 	  				Number of affected cities: <label id="count_allcity"></label>
 	  			<?php } ?>
 	  		</div>
-	  		
-	    	<div class="col-md-12" style="padding: 0px; width: 2000px" id="tbl_masterquery_revs">
-		    	<table style="width:100%; font-size: 11px" id="tbl_masterquery_revss" class="tbl_masterquery_revs">
-		    		<thead>
+	  		<?php if($_SESSION['user_level_access'] != 'municipality'){ ?>
+		    	<div class="col-md-12" style="padding: 0px; width: 2000px" id="tbl_masterquery_revs">
+			    	<table style="width:100%; font-size: 11px" id="tbl_masterquery_revss" class="tbl_masterquery_revs">
+			    		<thead>
 
-		    			<tr>
-		    				<td rowspan="5" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #AA83CB; color: #000; padding: 2px; font-weight: bold">REGION/<br>PROVINCE/MUNICIPALITY</td>
-		    				<td colspan="5" rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">NUMBER OF AFFECTED</td>
-		    				<td colspan="16" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">DISPLACEMENT DATA</td>
-		    				<td colspan="12" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">SERVED</td>
-		    				<td colspan="32" rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">SEX AND AGE DISTRIBUTION OF IDPs INSIDE EVACUATION CENTERS</td>
-		    				<td colspan="12" rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">VULNERABLE SECTOR</td>
-		    				<td colspan="18" rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">EVACUATION CENTER FACILITIES</td>
-		    				<td colspan="3" rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #7AB900; color: #000; padding: 2px; font-weight: bold">NO. OF DAMAGED HOUSES</td>
-		    				<td colspan="23" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">TOTAL COST OF ASSISTANCE (PHP)</td>
-		    			</tr>
+			    			<tr>
+		    					<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20">Department of Social Welfare and Development</th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; color: #000;" colspan="20"><b>DISASTER RESPONSE, OPERATIONS, MONITORING AND INFORMATION CENTER</b></th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20">Batasan Pambansa Complex, Constitution Hills</th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20">Quezon City</th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20"><br></th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; color: #000;" colspan="20"><b>STATUS OF DISASTER OPERATION</b></th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20" id="sum_asofdate_IEC">As of: </th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20" id="sum_asoftime_IEC">Time: </th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20"> </th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20">Region:<b> CARAGA </b> </th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20" id="sum_disastertype_IEC"></th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20" id="sum_disasterdate_IEC"></th>
+			    			</tr>
 
-		    			<tr>
-		    				<td rowspan="3" colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NUMBER OF ECs</td>
-		    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NAME OF EC</td>
-		    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">ADDRESS</td>
-		    				<td colspan="2" rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">ORIGIN OF IDPs</td>
-		    				<td colspan="10" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NUMBER OF DISPLACED </td>
-		    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL DISPLACED SERVED </td>
-		    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL NOT DISPLACED SERVED </td>
-		    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL SERVED </td>
-		    				<td colspan="19" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">DSWD </td>
-		    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">LGU </td>
-		    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">NGOs </td>
-		    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">OTHERS </td>
-		    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">GRAND TOTAL </td>
-		    			</tr>
+			    			<tr>
+			    				<td rowspan="5" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #AA83CB; color: #000; padding: 2px; font-weight: bold">REGION/<br>PROVINCE/MUNICIPALITY</td>
+			    				<td colspan="5" rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">NUMBER OF AFFECTED</td>
+			    				<td colspan="16" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">DISPLACEMENT DATA</td>
+			    				<td colspan="12" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">SERVED</td>
+			    				<td colspan="32" rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">SEX AND AGE DISTRIBUTION OF IDPs INSIDE EVACUATION CENTERS</td>
+			    				<td colspan="12" rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">VULNERABLE SECTOR</td>
+			    				<td colspan="18" rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">EVACUATION CENTER FACILITIES</td>
+			    				<td colspan="3" rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #7AB900; color: #000; padding: 2px; font-weight: bold">NO. OF DAMAGED HOUSES</td>
+			    				<td colspan="23" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">TOTAL COST OF ASSISTANCE (PHP)</td>
+			    			</tr>
 
-		    			<tr>
-		    				<td colspan="6" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">INSIDE ECs </td>
-		    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">OUTSIDE ECs </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">PERSONS </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">PERSONS </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">PERSONS </td>
-		    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">INFANT <br> >1 y/o (0-11mos) </td>
-		    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">TODDLERS <br> 1-3 y/o </td>
-		    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">PRESCHOOLERS <br> 4-5 y/o </td>
-		    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">SCHOOL AGE <br> 6-12 y/o </td>
-		    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">TEENAGE <br> 13-19 y/o</td>
-		    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">ADULT <br> 20-59 y/o </td>
-		    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">SENIOR CITIZEN <br> 60 and above </td>
-		    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">TOTAL IDPs INSIDE EC </td>
-		    				<td rowspan="2" colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">PREGNANT </td>
-		    				<td rowspan="2" colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">LACTATING MOTHERS </td>
-		    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">PERSONS W/ DISABILITY </td>
-		    				<td rowspan="2" colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">SOLO PARENTS </td>
-		    				<td rowspan="2" colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">IPs </td>
-		    				<td colspan="8" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">LATRINES </td>
-		    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">CHILD FRIENDLY SPACE </td>
-		    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">WOMEN FRIENDLY SPACE </td>
-		    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">COUPLE ROOM </td>
-		    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">PRAYER ROOM </td>
-		    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">COMMUNITY KITCHEN </td>
-		    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">WASH </td>
-		    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">RAMPS </td>
-		    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">HELP DESK </td>
-		    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">CAPACITY </td>
-		    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">NO. OF ROOMS </td>
-		    				<td colspan="6" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">FOOD </td>
-		    				<td colspan="13" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">NON FOOD ITEMS </td>
-		    			</tr>
+			    			<tr>
+			    				<td rowspan="3" colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NUMBER OF ECs</td>
+			    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NAME OF EC</td>
+			    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">ADDRESS</td>
+			    				<td colspan="2" rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">ORIGIN OF IDPs</td>
+			    				<td colspan="10" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NUMBER OF DISPLACED </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL DISPLACED SERVED </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL NOT DISPLACED SERVED </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL SERVED </td>
+			    				<td colspan="19" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">DSWD </td>
+			    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">LGU </td>
+			    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">NGOs </td>
+			    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">OTHERS </td>
+			    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">GRAND TOTAL </td>
+			    			</tr>
 
-		    			<tr>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">BRGYS. </td>
-		    				<td rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
-		    				<td rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">PERSONS </td>
-		    				<td rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">4Ps FAMILIES </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">PERSONS (ACTUAL) </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">PERSONS (ESTIMATE) </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">PERSONS </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL FAMILIES </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL PERSONS </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL FAMILIES </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL PERSONS </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL FAMILIES </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL PERSONS </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">MALE </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
-		    				<td rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">COMPOST PIT </td>
-		    				<td rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">SEALED </td>
-		    				<td colspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">PORTALETS </td>
-		    				<td colspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">BATHING CUBICLES </td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">FFP</td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">HEB</td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">RTEF</td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">SHELTER KITS</td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">HYGIENE KITS</td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">SLEEPING KITS</td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">KITCHEN KITS</td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">FAMILY KITS</td>
-		    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">POTABLE WATER</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">OTHER NFIs</td>
-		    			</tr>
+			    			<tr>
+			    				<td colspan="6" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">INSIDE ECs </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">OUTSIDE ECs </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">PERSONS </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">PERSONS </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">PERSONS </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">INFANT <br> >1 y/o (0-11mos) </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">TODDLERS <br> 1-3 y/o </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">PRESCHOOLERS <br> 4-5 y/o </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">SCHOOL AGE <br> 6-12 y/o </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">TEENAGE <br> 13-19 y/o</td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">ADULT <br> 20-59 y/o </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">SENIOR CITIZEN <br> 60 and above </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">TOTAL IDPs INSIDE EC </td>
+			    				<td rowspan="2" colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">PREGNANT </td>
+			    				<td rowspan="2" colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">LACTATING MOTHERS </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">PERSONS W/ DISABILITY </td>
+			    				<td rowspan="2" colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">SOLO PARENTS </td>
+			    				<td rowspan="2" colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">IPs </td>
+			    				<td colspan="8" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">LATRINES </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">CHILD FRIENDLY SPACE </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">WOMEN FRIENDLY SPACE </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">COUPLE ROOM </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">PRAYER ROOM </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">COMMUNITY KITCHEN </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">WASH </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">RAMPS </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">HELP DESK </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">CAPACITY </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">NO. OF ROOMS </td>
+			    				<td colspan="6" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">FOOD </td>
+			    				<td colspan="13" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">NON FOOD ITEMS </td>
+			    			</tr>
 
-		    			<tr>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">NAME</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">COUNT</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NAME</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">COUNT</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">MALE</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">FEMALE</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">COMMON</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">MALE</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">FEMALE</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">COMMON</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #7AB900; color: #000; padding: 2px; font-weight: bold">TOTAL</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #7AB900; color: #000; padding: 2px; font-weight: bold">TOTALLY</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #7AB900; color: #000; padding: 2px; font-weight: bold">PARTIALLY</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
-		    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
-		    			</tr>
+			    			<tr>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">BRGYS. </td>
+			    				<td rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
+			    				<td rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">PERSONS </td>
+			    				<td rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">4Ps FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">PERSONS (ACTUAL) </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">PERSONS (ESTIMATE) </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">PERSONS </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL PERSONS </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL PERSONS </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL PERSONS </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">COMPOST PIT </td>
+			    				<td rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">SEALED </td>
+			    				<td colspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">PORTALETS </td>
+			    				<td colspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">BATHING CUBICLES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">FFP</td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">HEB</td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">RTEF</td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">SHELTER KITS</td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">HYGIENE KITS</td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">SLEEPING KITS</td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">KITCHEN KITS</td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">FAMILY KITS</td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">POTABLE WATER</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">OTHER NFIs</td>
+			    			</tr>
 
-		    		</thead>
-		    		<tbody>
-		    		</tbody>
-		    		<tfoot>
-						<!-- <tr>
-							<td colspan="29" style="text-align:center; font-weight:bold; border:1px solid #000; background-color: #808080; color: #000"> *** NOTHING FOLLOWS ***</td>
-						</tr>
-						<tr>
-		    				<th style="text-align:center; font-weight:lighter" colspan="29"> </th>
-		    			</tr>
-		    			<tr>
-		    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="8">Prepared by: </th>
-		    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="10">Noted by: </th>
-		    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="11">Approved by: </th>
-		    			</tr>
-		    			<tr>
-		    				<th style="text-align:center; font-weight:lighter" colspan="29"> </th>
-		    			</tr>
-		    			<tr>
-		    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="8" id="spreparedby"></th>
-		    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="10" id="srecommendedby"></th>
-		    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="11" id="sapprovedby"></th>
-		    			</tr>
-		    			<tr>
-		    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="8" id="spreparedbypos"></th>
-		    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="10" id="srecommendedbypos"></th>
-		    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="11" id="sapprovedbypos"></th>
-		    			</tr> -->
-					</tfoot>
-		    	</table>
-		    </div>
+			    			<tr>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">NAME</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">COUNT</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NAME</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">COUNT</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">MALE</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">FEMALE</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">COMMON</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">MALE</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">FEMALE</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">COMMON</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #7AB900; color: #000; padding: 2px; font-weight: bold">TOTAL</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #7AB900; color: #000; padding: 2px; font-weight: bold">TOTALLY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #7AB900; color: #000; padding: 2px; font-weight: bold">PARTIALLY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    			</tr>
+
+			    		</thead>
+			    		<tbody>
+			    		</tbody>
+			    		<tfoot>
+							<tr>
+			    				<td colspan="5"> </td>
+			    				<td colspan="5"> </td>
+			    				<td colspan="5"> </td>
+			    			</tr>
+			    			<tr>
+			    				<td style="color: #000" colspan="5"> <br>Prepared by:</td>
+			    				<td style="color: #000" colspan="5"> <br>Noted by:</td>
+			    				<td style="color: #000" colspan="5"> <br>Approved by:</td>
+			    			</tr>
+			    			<tr>
+			    				<td style="color: #000" colspan="5"> </td>
+			    				<td style="color: #000" colspan="5"> </td>
+			    				<td style="color: #000" colspan="5"> </td>
+			    			</tr>
+			    			<tr>
+			    				<td style="color: #000" colspan="5"> </td>
+			    				<td style="color: #000" colspan="5"> </td>
+			    				<td style="color: #000" colspan="5"> </td>
+			    			</tr>
+			    			<tr>
+			    				<td style="color: #000" colspan="5"> </td>
+			    				<td style="color: #000" colspan="5"> </td>
+			    				<td style="color: #000" colspan="5"> </td>
+			    			</tr>
+			    			<tr>
+			    				<td style="font-weight: bold; color: #000" colspan="5" contenteditable="true" id="mainpreparedbyn">NAME</td>
+			    				<td style="font-weight: bold; color: #000" colspan="5" contenteditable="true" id="mainrecommendbyn">NAME</td>
+			    				<td style="font-weight: bold; color: #000" colspan="5" contenteditable="true" id="mainapprovedbyn">NAME</td>
+			    			</tr>
+			    			<tr>
+			    				<td style="font-weight: lighter; color: #000" colspan="5" contenteditable="true" id="mainpreparedbyp">Position</td>
+			    				<td style="font-weight: lighter; color: #000" colspan="5" contenteditable="true" id="mainrecommendbyp">Position</td>
+			    				<td style="font-weight: lighter; color: #000" colspan="5" contenteditable="true" id="mainapprovedbyp">Position</td>
+			    			</tr>
+						</tfoot>
+			    	</table>
+			    </div>
+			<?php }else{ ?>
+			    <div class="col-md-12" style="padding: 0px; width: 2000px" id="tbl_masterquery_revs">
+			    	<table style="width:100%; font-size: 11px" id="tbl_masterquery_revss_munis" class="tbl_masterquery_revs">
+			    		<thead>
+
+			    			<tr>
+		    					<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20">Department of Social Welfare and Development</th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; color: #000;" colspan="20"><b>DISASTER RESPONSE, OPERATIONS, MONITORING AND INFORMATION CENTER</b></th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20">Batasan Pambansa Complex, Constitution Hills</th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20">Quezon City</th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20"><br></th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; color: #000;" colspan="20"><b>STATUS OF DISASTER OPERATION</b></th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20" id="sum_asofdate_IEC">As of: </th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20" id="sum_asoftime_IEC">Time: </th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20"> </th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20">Region:<b> CARAGA </b> </th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20" id="sum_disastertype_IEC"></th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20" id="sum_disasterdate_IEC"></th>
+			    			</tr>
+
+			    			<tr>
+			    				<td rowspan="5" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #AA83CB; color: #000; padding: 2px; font-weight: bold">REGION/<br>PROVINCE/MUNICIPALITY</td>
+			    				<td colspan="5" rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">NUMBER OF AFFECTED</td>
+			    				<td colspan="16" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">DISPLACEMENT DATA</td>
+			    				<td colspan="12" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">SERVED</td>
+			    				<td colspan="32" rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">SEX AND AGE DISTRIBUTION OF IDPs INSIDE EVACUATION CENTERS</td>
+			    				<td colspan="12" rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">VULNERABLE SECTOR</td>
+			    				<td colspan="18" rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">EVACUATION CENTER FACILITIES</td>
+			    				<td colspan="3" rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #7AB900; color: #000; padding: 2px; font-weight: bold">NO. OF DAMAGED HOUSES</td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">TOTAL COST OF ASSISTANCE (PHP)</td>
+			    			</tr>
+
+			    			<tr>
+			    				<td rowspan="3" colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NUMBER OF ECs</td>
+			    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NAME OF EC</td>
+			    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">ADDRESS</td>
+			    				<td colspan="2" rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">ORIGIN OF IDPs</td>
+			    				<td colspan="10" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NUMBER OF DISPLACED </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL DISPLACED SERVED </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL NOT DISPLACED SERVED </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL SERVED </td>
+			    				<!-- <td colspan="19" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">DSWD </td> -->
+			    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">LGU </td>
+			    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">NGOs </td>
+			    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">OTHERS </td>
+			    				<td rowspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">GRAND TOTAL </td>
+			    			</tr>
+
+			    			<tr>
+			    				<td colspan="6" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">INSIDE ECs </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">OUTSIDE ECs </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">PERSONS </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">PERSONS </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">PERSONS </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">INFANT <br> >1 y/o (0-11mos) </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">TODDLERS <br> 1-3 y/o </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">PRESCHOOLERS <br> 4-5 y/o </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">SCHOOL AGE <br> 6-12 y/o </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">TEENAGE <br> 13-19 y/o</td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">ADULT <br> 20-59 y/o </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">SENIOR CITIZEN <br> 60 and above </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">TOTAL IDPs INSIDE EC </td>
+			    				<td rowspan="2" colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">PREGNANT </td>
+			    				<td rowspan="2" colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">LACTATING MOTHERS </td>
+			    				<td colspan="4" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">PERSONS W/ DISABILITY </td>
+			    				<td rowspan="2" colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">SOLO PARENTS </td>
+			    				<td rowspan="2" colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">IPs </td>
+			    				<td colspan="8" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">LATRINES </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">CHILD FRIENDLY SPACE </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">WOMEN FRIENDLY SPACE </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">COUPLE ROOM </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">PRAYER ROOM </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">COMMUNITY KITCHEN </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">WASH </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">RAMPS </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">HELP DESK </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">CAPACITY </td>
+			    				<td rowspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">NO. OF ROOMS </td>
+			    				<!-- <td colspan="6" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">FOOD </td>
+			    				<td colspan="13" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">NON FOOD ITEMS </td> -->
+			    			</tr>
+
+			    			<tr>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">BRGYS. </td>
+			    				<td rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
+			    				<td rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">PERSONS </td>
+			    				<td rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">4Ps FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">PERSONS (ACTUAL) </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">PERSONS (ESTIMATE) </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">PERSONS </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL PERSONS </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL PERSONS </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL FAMILIES </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">TOTAL PERSONS </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">MALE </td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">FEMALE </td>
+			    				<td rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">COMPOST PIT </td>
+			    				<td rowspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">SEALED </td>
+			    				<td colspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">PORTALETS </td>
+			    				<td colspan="3" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">BATHING CUBICLES </td>
+			    				<!-- <td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">FFP</td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">HEB</td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">RTEF</td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">SHELTER KITS</td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">HYGIENE KITS</td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">SLEEPING KITS</td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">KITCHEN KITS</td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">FAMILY KITS</td>
+			    				<td colspan="2" style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">POTABLE WATER</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">OTHER NFIs</td> -->
+			    			</tr>
+
+			    			<tr>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">NAME</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #8DC63F; color: #000; padding: 2px; font-weight: bold">COUNT</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NAME</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">COUNT</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #006400; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFD965; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FBBC05; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">CUM</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #FFE599; color: #000; padding: 2px; font-weight: bold">NOW</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">MALE</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">FEMALE</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">COMMON</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">MALE</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">FEMALE</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #277DB8; color: #000; padding: 2px; font-weight: bold">COMMON</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #7AB900; color: #000; padding: 2px; font-weight: bold">TOTAL</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #7AB900; color: #000; padding: 2px; font-weight: bold">TOTALLY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #7AB900; color: #000; padding: 2px; font-weight: bold">PARTIALLY</td>
+			    				<!-- <td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">QUANTITY</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td>
+			    				<td style="vertical-align: middle; text-align:center; border:1px solid #000; background-color: #EA8825; color: #000; padding: 2px; font-weight: bold">COST</td> -->
+			    			</tr>
+
+			    		</thead>
+			    		<tbody>
+			    		</tbody>
+			    		<tfoot>
+			    			<tr>
+			    				<td colspan="5"> </td>
+			    				<td colspan="5"> </td>
+			    				<td colspan="5"> </td>
+			    			</tr>
+			    			<tr>
+			    				<td style="color: #000" colspan="5"> <br>Prepared by:</td>
+			    				<td style="color: #000" colspan="5"> <br>Noted by:</td>
+			    				<td style="color: #000" colspan="5"> <br>Approved by:</td>
+			    			</tr>
+			    			<tr>
+			    				<td style="color: #000" colspan="5"> </td>
+			    				<td style="color: #000" colspan="5"> </td>
+			    				<td style="color: #000" colspan="5"> </td>
+			    			</tr>
+			    			<tr>
+			    				<td style="color: #000" colspan="5"> </td>
+			    				<td style="color: #000" colspan="5"> </td>
+			    				<td style="color: #000" colspan="5"> </td>
+			    			</tr>
+			    			<tr>
+			    				<td style="color: #000" colspan="5"> </td>
+			    				<td style="color: #000" colspan="5"> </td>
+			    				<td style="color: #000" colspan="5"> </td>
+			    			</tr>
+			    			<tr>
+			    				<td style="font-weight: bold; color: #000" colspan="5" contenteditable="true" id="mainpreparedbyn">NAME</td>
+			    				<td style="font-weight: bold; color: #000" colspan="5" contenteditable="true" id="mainrecommendbyn">NAME</td>
+			    				<td style="font-weight: bold; color: #000" colspan="5" contenteditable="true" id="mainapprovedbyn">NAME</td>
+			    			</tr>
+			    			<tr>
+			    				<td style="font-weight: lighter; color: #000" colspan="5" contenteditable="true" id="mainpreparedbyp">Position</td>
+			    				<td style="font-weight: lighter; color: #000" colspan="5" contenteditable="true" id="mainrecommendbyp">Position</td>
+			    				<td style="font-weight: lighter; color: #000" colspan="5" contenteditable="true" id="mainapprovedbyp">Position</td>
+			    			</tr>
+							<!-- <tr>
+								<td colspan="29" style="text-align:center; font-weight:bold; border:1px solid #000; background-color: #808080; color: #000"> *** NOTHING FOLLOWS ***</td>
+							</tr>
+							<tr>
+			    				<th style="text-align:center; font-weight:lighter" colspan="29"> </th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="8">Prepared by: </th>
+			    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="10">Noted by: </th>
+			    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="11">Approved by: </th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:center; font-weight:lighter" colspan="29"> </th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="8" id="spreparedby"></th>
+			    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="10" id="srecommendedby"></th>
+			    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="11" id="sapprovedby"></th>
+			    			</tr>
+			    			<tr>
+			    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="8" id="spreparedbypos"></th>
+			    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="10" id="srecommendedbypos"></th>
+			    				<th style="text-align:center; font-weight:bolder; color: #000" colspan="11" id="sapprovedbypos"></th>
+			    			</tr> -->
+						</tfoot>
+			    	</table>
+			    </div>
+			<?php } ?>
 	  </div>
 	  <div id="menu1" class="tab-pane fade">
 	    <h3>Menu 1</h3>
@@ -740,30 +1130,31 @@
 				    				<thead>
 				    					<tr>
 				    						<th rowspan="3" style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">AFFECTED AREAS <br>(Province/City/Municipality/Barangay)</th>
-				    						<th colspan="5" style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">NUMBER OF</th>
-				    						<th rowspan="2" colspan="4" style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">COST OF ASSISTANCE</th>
+				    						<th colspan="2" style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">NUMBER OF</th>
+				    						<th rowspan="2" colspan="5" style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">COST OF ASSISTANCE</th>
 				    					</tr>
 				    					<tr>
 				    						<th colspan="2" style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">DAMAGED HOUSES</th>
-				    						<th colspan="3" style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">CASUALTIES</th>
+				    						<!-- <th colspan="3" style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">CASUALTIES</th> -->
 				    					</tr>
 				    					<tr>
 				    						<th style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">TOTALLY</th>
 				    						<th style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">PARTIALLY</th>
-				    						<th style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">DEAD</th>
+				    						<!-- <th style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">DEAD</th>
 				    						<th style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">INJURED</th>
-				    						<th style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">MISSING</th>
+				    						<th style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">MISSING</th> -->
 				    						<th style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">TOTAL</th>
 				    						<th style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">DSWD</th>
 				    						<th style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">LGUs</th>
-				    						<th style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">NGOs/OTHER GOs</th>
+				    						<th style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">NGOs</th>	
+				    						<th style="border:1px solid #000; text-align:center; background-color: #808080; color: #000">OTHER GOs</th>
 				    					</tr>
 				    				</thead>
 				    				<tbody>
 				    				</tbody>
 				    				<tfoot>
 										<tr>
-											<th colspan="10" style="border:1px solid #000; background-color: #808080; color: #000"> <center>*** NOTHING FOLLOWS ***</center></th>
+											<th colspan="11" style="border:1px solid #000; background-color: #808080; color: #000"> <center>*** NOTHING FOLLOWS ***</center></th>
 										</tr>
 							    		<tr>
 						    				<th style="text-align:center; font-weight:lighter; color: #000" colspan="10"> </th>
@@ -964,7 +1355,7 @@
 	 		
 	 		<div class="col-md-4" style="margin-top:20px">
 	 			<div class="col-md-12 bg-white">
-	 			<h4 class="red">Damages and Assistance per Barangay</h4>
+	 			<h5 class="red"><strong>Damages/Assistance and Affected Families per Barangay</strong></h5>
 		 			<div class="form-group col-md-12">
 		 				<select class="form-control" id="province_dam_per_brgy">
 		 					<option value="">-- Select Province --</option>
@@ -986,30 +1377,32 @@
 		 				<label class="red"><i>* If there is any</i></label>
 		 			</div>
 		 			<div class="form-group col-md-6">
+		 				<label>Affected Families</label>
+		 				<input type="number" class="form-control" placeholder="Affected Families" min="0" id="damperbrgy_family">
+		 				<label class="red"><i>* If there is any</i></label>
+		 			</div>
+		 			<div class="form-group col-md-6">
+		 				<label>Affected Persons</label>
+		 				<input type="number" class="form-control" placeholder="Affected Persons" min="0" id="damperbrgy_persons">
+		 				<label class="red"><i>* If there is any</i></label>
+		 			</div>
+		 			<div class="form-group col-md-6" id="damperbrgy_totally_f">
 		 				<label>Totally Damaged</label>
 		 				<input type="number" class="form-control" placeholder="Totally Damaged" min="0" id="damperbrgy_totally">
 		 				<label class="red"><i>* If there is any</i></label>
 		 			</div>
-		 			<div class="form-group col-md-6">
+		 			<div class="form-group col-md-6" id="damperbrgy_partially_f">
 		 				<label>Partially Damaged</label>
 		 				<input type="number" class="form-control" placeholder="Partially Damaged" min="0" id="damperbrgy_partially">
 		 				<label class="red"><i>* If there is any</i></label>
 		 			</div>
-		 			<!-- <div class="form-group col-md-4">
-		 				<label>Dead</label>
-		 				<input type="number" class="form-control" placeholder="Dead" min="0" id="damperbrgy_dead">
-		 			</div>
-		 			<div class="form-group col-md-4">
-		 				<label>Injured</label>
-		 				<input type="number" class="form-control" placeholder="Injured" min="0" id="damperbrgy_injured">
-		 			</div>
-		 			<div class="form-group col-md-4">
-		 				<label>Missing</label>
-		 				<input type="number" class="form-control" placeholder="Missing" min="0" id="damperbrgy_missing">
-		 			</div> -->
+
 		 			<div class="col-md-12">
 			 			<div class="pull-right">
-			 				<button type="button" class="btn btn-success btn-sm" id="savedata_dam_per_brgy"><i class='fa fa-plus-circle'></i> Save Data</button>	
+			 				<button type="button" class="btn btn-default btn-sm" id="savedata_dam_per_brgy"><i class='fa fa-plus-circle'></i> Save Data</button>	
+			 				<?php if($_SESSION['user_level_access'] != "municipality"){ ?>
+			 					<button type="button" class="btn btn-primary btn-sm" id="savedata_dam_per_brgy2"><i class='fa fa-edit'></i> Save Data and Continue with this Municipality</button>
+			 				<?php } ?>
 			 				<button type="button" class="btn btn-warning btn-sm" id="updatedata_dam_per_brgy"><i class='fa fa-edit'></i> Update Data</button>	
 			 				<button type="button" class="btn btn-danger btn-sm" id="deldata_dam_per_brgy"><i class='fa fa-times-circle'></i> Remove Data</button>	
 			 			</div>
@@ -1027,18 +1420,18 @@
 				    					<tr>
 				    						<th rowspan="3" style="border:1px solid #000; text-align:center">AFFECTED AREAS <br>(Province/City/Municipality)</th>
 				    						<th rowspan="3" style="border:1px solid #000; text-align:center">COST OF ASSISTANCE PROVIDED</th>
-				    						<th colspan="5" style="border:1px solid #000; text-align:center">NUMBER OF</th>
+				    						<th colspan="4" style="border:1px solid #000; text-align:center">NUMBER OF</th>
 				    					</tr>
 				    					<tr>
 				    						<th colspan="2" style="border:1px solid #000; text-align:center">DAMAGED HOUSES</th>
-				    						<th colspan="3" style="border:1px solid #000; text-align:center">CASUALTIES</th>
+				    						<th colspan="3" style="border:1px solid #000; text-align:center">INTERNALLY DISPLACED PERSONS</th>
 				    					</tr>
 				    					<tr>
-				    						<th style="border:1px solid #000; text-align:center">TOTALLY</th>
-				    						<th style="border:1px solid #000; text-align:center">PARTIALLY</th>
-				    						<th style="border:1px solid #000; text-align:center">DEAD</th>
-				    						<th style="border:1px solid #000; text-align:center">INJURED</th>
-				    						<th style="border:1px solid #000; text-align:center">MISSING</th>
+				    						<th style="border:1px solid #000; text-align:center">TOTALLY DAMAGED</th>
+				    						<th style="border:1px solid #000; text-align:center">PARTIALLY PARTIALLY</th>
+				    						<th style="border:1px solid #000; text-align:center">AFFECTED FAMILIES</th>
+				    						<th style="border:1px solid #000; text-align:center">AFFECTED PERSONS</th>
+				    						<!-- <th style="border:1px solid #000; text-align:center">MISSING</th> -->
 				    					</tr>
 				    				</thead>
 				    				<tbody>
@@ -1052,10 +1445,12 @@
 	 </div>
 
 	 <div id="viewchart" class="tab-pane fade">
- 		<div class="col-md-12" style="margin-top:20px; width:100%;">
- 			<div class="col-md-12 bg-white" id="dromic_chart" style="height: 600px">
+	 	<?php if($_SESSION["user_level_access"] != "municipality"){ ?>
+	 		<div class="col-md-12" style="margin-top:20px; width:100%;">
+	 			<div class="col-md-12 bg-white" id="dromic_chart" style="height: 600px">
+		 		</div>
 	 		</div>
- 		</div>
+ 		<?php } ?>
  		<div class="col-md-12" style="margin-top:20px; width:100%;">
  			<div class="col-md-12 bg-white" id="dromic_chart_2" style="height: 600px">
 	 		</div>
@@ -1368,7 +1763,9 @@
               <button type="button" class="btn btn-default btn-sm" onclick="addFamIEC()" id="addECS"><i class="fa fa-plus-circle"></i> Save and Close</button>
               <button type="button" class="btn btn-warning btn-sm" onclick="addFamAECS()" id="addAECS"><i class="fa fa-plus-circle"></i> Save Data and Add New EC</button>
               <button type="button" class="btn btn-primary btn-sm" onclick="addFamCECS()" id="addCECS"><i class="fa fa-plus-circle"></i> Save Data and continue current EC</button>
-              <button type="button" class="btn btn-success btn-sm" onclick="addFamIECS()" id="addMECS"><i class="fa fa-plus-circle"></i> Save Data and continue with this municipality</button>
+              <!-- <?php if($_SESSION['user_level_access'] != "municipality"){ ?>
+              	<button type="button" class="btn btn-success btn-sm" onclick="addFamIECS()" id="addMECS"><i class="fa fa-plus-circle"></i> Save Data and continue with this municipality</button>
+              <?php } ?> -->
               <!-- <button type="button" class="btn btn-primary btn-sm" id="addCOECS"><i class="fa fa-pencil"></i> Clear Fields and Add Evacuees from Other Barangay with this EC</button> -->
 
               <button type="button" class="btn btn-warning btn-sm" id="updateECS"><i class="fa fa-pencil"></i> Update Data</button>
@@ -1577,6 +1974,45 @@
       </div>
 	</div>
 
+	<div id="adddfnds" title="Families Not Displaced Served">
+            <div class="modal-body">
+              <div class="row">
+              	<div class="form-group col-md-6">
+              		<label> <i style="color:red">*</i>  Select Province </label>
+              		<select class="form-control" id="addFNDSProv">
+              			<option value="">--- Select Province ---</option>
+              		</select>
+              	</div>
+				<div class="form-group col-md-6">
+              		<label> <i style="color:red">*</i> Select City/Municipality </label>
+              		<select class="form-control" id="addFNDSCity">
+              			<option value="">-- Select City/Municipality --</option>
+              		</select>
+              	</div>
+                <div class="form-group col-md-6">
+                  <label>*Families Served CUM</label>
+                  <input type="number" class="form-control" style="text-align:center" id="fndsfamcum">
+                </div>
+                <div class="form-group col-md-6">
+                  <label>*Families Served NOW</label>
+                  <input type="number" class="form-control" style="text-align:center" id="fndsfamnow">
+                </div>
+                <div class="form-group col-md-6">
+                  <label>*Persons Served CUM</label>
+                  <input type="number" class="form-control" style="text-align:center" id="fndspersoncum">
+                </div>
+                <div class="form-group col-md-6">
+                  <label>*Families Served NOW</label>
+                  <input type="number" class="form-control" style="text-align:center" id="fndspersonnow">
+                </div>
+              </div>
+	          <div class="modal-footer">
+	             <button type="button" class="btn btn-primary btn-sm" id="savefnds"><i class="fa fa-plus-circle"></i> Save Data</button>
+	             <button type="button" class="btn btn-danger btn-sm" id="deletefnds"><i class="fa fa-remove"></i> Delete Data</button>
+	          </div>
+          </div>
+	</div>
+
 	<div id="adddamageasst" title="Cost of Assistance Provided (LGU)">
             <div class="modal-body">
               <div class="row">
@@ -1588,7 +2024,7 @@
               	</div>
 				<div class="form-group col-md-6">
               		<label> <i style="color:red">*</i> Select City/Municipality </label>
-              		<select class="form-control" id="addDamcity">
+              		<select class="form-control" id="addDamcity" disabled="disabled">
               			<option value="">-- Select City/Municipality --</option>
               		</select>
               	</div>
@@ -1834,6 +2270,146 @@
           	<div class="col-sm-12" id="div_comment"></div>
         </div>
       </div>
+    </div>
+
+    <div id="infographic" title="Disaster Event Infographics" style="z-index: 1000">
+        <div class="modal-body">
+	        <div class="row article" style="height:750px; overflow: auto; border: 3px solid #DC143C; margin-top: 10px; background-color: #FFF; background-image : url('<?php echo base_url();?>assets/images/icons/typ.png')" id="captureinfographic">
+	        	<div style="background-color: #DC143C; width: 100%; vertical-align: middle; text-align: center; padding: 5px;" class="col-sm-12">
+	        		<!-- <img src="<?php echo base_url();?>assets/images/house.png" style="width: 100px; height: 100px; margin-left: -480px; position: absolute"> -->
+	        		<h4 style="color: #FFF"><strong><span id="infolgu">LOCAL GOVERNMENT UNIT OF BUTUAN CITY, AGUSAN DEL NORTE</span></strong></h4>
+	        		<h4 style="color: #FFF"><strong>DISASTER RESPONSE UPDATE</strong></h4>
+	        		<h1 style="color: #FFF"><strong><span id="info_dname"></span></strong></h1>
+	        		<h2 style="color: #FFF"><strong><span>UPDATE AS OF: </span> <span id="info_dasof"></span></strong></h2>
+	        	</div>
+
+	        	<div style="padding: 10px; margin-top: 5px;" class="col-sm-12">
+	        		<h4 style="color: #DC143C;"><span style="background-color: #FFF; padding: 5px"><strong>SITUATION OVERVIEW</strong></span></h4>
+	        		<span id="info_overview_txt" style="font-size: 14px; text-align: justify; text-justify: inter-word; font-weight: bold; color: #2F4F4F"></span>
+	        		<textarea class="form-control" id="info_overview_edit" placeholder="Enter situation overview here.."></textarea>
+	        	</div>
+
+	        	<div style="padding-left: 10px; margin-top: 10px;" class="col-sm-12">
+	        		<h4 style="color: #DC143C;"><span style="background-color: #FFF; padding: 5px"><strong>STATUS OF INTERNALLY DISPLACED PERSONS</strong></span></h4>
+	        		<center>
+		        		<div class="col-sm-12" style="margin-top: 5px">
+			        		<div class="col-sm-4">
+			        			<table>
+			        				<tr><td colspan="2"><center><h4><strong>AFFECTED <br>FAMILIES/PERSONS</strong></h4></center></td></tr>
+			        				<tr>
+			        					<td><img src="<?php echo base_url();?>assets/images/icons/fam.png" style="width: 75px; height: 75px;"></td>
+			        					<td style="text-align: right">
+			        						<h4 style="color: #FF4500">
+			        							<strong>
+			        								<span id="infotfam"></span><br>
+			        								<span id="infotperson"></span><br>
+			        								<span id="infotbrgy"></span>
+			        							</strong>
+			        						</h4>
+			        					</td>
+			        				</tr>
+			        			</table>
+			        		</div>
+			        		<div class="col-sm-4">
+			        			<table>
+			        				<tr><td colspan="2"><center><h4><strong>FAMILIES/PERSONS <br>INSIDE ECs</strong></h4></center></td></tr>
+			        				<tr>
+			        					<td><img src="<?php echo base_url();?>assets/images/icons/ec.png" style="width: 75px; height: 75px;"></td>
+			        					<td style="text-align: right">
+			        						<h4 style="color: #FF4500">
+			        							<strong>
+			        								<span id="infoifam"></span><br>
+			        								<span id="infoiperson"></span><br>
+			        								<span id="infoiec"></span>
+			        							</strong>
+			        						</h4>
+			        					</td>
+			        				</tr>
+			        			</table>
+			        		</div>
+			        		<div class="col-sm-4">
+			        			<table>
+			        				<tr><td colspan="2"><center><h4 id="infoohead"><strong>FAMILIES/PERSONS <br>OUTSIDE ECs</strong></h4></center></td></tr>
+			        				<tr>
+			        					<td><img src="<?php echo base_url();?>assets/images/icons/ec.png" style="width: 75px; height: 75px;" id="infoopic"></td>
+			        					<td style="text-align: right">
+			        						<h4 style="color: #FF4500" id="infootext">
+			        							<strong>
+			        								<span id="infoofam"></span><br>
+			        								<span id="infooperson"></span><br>
+			        							</strong>
+			        						</h4>
+			        					</td>
+			        				</tr>
+			        			</table>
+			        		</div>
+			        	</div>
+		        	</center>
+	        	</div>
+
+	        	<div style="padding: 10px; margin-top: 0px;" class="col-sm-12">
+	        		<h4 style="color: #DC143C;"><span style="background-color: #FFF; padding: 5px"><strong>STATUS OF DAMAGED HOUSES AND ASSISTANCE PROVIDED</strong></span></h4>
+	        		<div class="col-sm-6">
+	        			<center>
+		        			<table>
+		        				<tr><td colspan="2"><center><h4><strong>DAMAGED <br>HOUSES</strong></h4></center></td></tr>
+		        				<tr>
+		        					<td><img src="<?php echo base_url();?>assets/images/icons/dam.png" style="width: 75px; height: 75px;"></td>
+		        					<td style="text-align: right">
+		        						<h4 style="color: #FF4500" id="infootext">
+		        							<strong>
+		        								<span id="infotdam"></span><br>
+		        								<span id="infopdam"></span><br>
+		        							</strong>
+		        						</h4>
+		        					</td>
+		        				</tr>
+		        			</table>
+		        		</center>
+	        		</div>
+	        		<div class="col-sm-6">
+	        			<center>
+		        			<table>
+		        				<tr><td colspan="2"><center><h4><strong>ASSISTANCE <br>PROVIDED</strong></h4></center></td></tr>
+		        				<tr>
+		        					<td><img src="<?php echo base_url();?>assets/images/icons/food.png" style="width: 75px; height: 75px;"></td>
+		        					<td style="text-align: right">
+		        						<h4 style="color: #FF4500">
+		        							<strong>
+		        								<span id="infoamount"></span><br>
+		        							</strong>
+		        						</h4>
+		        					</td>
+		        				</tr>
+		        			</table>
+	        			</center>
+	        		</div>
+	        	</div>
+
+	        	<div style="padding: 10px; margin-top: -20px" class="col-sm-12">
+	        		<h5 class="pull-right" style="color: #FF4500">
+	        			<i><strong> *Note: Information presented in this infographic is based on the latest data capture. Assessment and validation is still on-going</strong></i>
+	        		</h5>
+	        	</div>
+
+	        	<div style="padding: 10px; margin-top: -30px" class="col-sm-12">
+	        		<h6 style="color: #DC143C; background-color: #DC143C; font-size: 7px"> </h6>
+	        		<div class="col-sm-6 pull-right">
+	        			<center>
+	        				<img src="<?php echo base_url();?>assets/images/dromic.jpg" style="width: 200px; height: 50px; background-color: #fff; padding: 5px; display: inline">
+		        			<img src="<?php echo base_url();?>assets/images/dswd1.png" style="width: 200px; height: 50px; background-color: #fff; padding: 5px; display: inline">
+		        		</center>
+	        		</div>
+	        		<!-- <div class="col-sm-6 pull-right" style="vertical-align: middle">
+	        			<h4 style="color: #DC143C; background-color: #fff; padding: 5px"><strong>LOCAL GOVERNMENT UNIT OF BUTUAN CITY <br> AGUSAN DEL NORTE</strong></h4>
+	        		</div> -->
+	        	</div>
+
+	        </div>
+	        <div class="row col-sm-12" style="padding-top: 10px">
+	        	<button class="btn btn-primary pull-right" onclick="screenshot();">Capture Infographic and Save</button>
+	        </div>
+        </div>
     </div>
 
     <div id="addNarrativeModal" title="Attach a Narrative Report">

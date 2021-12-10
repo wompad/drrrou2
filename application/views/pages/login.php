@@ -3,11 +3,8 @@
     session_start();
 
     if(isset($_SESSION['username'])){
-    ?>
-        <script>
-          window.location.href = window.location.protocol + "//" + document.location.host + "/drrrou2/login";
-        </script>
-    <?php }
+      redirect("dashboard");
+    }
 
 ?>
 
@@ -153,12 +150,17 @@
               <div>
                 <input type="password" class="form-control" placeholder="Password" name="password"  id="password" />
               </div>
+              
               <div>
                 <button type="button" class="btn form-control btn-success" id="btnlogin">Log in</button>
               </div>
 
               <div>
                 <button type="button" class="btn form-control btn-warning" id="btnsignup">Don't have an account? <u>Sign up</u></button>
+              </div>
+
+              <div class="pull-right">
+                <label><a href="<?php echo base_url(); ?>cpassword">Forgot Password?</a></label>
               </div>
 
               <div class="clearfix"></div>
@@ -170,7 +172,7 @@
                 <div>
                   <h1><img src="<?php echo base_url();?>images/dreamblogoweb.png" style="width:45px; height:40px"> DSWD DRMD - Caraga</h1>
                   <h5>Contact DSWD Caraga: 342-5619 local 238</h5>
-                  <h5>Email Address: drrroufocaraga@gmail.com</h5>
+                  <h5>Email Address: drmd.focrg@dswd.gov.ph</h5>
                   <p>Copyright ©<?= date("Y") ?> DSWD DRMD - Caraga. All Rights Reserved. Privacy Policy.</p>
                 </div>
               </div>
@@ -183,7 +185,7 @@
         <div class="animate form login_form">
           <section class="login_content">
             <form id="formsignup">
-              <h1>Singup Form</h1>
+              <h1>Signup Form</h1>
               <div>
                 <input type="text" class="form-control" placeholder="* Firstname" id="firstname"/>
               </div>
@@ -460,9 +462,16 @@
 
       })
 
+      function validateEmail(email) {
+        var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(email);
+      }
+
+      function validateNumber(number){
+        return number.match(/^\d{11}$/g)
+      }
+
       $('#signup').click(function(){
-
-
 
         var datas = {
           data : {
@@ -500,35 +509,50 @@
 
             }else{
 
-              $.getJSON(serverip+"signup_user",datas,function(a){  
-                  if(a == 1){
+              if(!validateEmail($('#emailaddress').val())){
 
-                    msgboxsuccess("User account successfully created. Wait for the administrator to activate your account before logging in. Thanks!");
+                msgbox("Kindly provide a valid email address");
 
-                    $('#firstname').val("");
-                    $('#middlename').val("");
-                    $('#lastname').val("");
-                    $('#province').val("");
-                    $('#municipality').val("");
-                    $('#address').val("");
-                    $('#agency').val("");
-                    $('#position').val("");
-                    $('#emailaddress').val("");
-                    $('#mobile').val("");
-                    $('#xusername').val("");
-                    $('#xpassword').val("");
-                    $('#xcpassword').val("");
+              }else{
 
-                  }else if(a == 2){
+                if(!validateNumber($('#mobile').val())){
 
-                    msgbox("Username already exist!");
+                  msgbox("Kindly provide a valid mobile number format(09XXXXXXXXX)");
 
-                  }else{
+                }else{
 
-                    msgbox("Ooops! Something went wrong while trying to save your account.");
+                  $.getJSON(serverip+"signup_user",datas,function(a){  
+                      if(a == 1){
 
-                  }
-              });
+                        msgboxsuccess("User account successfully created. Wait for the administrator to activate your account before logging in. Thanks!");
+
+                        $('#firstname').val("");
+                        $('#middlename').val("");
+                        $('#lastname').val("");
+                        $('#province').val("");
+                        $('#municipality').val("");
+                        $('#address').val("");
+                        $('#agency').val("");
+                        $('#position').val("");
+                        $('#emailaddress').val("");
+                        $('#mobile').val("");
+                        $('#xusername').val("");
+                        $('#xpassword').val("");
+                        $('#xcpassword').val("");
+
+                      }else if(a == 2){
+
+                        msgbox("Username already exist!");
+
+                      }else{
+
+                        msgbox("Ooops! Something went wrong while trying to save your account.");
+
+                      }
+                  });
+
+                }
+              }
 
             }
 

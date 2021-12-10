@@ -364,7 +364,7 @@
                   <li class="active"><a><i class="fa fa-table"></i> Operation Center<span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu" style="display:block">
                       <?php if($_SESSION['can_create_report'] == 't'){ ?> <li><a href="<?php echo base_url(); ?>dromic_new">Add New | View DROMIC Report</a></li> <?php } ?>
-                      <?php if($_SESSION['regionid'] == '160000000') { ?>
+                      <?php if($_SESSION['regionid'] == '160000000' && $_SESSION['issuperadmin'] == "t" && ($_SESSION['user_level_access'] == "region")) { ?>
                         <li><a href="<?php echo base_url(); ?>eopcen">Virtual OpCen <span class="badge" style="background-color:#D9534F" id="counteopcen"> </span> </a></li>
                         <li><a href="<?php echo base_url(); ?>inbox2">Messages (Inbox) </a></li>
                       <?php } ?>
@@ -374,7 +374,7 @@
                     </ul>
                   </li>
                   <?php 
-                      if($_SESSION['regionid'] == "160000000"){?>
+                      if($_SESSION['regionid'] == "160000000" && $_SESSION['issuperadmin'] == "t" && ($_SESSION['user_level_access'] == "region")){?>
                         <li class="active"><a><i class="fa fa-phone"></i> My Contact List <span class="fa fa-chevron-down"></span></a>
                           <ul class="nav child_menu" style="display:block">
                             <li><a href="<?php echo base_url(); ?>home">C/MSWDO Contacts</a></li>
@@ -383,12 +383,12 @@
                         </li>
                      <?php } ?>
                   <?php 
-                      if($_SESSION['isadmin'] == "t" && $_SESSION['regionid'] == "160000000"){?>
-                  <li class="active"><a><i class="fa fa-map-o"></i> Web Map Application <span class="fa fa-chevron-down"></span></a>
+                      if($_SESSION['issuperadmin'] == "t" && $_SESSION['regionid'] == "160000000" && ($_SESSION['user_level_access'] == "region")){?>
+                  <!-- <li class="active"><a><i class="fa fa-map-o"></i> Web Map Application <span class="fa fa-chevron-down"></span></a>
                     <ul class="nav child_menu" style="display:block">
                       <li><a href="<?php echo base_url(); ?>webmap">View Map</a></li>
                     </ul>
-                  </li>
+                  </li> -->
                   <li class='active'><a><i class='fa fa-th'></i> Reports <span class='fa fa-chevron-down'></span></a>
                     <ul class='nav child_menu' style='display:block'>
                       <li><a href='<?php echo base_url(); ?>addreliefassistance'>Add Relief Assistance</a></li>
@@ -405,7 +405,7 @@
                   <li class='active'><a><i class='fa fa-users'></i> Tools <span class='fa fa-chevron-down'></span></a>
                     <ul class='nav child_menu' style='display:block'>
                       <?php 
-                      if($_SESSION['issuperadmin'] == "t"){?>
+                      if($_SESSION['regionid'] == "160000000" && $_SESSION['issuperadmin'] == "t" && ($_SESSION['user_level_access'] == "region")){?>
                       <li><a href='<?php echo base_url(); ?>mobile_user_activation'>Activate Mobile Users</a></li>
                       <?php } ?>
                       <?php 

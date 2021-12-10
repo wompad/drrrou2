@@ -71,6 +71,8 @@
 
 <script src="<?php echo base_url();?>assets/autocomplete/jquery.auto-complete.js" type="text/javascript" charset="utf-8"></script>
 
+<script src="<?php echo base_url();?>assets/js/html2canvas.js"></script>
+
 <script src="<?php echo base_url();?>assets/introjs/introjs.js"></script>
 
 <script src="<?php echo base_url();?>assets/js/custom_user.js"></script>

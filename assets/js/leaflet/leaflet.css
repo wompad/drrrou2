@@ -341,6 +341,7 @@
 	box-shadow: 0 1px 5px rgba(0,0,0,0.4);
 	background: #fff;
 	border-radius: 5px;
+	text-align: left;
 	}
 .leaflet-control-layers-toggle {
 	background-image: url(images/layers.png);
@@ -367,6 +368,7 @@
 	padding: 6px 10px 6px 6px;
 	color: #333;
 	background: #fff;
+	text-align: left;
 	}
 .leaflet-control-layers-scrollbar {
 	overflow-y: scroll;
@@ -380,6 +382,7 @@
 	}
 .leaflet-control-layers label {
 	display: block;
+	text-align: left;
 	}
 .leaflet-control-layers-separator {
 	height: 0;

@@ -76,9 +76,9 @@ $query_builder = TRUE;
 $host = gethostbyname($_SERVER['SERVER_NAME']);
 
 $db['default'] = array(
-	'dsn'	=> "pgsql:host=172.26.158.239;port=5432;dbname=drrrou_db2",
+	'dsn'	=> "pgsql:host=localhost;port=5432;dbname=drrrou_db2",
 	'hostname' => 'localhost',
-	'username' => 'jlompad',
+	'username' => 'postgres',
 	'password' => 'dswd123$',
 	'database' => '',
 	'dbdriver' => 'pdo',
@@ -96,3 +96,5 @@ $db['default'] = array(
 	'failover' => array(),
 	'save_queries' => TRUE
 );
+
+

@@ -46,9 +46,56 @@
                 <div class="col-sm-12">
                     <input type="checkbox" id="iscancreatepriv"/> Can Create Report?
                 </div>
-                <div class="col-sm-12">
-                    <input type="checkbox" id="isdswd"/> Can add/update DSWD Assistance?
+                <?php
+                  if($_SESSION["user_level_access"] == 'region'){
+                ?>
+                  <div class="col-sm-12">
+                      <input type="checkbox" id="isdswd"/> Can add/update DSWD Assistance?
+                  </div>
+                <?php
+                  }
+                ?>
+                <div class="col-sm-6">
+                    <br>
+                    <label>User Access Level</label>
+                    <select class="form-control" id="sel_user_level_access">
+                      <?php
+                        if($_SESSION["user_level_access"] == 'national'){
+                      ?>
+                        <option value='national'>National</option>
+                        <option value='region'>Region</option>
+                        <option value='province'>Province</option>
+                        <option value='municipality'>Municipality</option>
+                      <?php
+                        }else if($_SESSION["user_level_access"] == 'region'){
+                      ?>
+                        <option value='region'>Region</option>
+                        <option value='province'>Province</option>
+                        <option value='municipality'>Municipality</option>
+                      <?php
+                        }else if($_SESSION["user_level_access"] == 'province'){
+                      ?>  
+                        <option value='province'>Province</option>
+                        <option value='municipality'>Municipality</option>
+                      <?php 
+                        }else if($_SESSION["user_level_access"] == 'municipality'){
+                      ?>
+                        <option value='municipality'>Municipality</option>    
+                      <?php 
+                        } 
+                      ?>
+                    </select>
                 </div>
+                <?php 
+                  if($_SESSION['issuperadmin'] == "t"){
+                ?>
+                  <div class="col-sm-12">
+                      <br>
+                      <input type="checkbox" id="issuperadminpriv"/> Grant Superadmin Control?
+                  </div>
+                <?php
+                  }
+                ?>
                 <div class="col-sm-12">
                   <br>
                   <button type="button" class="btn btn-primary btn-sm pull-right" id="btnsaveswebactivation" onclick="continueWebActivation();"><span class="fa fa-save"></span> Save </button>
