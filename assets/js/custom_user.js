@@ -2359,7 +2359,7 @@ function get_dromic(n){
 
 
 		$('#saveasnewrecord').hide();
-		$('#addfamiecs').hide();
+		$('#addfamiec').hide();
 		$('#adddamass').hide();
 		$('#addfamoec').hide();
 		$('#addcasualtybtn').hide();
@@ -2405,7 +2405,7 @@ function get_dromic(n){
 					if(a == 0){
 
 						$('#saveasnewrecord').hide();
-						$('#addfamiecs').hide();
+						$('#addfamiec').hide();
 						$('#adddamass').hide();
 						$('#addfamoec').hide();
 						$('#addcasualtybtn').hide();
@@ -2422,7 +2422,7 @@ function get_dromic(n){
 					}else{
 
 						$('#saveasnewrecord').show();
-						$('#addfamiecs').show();
+						$('#addfamiec').show();
 						$('#adddamass').show();
 						$('#addfamoec').show();
 						$('#addcasualtybtn').show();
@@ -2566,6 +2566,8 @@ function get_dromic(n){
 						$('#asoftime_IEC').text("Time: " + rs.query_title[qt].asoftime);
 						$('#disastertype_IEC').text('Disaster Type: ' + rs.query_title[qt].disaster_name);
 						$('#disasterdate_IEC').text('Date of Occurence: ' + todate(rs.query_title[qt].disaster_date));
+
+
 
 						$('#sum_asofdate_IEC').text("As of " + todate(rs.query_title[qt].ddate));
 						$('#sum_asoftime_IEC').text("Time: " + rs.query_title[qt].asoftime);
@@ -8852,8 +8854,6 @@ function get_dromic(n){
 			// End Master Query ===================================================================================================================================================
 				},2000);
 
-
-
 			}
 
 
@@ -8882,7 +8882,7 @@ function get_dromic(n){
 
 
 		$('#saveasnewrecord').hide();
-		$('#addfamiecs').hide();
+		$('#addfamiec').hide();
 		$('#adddamass').hide();
 		$('#addfamoec').hide();
 		$('#addcasualtybtn').hide();
@@ -8927,7 +8927,7 @@ function get_dromic(n){
 					if(a == 0){
 
 						$('#saveasnewrecord').hide();
-						$('#addfamiecs').hide();
+						$('#addfamiec').hide();
 						$('#adddamass').hide();
 						$('#addfamoec').hide();
 						$('#addcasualtybtn').hide();
@@ -8943,7 +8943,7 @@ function get_dromic(n){
 					}else{
 
 						$('#saveasnewrecord').show();
-						$('#addfamiecs').show();
+						$('#addfamiec').show();
 						$('#adddamass').show();
 						$('#addfamoec').show();
 						$('#addcasualtybtn').show();
@@ -9256,9 +9256,39 @@ function get_dromic(n){
 
 									if(rs.city[n].provinceid == provinces[i].id){
 
-
-										console.log(provinces[i]);
 										$('#infolgu').empty().append("LOCAL GOVERNMENT UNIT OF " + rs.city[n].municipality_name.toUpperCase() + ", " + provinces[i].name.toUpperCase());
+
+										$('#loc1').text("REPUBLIC OF THE PHILIPPINES");
+
+										$('#loc2').text("PROVINCE OF "+provinces[i].name.toUpperCase());
+
+										$('#loc3').text("LOCAL GOVERNMENT UNIT OF "+rs.city[n].municipality_name.toUpperCase());
+
+										$('#loc4').text("");
+
+										$('#locec1').text("REPUBLIC OF THE PHILIPPINES");
+
+										$('#locec2').text("PROVINCE OF "+provinces[i].name.toUpperCase());
+
+										$('#locec3').text("LOCAL GOVERNMENT UNIT OF "+rs.city[n].municipality_name.toUpperCase());
+
+										$('#locec4').text("");
+
+										$('#locoec1').text("REPUBLIC OF THE PHILIPPINES");
+
+										$('#locoec2').text("PROVINCE OF "+provinces[i].name.toUpperCase());
+
+										$('#locoec3').text("LOCAL GOVERNMENT UNIT OF "+rs.city[n].municipality_name.toUpperCase());
+
+										$('#locoec4').text("");
+
+										$('#locd1').text("REPUBLIC OF THE PHILIPPINES");
+
+										$('#locd2').text("PROVINCE OF "+provinces[i].name.toUpperCase());
+
+										$('#locd3').text("LOCAL GOVERNMENT UNIT OF "+rs.city[n].municipality_name.toUpperCase());
+
+										$('#locd4').text("");
 
 										var fam_cum = "";
 										var fam_now = "";
@@ -18654,83 +18684,88 @@ $('#toexcel7').click(function(){
 
 $('#addfamiec').click(function(){
 
-	$('#addfaminsideEC').dialog("open");
+	if($('#can_edit').text() == "t"){
 
-	updateEC_rightclick = 0;
+		$('#addfaminsideEC').dialog("open");
 
-	if($('#user_level_access_session').text() == 'region' || $('#user_level_access_session').text() == 'national'){
+		updateEC_rightclick = 0;
 
-		$('#addfaminsideECprov').val('');
-		$('#addfaminsideECcity').val('');
+		if($('#user_level_access_session').text() == 'region' || $('#user_level_access_session').text() == 'national'){
 
-		$('#brgylocated_ec').empty();
-		$('#ecplaceorigin').empty();
+			$('#addfaminsideECprov').val('');
+			$('#addfaminsideECcity').val('');
 
-		$('#ecplaceorigin').select2({
-		        placeholder: "Select Barangay",
-		        allowClear: true
-		}); 
+			$('#brgylocated_ec').empty();
+			$('#ecplaceorigin').empty();
 
-		$('#brgylocated_ec').select2({
-		        placeholder: "Select Barangay",
-		        allowClear: true
-		});
+			$('#ecplaceorigin').select2({
+					placeholder: "Select Barangay",
+					allowClear: true
+			}); 
 
-	}else if($('#user_level_access_session').text() == 'province'){
-		$('#addfaminsideECcity').val('');
+			$('#brgylocated_ec').select2({
+					placeholder: "Select Barangay",
+					allowClear: true
+			});
 
-		$('#brgylocated_ec').empty();
+		}else if($('#user_level_access_session').text() == 'province'){
+			$('#addfaminsideECcity').val('');
 
-		$('#brgylocated_ec').select2({
-		        placeholder: "Select Barangay",
-		        allowClear: true
-		});
+			$('#brgylocated_ec').empty();
 
+			$('#brgylocated_ec').select2({
+					placeholder: "Select Barangay",
+					allowClear: true
+			});
+
+		}
+
+		$('#ecplaceorigin').select2('val',''); 
+
+		$('#brgylocated_ec').select2('val',''); 
+
+		$('#headertitle').empty().append("Add");
+		$('#updateECS').hide();	
+		
+		
+		$('#ecicum').val('');
+		$('#ecinow').val('');
+		$('#ecname').val('');
+		$('#ecfamcum').val('');
+		$('#ecfamnow').val('');
+		$('#ecpercum').val('');
+		$('#ecpernow').val('');
+		$('#ecplaceorigin').val('');
+		$('#ecplaceorigin1').val('');
+		$('#ecistatus').val('');
+		$('#ec4ps').val(''); 
+
+		$('#addfaminsideECprov').prop("disabled",!1);
+		$('#addfaminsideECcity').prop("disabled",!1);
+		//$('#ecplaceorigin').prop("disabled",1);
+		$('#ecname').prop("disabled",!1);
+
+		$('#addECS').show();
+		$('#addMECS').show();
+
+		$('#addAECS').show();
+		$('#addCECS').show();
+
+		$('#deleteECS').hide();
+		$('#clearECS').hide();
+
+		// $('#ecicum').prop('disabled', false);
+		// $('#ecinow').prop('disabled', false);
+		$('#ecistatus').prop('disabled', false);
+
+		$('#eccum').show();
+		$('#ecnow').show();
+		$('#ecstatus').show();
+
+		$('#brgylocated_ec').prop('disabled', false);
+	}else{
+		msgbox("You are not allowed to add entries to this report. Please contact the administrator");
 	}
-
-	$('#ecplaceorigin').select2('val',''); 
-
-	$('#brgylocated_ec').select2('val',''); 
-
-	$('#headertitle').empty().append("Add");
-	$('#updateECS').hide();	
-	
-	
-	$('#ecicum').val('');
-	$('#ecinow').val('');
-	$('#ecname').val('');
-	$('#ecfamcum').val('');
-	$('#ecfamnow').val('');
-	$('#ecpercum').val('');
-	$('#ecpernow').val('');
-	$('#ecplaceorigin').val('');
-	$('#ecplaceorigin1').val('');
-	$('#ecistatus').val('');
-	$('#ec4ps').val(''); 
-
-	$('#addfaminsideECprov').prop("disabled",!1);
-	$('#addfaminsideECcity').prop("disabled",!1);
-	//$('#ecplaceorigin').prop("disabled",1);
-	$('#ecname').prop("disabled",!1);
-
-	$('#addECS').show();
-	$('#addMECS').show();
-
-	$('#addAECS').show();
-	$('#addCECS').show();
-
-	$('#deleteECS').hide();
-	$('#clearECS').hide();
-
-	// $('#ecicum').prop('disabled', false);
-	// $('#ecinow').prop('disabled', false);
-	$('#ecistatus').prop('disabled', false);
-
-	$('#eccum').show();
-	$('#ecnow').show();
-	$('#ecstatus').show();
-
-	$('#brgylocated_ec').prop('disabled', false);
 
 })
 
@@ -20113,8 +20148,9 @@ $('#clearECS').click(function(){
 	$('#addMECS').show();
 
 	$("#ecplaceorigin option:selected").prop("selected", false);
+	
 	$('#ecistatus').prop('disabled', true);
-	$("#ecplaceorigin").empty();
+
 	$('#ecplaceorigin').select2({
 	        placeholder: "Select Barangay",
 	        allowClear: true
@@ -22041,15 +22077,15 @@ $('#newreporttime').mask('00:00 AA');
 $('#newreportdate').mask('0000-00-00')
 
 // $('#ecicum').mask('1');
-$('#ecinow').mask('0');
+// $('#ecinow').mask('0');
 
-$('#ecinow').keyup(function(){
+// $('#ecinow').keyup(function(){
 
-	if($(this).val() > 1){
-		$(this).val("");
-	}
+// 	if($(this).val() > 1){
+// 		$(this).val("");
+// 	}
 
-})
+// })
 
 function getquake(){
 

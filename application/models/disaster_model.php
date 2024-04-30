@@ -7710,9 +7710,6 @@ class disaster_model extends CI_Model{
 					$totally_damaged_tot 	= (int) $data['asst'][0]['totally_damaged'] - (int) $totally_damaged;
 					$partially_damaged_tot 	= (int) $data['asst'][0]['partially_damaged'] - (int) $partially_damaged;
 
-					$q3 = $this->db->where('id',$asstid);
-					$q3 = $this->db->update('tbl_casualty_asst',$dataup);
-
 				}
 
 				$q2_1 = $this->db->where('id',$id);
@@ -7746,6 +7743,9 @@ class disaster_model extends CI_Model{
 					'partially_damaged' => $partially_damaged_tot,
 					'brgy_id' 			=> $brgys2
 				);
+
+				$q3 = $this->db->where('id',$asstid);
+				$q3 = $this->db->update('tbl_casualty_asst',$dataup);
 
 				$this->db->trans_commit();
 				return 1;

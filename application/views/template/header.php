@@ -368,8 +368,8 @@
                           <a href="<?php echo base_url(); ?>dromic_new">Add New | View DROMIC Report</a>
                           </li> <?php } ?>
                       <?php if($_SESSION['regionid'] == '160000000' && $_SESSION['issuperadmin'] == "t" && ($_SESSION['user_level_access'] == "region")) { ?>
-                        <li><a href="<?php echo base_url(); ?>eopcen">Virtual OpCen <span class="badge" style="background-color:#D9534F" id="counteopcen"> </span> </a></li>
-                        <li><a href="<?php echo base_url(); ?>inbox2">Messages (Inbox) </a></li>
+                        <!-- <li><a href="<?php echo base_url(); ?>eopcen">Virtual OpCen <span class="badge" style="background-color:#D9534F" id="counteopcen"> </span> </a></li> -->
+                        <!-- <li><a href="<?php echo base_url(); ?>inbox2">Messages (Inbox) </a></li> -->
                       <?php } ?>
                       <li><a href="<?php echo base_url(); ?>weatherimage">Latest Weather Forecast</a></li>
                       <li><a href="<?php echo base_url(); ?>weatherradar">Weather Radar Image</a></li>
@@ -378,12 +378,12 @@
                   </li>
                   <?php 
                       if($_SESSION['regionid'] == "160000000" && $_SESSION['issuperadmin'] == "t" && ($_SESSION['user_level_access'] == "region")){?>
-                        <li class="active"><a><i class="fa fa-phone"></i> My Contact List <span class="fa fa-chevron-down"></span></a>
+                        <!-- <li class="active"><a><i class="fa fa-phone"></i> My Contact List <span class="fa fa-chevron-down"></span></a>
                           <ul class="nav child_menu" style="display:block">
                             <li><a href="<?php echo base_url(); ?>home">C/MSWDO Contacts</a></li>
                             <li><a href="<?php echo base_url(); ?>cmatleaders">CMAT/PAT Contacts</a></li>
                           </ul>
-                        </li>
+                        </li> -->
                      <?php } ?>
                   <?php 
                       if($_SESSION['issuperadmin'] == "t" && $_SESSION['regionid'] == "160000000" && ($_SESSION['user_level_access'] == "region")){?>
@@ -399,17 +399,17 @@
                       <li><a href='<?php echo base_url(); ?>congressional'>Congressional Report</a></li>
                     </ul>
                   </li>
-                  <li class='active'><a><i class='fa fa-users'></i> User Management <span class='fa fa-chevron-down'></span></a>
+                  <!-- <li class='active'><a><i class='fa fa-users'></i> User Management <span class='fa fa-chevron-down'></span></a>
                     <ul class='nav child_menu' style='display:block'>
                       <li><a href='<?php echo base_url(); ?>qrt_teams'>QRT Teams</a></li>
                     </ul>
-                  </li>
+                  </li> -->
                   <?php } } ?>
                   <li class='active'><a><i class='fa fa-users'></i> Tools <span class='fa fa-chevron-down'></span></a>
                     <ul class='nav child_menu' style='display:block'>
                       <?php 
                       if($_SESSION['regionid'] == "160000000" && $_SESSION['issuperadmin'] == "t" && ($_SESSION['user_level_access'] == "region")){?>
-                      <li><a href='<?php echo base_url(); ?>mobile_user_activation'>Activate Mobile Users</a></li>
+                      <li><!-- <a href='<?php echo base_url(); ?>mobile_user_activation'>Activate Mobile Users</a></li> -->
                       <?php } ?>
                       <?php 
                       if($_SESSION['issuperadmin'] == "t"){?>

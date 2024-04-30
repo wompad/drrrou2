@@ -421,18 +421,17 @@
 			    <div class="col-md-12" style="padding: 0px; width: 2000px" id="tbl_masterquery_revs">
 			    	<table style="width:100%; font-size: 11px" id="tbl_masterquery_revss_munis" class="tbl_masterquery_revs">
 			    		<thead>
-
 			    			<tr>
-		    					<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20">Department of Social Welfare and Development</th>
+		    					<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20" id="loc1">Department of Social Welfare and Development</th>
 			    			</tr>
 			    			<tr>
-			    				<th style="text-align:left; color: #000;" colspan="20"><b>DISASTER RESPONSE, OPERATIONS, MONITORING AND INFORMATION CENTER</b></th>
+			    				<th style="text-align:left; color: #000;" colspan="20" id="loc2"><b>DISASTER RESPONSE, OPERATIONS, MONITORING AND INFORMATION CENTER</b></th>
 			    			</tr>
 			    			<tr>
-			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20">Batasan Pambansa Complex, Constitution Hills</th>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20" id="loc3">Batasan Pambansa Complex, Constitution Hills</th>
 			    			</tr>
 			    			<tr>
-			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20">Quezon City</th>
+			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20" id="loc4">Quezon City</th>
 			    			</tr>
 			    			<tr>
 			    				<th style="text-align:left; font-weight:lighter; color: #000;" colspan="20"><br></th>
@@ -764,16 +763,16 @@
 	    		<table style="width:100%;" id="tbl_evac_statss">
 		    		<thead>
 		    			<tr>
-		    				<th style="text-align:center; font-weight:lighter; color: #000">Department of Social Welfare and Development</th>
+		    				<th style="text-align:center; font-weight:lighter; color: #000" id="locec1">Department of Social Welfare and Development</th>
 		    			</tr>
 		    			<tr>
-		    				<th style="text-align:center; color: #000"><b>DISASTER RESPONSE, OPERATIONS, MONITORING AND INFORMATION CENTER</b></th>
+		    				<th style="text-align:center; color: #000" id="locec2"><b>DISASTER RESPONSE, OPERATIONS, MONITORING AND INFORMATION CENTER</b></th>
 		    			</tr>
 		    			<tr>
-		    				<th style="text-align:center; font-weight:lighter; color: #000">Batasan Pambansa Complex, Constitution Hills</th>
+		    				<th style="text-align:center; font-weight:lighter; color: #000" id="locec3">Batasan Pambansa Complex, Constitution Hills</th>
 		    			</tr>
 		    			<tr>
-		    				<th style="text-align:center; font-weight:lighter; color: #000">Quezon City</th>
+		    				<th style="text-align:center; font-weight:lighter; color: #000" id="locec4">Quezon City</th>
 		    			</tr>
 		    			<tr>
 		    				<th style="text-align:center; font-weight:lighter; color: #000"><br></th>
@@ -883,16 +882,16 @@
 		    <table style="width:100%;" id="tbl_evacuation_stats_outsides">
 	    		<thead>
 	    			<tr>
-	    				<th style="text-align:center; font-weight:lighter">Department of Social Welfare and Development</th>
+	    				<th style="text-align:center; font-weight:lighter" id="locoec1">Department of Social Welfare and Development</th>
 	    			</tr>
 	    			<tr>
-	    				<th style="text-align:center;"><b>DISASTER RESPONSE, OPERATIONS, MONITORING AND INFORMATION CENTER</b></th>
+	    				<th style="text-align:center;" id="locoec2"><b>DISASTER RESPONSE, OPERATIONS, MONITORING AND INFORMATION CENTER</b></th>
 	    			</tr>
 	    			<tr>
-	    				<th style="text-align:center; font-weight:lighter">Batasan Pambansa Complex, Constitution Hills</th>
+	    				<th style="text-align:center; font-weight:lighter" id="locoec3">Batasan Pambansa Complex, Constitution Hills</th>
 	    			</tr>
 	    			<tr>
-	    				<th style="text-align:center; font-weight:lighter">Quezon City</th>
+	    				<th style="text-align:center; font-weight:lighter" id="locoec4">Quezon City</th>
 	    			</tr>
 	    			<tr>
 	    				<th style="text-align:center; font-weight:lighter"><br></th>
@@ -1090,16 +1089,16 @@
 		    	<table style="width:100%;" id="tbl_damage_assistances">
 		    		<thead>
 		    			<tr>
-		    				<th style="text-align:center; font-weight:lighter; color: #000">Department of Social Welfare and Development</th>
+		    				<th style="text-align:center; font-weight:lighter; color: #000" id="locd1">Department of Social Welfare and Development</th>
 		    			</tr>
 		    			<tr>
-		    				<th style="text-align:center; color: #000"><b>DISASTER RESPONSE, OPERATIONS, MONITORING AND INFORMATION CENTER</b></th>
+		    				<th style="text-align:center; color: #000" id="locd2"><b>DISASTER RESPONSE, OPERATIONS, MONITORING AND INFORMATION CENTER</b></th>
 		    			</tr>
 		    			<tr>
-		    				<th style="text-align:center; font-weight:lighter; color: #000">Batasan Pambansa Complex, Constitution Hills</th>
+		    				<th style="text-align:center; font-weight:lighter; color: #000" id="locd3">Batasan Pambansa Complex, Constitution Hills</th>
 		    			</tr>
 		    			<tr>
-		    				<th style="text-align:center; font-weight:lighter; color: #000">Quezon City</th>
+		    				<th style="text-align:center; font-weight:lighter; color: #000" id="locd4">Quezon City</th>
 		    			</tr>
 		    			<tr>
 		    				<th style="text-align:center; font-weight:lighter; color: #000"><br></th>
@@ -1706,7 +1705,7 @@
 				  		this.setSelectionRange(start, end);">
           	</div>
           	<div class="form-group col-md-12">
-          		<label> <i style="color:red">*</i>  Barangay Located (Evacuation Center) </label>
+          		<label> <i style="color:red">*</i>  Barangay Located/Affected (Evacuation Center) </label>
           		<select id="brgylocated_ec" style="width: 100%;">
           			<option value="">Select Barangay</option>
           		</select>
